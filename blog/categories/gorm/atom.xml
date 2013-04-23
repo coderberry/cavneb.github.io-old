@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: GORM | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/gorm/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: GORM | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/gorm/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Multi-Associative GORM Criteria with Projections]]></title>
-    <link href="http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/"/>
+    <link href="http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/"/>
     <updated>2011-03-29T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections</id>
+    <id>http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections</id>
     <content type="html"><![CDATA[<p>I have three domain classes: Lead, Submission and BuyerLog:</p>
 
 <p>``` java

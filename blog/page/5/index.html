@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Bunny RabbitMQ - coderberry</title>
+  <title>coderberry</title>
   <meta name="author" content="Eric Berry">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://coderberry.me/blog/2011/08/09/bunny-rabbitmq">
+  <link rel="canonical" href="http://coderberry.me/blog/page/5">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
@@ -73,12 +73,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div>
-<article class="hentry" role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
     
-      <h1 class="entry-title">Bunny RabbitMQ</h1>
+      <h1 class="entry-title"><a href="/blog/2011/08/09/bunny-rabbitmq/">Bunny RabbitMQ</a></h1>
     
     
       <p class="meta">
@@ -96,14 +99,14 @@
 
 <time datetime="2011-08-09T00:00:00-06:00" pubdate data-updated="true">Aug 9<span>th</span>, 2011</time>
         
-         | <a href="#disqus_thread">Comments</a>
+         | <a href="/blog/2011/08/09/bunny-rabbitmq/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p><img src="/images/posts/crazy-rabbit.jpg"></p>
+  <div class="entry-content"><p><img src="/images/posts/crazy-rabbit.jpg"></p>
 
 <p>Recently I was asked to implement <a href="https://github.com/defunkt/resque">Redis/Resque</a> into an existing project that already had Redis up and running with another Redis server. This ended up being a lot more difficult than I had anticipated due to the <a href="https://github.com/defunkt/resque/blob/master/lib/resque.rb">singleton nature</a> of the Resque gem. This led us to explore other possible options and we ended up on <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
 
@@ -299,69 +302,283 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
 
 <p>There you have it!</p>
 </div>
+  
+  
 
 
-  <footer>
-    <p class="meta">
+    </article>
+  
+  
+    <article>
       
-  
-
-<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
-
-      
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-08-09T00:00:00-06:00" pubdate data-updated="true">Aug 9<span>th</span>, 2011</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/rabbitmq/'>RabbitMQ</a>, <a class='category' href='/blog/categories/ruby/'>Ruby</a>
-  
-</span>
-
-
-    </p>
+  <header>
     
-      <div class="sharing">
-  
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2011/08/09/bunny-rabbitmq/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2011/08/09/bunny-rabbitmq/" >Tweet</a>
-  
-  
-  
-    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
-  
-</div>
-
+      <h1 class="entry-title"><a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/">How to Fix the Iconv Require Error in Ruby 1.9 and RVM</a></h1>
     
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/" title="Previous Post: How to fix the iconv require error in Ruby 1.9 and RVM">&laquo; How to fix the iconv require error in Ruby 1.9 and RVM</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2011/10/18/groovy-and-grails-want-to-know-more/" title="Next Post: Groovy &amp; Grails - Want to know more?">Groovy &amp; Grails - Want to know more? &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
+    
+      <p class="meta">
+        
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-17T00:00:00-06:00" pubdate data-updated="true">May 17<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
+
+<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>'require': no such file to load – iconv (LoadError)</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>To fix the issue, perform the following steps:</strong></p>
+
+<ol>
+<li>Install readline using rvm: rvm install readline rvm package install readline</li>
+<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
+<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm remove 1.9.2</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>The final step is to re-install the version of ruby:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Now to test that it worked:</strong></p>
+
+<ol>
+<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
+<li>Check you are on the right version of ruby:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
+</span><span class='line'>ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Start a new irb session</li>
+<li>Now you should be able to require &#8216;iconv&#8217; and get a &#8216;true&#8217; result</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby-1.9.2-p180 :001 &gt; require 'iconv'
+</span><span class='line'>=&gt; true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you should be good to go!</p>
 </div>
-  </section>
+  
+  
 
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/">Multi-Associative GORM Criteria With Projections</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have three domain classes: Lead, Submission and BuyerLog:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Lead</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submissions:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Date</span> <span class="n">dateCreated</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">Submission</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">lead:</span> <span class="n">Lead</span> <span class="o">]</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">buyerLogs:</span> <span class="n">BuyerLog</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Lead</span> <span class="n">lead</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">BuyerLog</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submission:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Submission</span> <span class="n">submission</span>
+</span><span class='line'>  <span class="n">String</span> <span class="n">leadBuyer</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have a need to get the number of duplicate leads which share the same leadBuyer (in the BuyerLog domain class). Here is the SQL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">FROM</span> <span class="n">lead</span> <span class="k">AS</span> <span class="n">l</span><span class="p">,</span> <span class="n">submission</span> <span class="k">AS</span> <span class="n">s</span><span class="p">,</span> <span class="n">buyerLog</span> <span class="k">as</span> <span class="n">bl</span>
+</span><span class='line'>    <span class="k">WHERE</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">leadId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">bl</span><span class="p">.</span><span class="n">submissionId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">bl</span><span class="p">.</span><span class="n">leadBuyer</span> <span class="o">=</span> <span class="err">$</span><span class="n">buyerName</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">!=</span> <span class="err">$</span><span class="n">lead</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">dateCreated</span><span class="p">::</span><span class="nb">date</span> <span class="o">&gt;</span> <span class="err">$</span><span class="n">daysAgo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I want to do this using GORM / Criteria Builder. Here&#8217;s my final code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Count duplicate submissions within 45 days</span>
+</span><span class='line'><span class="cm"> * SELECT count(l.id)</span>
+</span><span class='line'><span class="cm"> *      FROM lead AS l, submission AS s, buyerLog as bl</span>
+</span><span class='line'><span class="cm"> *      WHERE l.id = s.leadId</span>
+</span><span class='line'><span class="cm"> *          AND s.id = bl.submissionId</span>
+</span><span class='line'><span class="cm"> *          AND bl.leadBuyer = $buyerName</span>
+</span><span class='line'><span class="cm"> *          AND l.id != $lead.id</span>
+</span><span class='line'><span class="cm"> *          AND l.dateCreated::date &gt; $daysAgo</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">protected</span> <span class="n">def</span> <span class="n">Boolean</span> <span class="nf">isDuplicateSubmission</span><span class="o">(</span><span class="n">Lead</span> <span class="n">lead</span><span class="o">,</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">buyerNames</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">isDuplicate</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">daysAgo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">()</span> <span class="o">-</span> <span class="mi">45</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">Lead</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">not</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">idEq</span><span class="o">(</span><span class="n">lead</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">and</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">le</span><span class="o">(</span><span class="err">&#39;</span><span class="n">dateCreated</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">daysAgo</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">submissions</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">buyerLogs</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">inList</span><span class="o">(</span><span class="err">&#39;</span><span class="n">leadBuyer</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">buyerNames</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">rowCount</span><span class="o">()</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thanks to schmolly159 on the #grails freenode IRC channel for the examples and continued help.</p>
 </div>
+  
+  
 
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/6/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/4/">Newer &rarr;</a>
+    
+  </div>
+</div>
 <aside class="sidebar">
   
     <section>
@@ -386,7 +603,7 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/cavneb">@cavneb</a> on GitHub
@@ -418,7 +635,6 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   
 </aside>
 
-
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -433,10 +649,7 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
       var disqus_shortname = 'coderberry';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://coderberry.me/blog/2011/08/09/bunny-rabbitmq/';
-        var disqus_url = 'http://coderberry.me/blog/2011/08/09/bunny-rabbitmq/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

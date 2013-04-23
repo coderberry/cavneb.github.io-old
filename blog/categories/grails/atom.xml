@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Grails | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/grails/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Grails | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/grails/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Airbrake exception logging in your Grails application]]></title>
-    <link href="http://cavneb.github.io/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/"/>
+    <link href="http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/"/>
     <updated>2012-09-11T14:34:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application</id>
+    <id>http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application</id>
     <content type="html"><![CDATA[<p>Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn't do is make it simple to pass session / request data to Airbrake. I also found that the backtrace is somewhat jumbled when viewing it on Airbrake. <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> wrote an excellent plugin to enhance the library. I have recently published an <a href="https://github.com/cavneb/airbrake-grails">updated version</a> of the plugin (with Phuong's consent) to the <a href="http://grails.org/plugin/airbrake">Grails plugin repository</a>.</p>
 
 <p>Let's take a look at how simple it is to use.</p>
@@ -102,7 +102,7 @@ def isProd = Environment.current == Environment.PRODUCTION</p>
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;">
-  <img src="http://cavneb.github.io/images/posts/airbrake-grails-exception.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-grails-exception.png" style="display: block;"/>
 </div>
 
 
@@ -114,8 +114,8 @@ def isProd = Environment.current == Environment.PRODUCTION</p>
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;">
-  <img src="http://cavneb.github.io/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
-  <img src="http://cavneb.github.io/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
 </div>
 
 
@@ -127,9 +127,9 @@ def isProd = Environment.current == Environment.PRODUCTION</p>
   
   <entry>
     <title type="html"><![CDATA[Stupid Simple POST/GET with Groovy HTTPBuilder]]></title>
-    <link href="http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
+    <link href="http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
     <updated>2012-05-07T16:57:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
+    <id>http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
     <content type="html"><![CDATA[<p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
 
 <p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
@@ -284,9 +284,9 @@ def response = ApiConsumer.postText(url, path, query)
   
   <entry>
     <title type="html"><![CDATA[Grails Authentication with Shiro]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro/"/>
+    <link href="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/"/>
     <updated>2012-04-26T18:03:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro</id>
+    <id>http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro</id>
     <content type="html"><![CDATA[<blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
 
 <p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>
@@ -873,9 +873,9 @@ This tag only writes its body to the output if the current user does not have th
   
   <entry>
     <title type="html"><![CDATA[Grails Domain Classes and Enums]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums/"/>
+    <link href="http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums/"/>
     <updated>2012-04-23T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums</id>
+    <id>http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums</id>
     <content type="html"><![CDATA[<p>For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following:</p>
 
 <p>```java
@@ -1042,9 +1042,9 @@ package org.example</p>
   
   <entry>
     <title type="html"><![CDATA[Groovy &amp; Grails - Want to know more?]]></title>
-    <link href="http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
+    <link href="http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
     <updated>2011-10-18T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
+    <id>http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
     <content type="html"><![CDATA[<p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>

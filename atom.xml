@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[coderberry]]></title>
+  <link href="http://coderberry.me/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,18 +15,18 @@
   
   <entry>
     <title type="html"><![CDATA[AngularJS on Rails 4 - Part 2]]></title>
-    <link href="http://cavneb.github.io/blog/2013/04/23/angularjs-on-rails-4-part-2/"/>
+    <link href="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/"/>
     <updated>2013-04-23T07:35:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2013/04/23/angularjs-on-rails-4-part-2</id>
+    <id>http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2</id>
     <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[AngularJS on Rails 4 - Part 1]]></title>
-    <link href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
+    <link href="http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
     <updated>2013-04-22T22:28:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
+    <id>http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
     <content type="html"><![CDATA[<div style="width: 242px;
       height: 388px;
       margin: 10px 30px 10px 0;
@@ -282,15 +282,15 @@ $ bundle install
 
 <p>Let&#8217;s stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
 
-<h3>Go to <a href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+<h3>Go to <a href="http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-2/">Part 2</a></h3>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[What is the best memory config for RubyMine?]]></title>
-    <link href="http://cavneb.github.io/blog/2013/02/20/rubymine-memory-config-vmoptions/"/>
+    <link href="http://coderberry.me/blog/2013/02/20/rubymine-memory-config-vmoptions/"/>
     <updated>2013-02-20T08:30:00-07:00</updated>
-    <id>http://cavneb.github.io/blog/2013/02/20/rubymine-memory-config-vmoptions</id>
+    <id>http://coderberry.me/blog/2013/02/20/rubymine-memory-config-vmoptions</id>
     <content type="html"><![CDATA[<p>RubyMine has become <em>awesomer</em> and <em>awesomer</em> over the years and is now my primary development tool for Rails development. One thing I&#8217;ve found frustrating however is that there is very little documentation on the best memory settings for your computer.</p>
 
 <p>I&#8217;d like to get a thread going here with people identifying their computer, CPU, memory and config settings for RubyMine.</p>
@@ -321,9 +321,9 @@ $ bundle install
   
   <entry>
     <title type="html"><![CDATA[Bootstrapping AngularJS with Yeoman]]></title>
-    <link href="http://cavneb.github.io/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/"/>
+    <link href="http://coderberry.me/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/"/>
     <updated>2013-02-13T16:13:00-07:00</updated>
-    <id>http://cavneb.github.io/blog/2013/02/13/bootstrapping-angularjs-with-yeoman</id>
+    <id>http://coderberry.me/blog/2013/02/13/bootstrapping-angularjs-with-yeoman</id>
     <content type="html"><![CDATA[<p><em>Note: This post is incomplete and will be worked on over the next week</em></p>
 
 <div style="width: 242px;
@@ -598,12 +598,12 @@ $ cd my_app/
   
   <entry>
     <title type="html"><![CDATA[Simple fix for pagination with Twitter Bootstrap]]></title>
-    <link href="http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
+    <link href="http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
     <updated>2012-10-09T16:40:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
+    <id>http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
     <content type="html"><![CDATA[<p>As a Rails guy, I always perform my table pagination using mislav&#8217;s <a href="https://github.com/mislav/will_paginate">will_paginate</a> gem. However, when I use it combined with Twitter Bootstrap, I get an undesired result:</p>
 
-<p><img src="http://cavneb.github.io/images/posts/pagination-bad.png"></p>
+<p><img src="http://coderberry.me/images/posts/pagination-bad.png"></p>
 
 <p>There is a very simple fix for this which doesn&#8217;t require using an <a href="https://github.com/yrgoldteeth/bootstrap-will_paginate">additional gem</a>.</p>
 
@@ -657,7 +657,7 @@ $ cd my_app/
 
 <p>Refresh your page and the pagination issues should be resolved:</p>
 
-<p><img src="http://cavneb.github.io/images/posts/pagination-good.png"></p>
+<p><img src="http://coderberry.me/images/posts/pagination-good.png"></p>
 
 <p>Hope this helps!</p>
 
@@ -736,9 +736,9 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
   
   <entry>
     <title type="html"><![CDATA[Airbrake exception logging in your Grails application]]></title>
-    <link href="http://cavneb.github.io/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/"/>
+    <link href="http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/"/>
     <updated>2012-09-11T14:34:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application</id>
+    <id>http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application</id>
     <content type="html"><![CDATA[<p>Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it simple to pass session / request data to Airbrake. I also found that the backtrace is somewhat jumbled when viewing it on Airbrake. <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> wrote an excellent plugin to enhance the library. I have recently published an <a href="https://github.com/cavneb/airbrake-grails">updated version</a> of the plugin (with Phuong&#8217;s consent) to the <a href="http://grails.org/plugin/airbrake">Grails plugin repository</a>.</p>
 
 <p>Let&#8217;s take a look at how simple it is to use.</p>
@@ -841,7 +841,7 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;">
-  <img src="http://cavneb.github.io/images/posts/airbrake-grails-exception.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-grails-exception.png" style="display: block;"/>
 </div>
 
 
@@ -853,8 +853,8 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;">
-  <img src="http://cavneb.github.io/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
-  <img src="http://cavneb.github.io/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
+  <img src="http://coderberry.me/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
 </div>
 
 
@@ -866,10 +866,10 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
   
   <entry>
     <title type="html"><![CDATA[Tools I use as a developer]]></title>
-    <link href="http://cavneb.github.io/blog/2012/05/24/tools-i-use-as-a-developer/"/>
+    <link href="http://coderberry.me/blog/2012/05/24/tools-i-use-as-a-developer/"/>
     <updated>2012-05-24T15:48:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/05/24/tools-i-use-as-a-developer</id>
-    <content type="html"><![CDATA[<p><img src="http://cavneb.github.io/images/posts/swiss_army_knife.jpg" class="fleft" align="top" />
+    <id>http://coderberry.me/blog/2012/05/24/tools-i-use-as-a-developer</id>
+    <content type="html"><![CDATA[<p><img src="http://coderberry.me/images/posts/swiss_army_knife.jpg" class="fleft" align="top" />
 Like any craftsman, a developer has a toolbox filled with items that helps him perform his craft. At a recent &#8216;Tech Talk&#8217; at <a href="http://1on1.com">One on One</a>, I presented a few tools that I use in my day-to-day workings. At their request, I have compiled a list of each tool in my toolbox.</p>
 
 <p>I would love it if you would also add in the comments the tools that you use. I&#8217;m sure there are plenty out there that would make my life easier!</p>
@@ -949,9 +949,9 @@ Like any craftsman, a developer has a toolbox filled with items that helps him p
   
   <entry>
     <title type="html"><![CDATA[Stupid Simple POST/GET with Groovy HTTPBuilder]]></title>
-    <link href="http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
+    <link href="http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
     <updated>2012-05-07T16:57:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
+    <id>http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
     <content type="html"><![CDATA[<p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
 
 <p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
@@ -1105,9 +1105,9 @@ Like any craftsman, a developer has a toolbox filled with items that helps him p
   
   <entry>
     <title type="html"><![CDATA[Grails Authentication with Shiro]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro/"/>
+    <link href="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/"/>
     <updated>2012-04-26T18:03:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro</id>
+    <id>http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro</id>
     <content type="html"><![CDATA[<blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
 
 <p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>
@@ -1258,11 +1258,11 @@ Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</
 
 <p>Once it&#8217;s running, open up the browser and go to <a href="http://localhost:8080/shiro-example/" target="_blank">http://localhost:8080/shiro-example/</a>.</p>
 
-<p><img src="http://cavneb.github.io/images/posts/shiro-example-1.png"></p>
+<p><img src="http://coderberry.me/images/posts/shiro-example-1.png"></p>
 
 <p>Click on the link <em>com.example.AuthController</em> and login as the admin user (username: &#8216;admin&#8217;, password: &#8216;password&#8217;).</p>
 
-<p><img src="http://cavneb.github.io/images/posts/shiro-example-2.png"></p>
+<p><img src="http://coderberry.me/images/posts/shiro-example-2.png"></p>
 
 <p>If you successfully logged in, you will be redirected back to the first page. This doesn&#8217;t help us very much.</p>
 
@@ -1319,7 +1319,7 @@ Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</
 
 <p>Try out the URL&#8217;s to the new actions created. Notice that they all lead you back to the login page if you haven&#8217;t logged in. Stranger yet is that once you log in, you should see this;</p>
 
-<p><img src="http://cavneb.github.io/images/posts/shiro-example-3.png"></p>
+<p><img src="http://coderberry.me/images/posts/shiro-example-3.png"></p>
 
 <p>Don&#8217;t worry though. This is expected and can be resolved easily by updating <code>SecurityFilters.groovy</code>.</p>
 
@@ -1709,11 +1709,11 @@ This can be a confusing topic, and moreso a confusing portion of the topic. Plea
 
 <p>Go ahead and try the signup by going to <a href="http://localhost:8080/shiro-example/signup">http://localhost:8080/shiro-example/signup</a>.</p>
 
-<p><img src="http://cavneb.github.io/images/posts/shiro-example-4.png"></p>
+<p><img src="http://coderberry.me/images/posts/shiro-example-4.png"></p>
 
 <p>If the signup is successful, you will see a page like this:</p>
 
-<p><img src="http://cavneb.github.io/images/posts/shiro-example-5.png"></p>
+<p><img src="http://coderberry.me/images/posts/shiro-example-5.png"></p>
 
 <p>Congrats! You now have a full circle authenticated app using <strong>Shiro</strong>!</p>
 
@@ -1901,9 +1901,9 @@ The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e
   
   <entry>
     <title type="html"><![CDATA[Asset Pipeline for Dummies]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies/"/>
+    <link href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/"/>
     <updated>2012-04-24T08:41:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies</id>
+    <id>http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies</id>
     <content type="html"><![CDATA[<p>The Rails asset pipeline is very powerful, but often misunderstood. At the <a href="http://utruby.org">Utah Ruby User Group</a>, most of the attendees aren&#8217;t sure how to use it fully in their Rails app. It&#8217;s considered as one of the <em>magic</em> features that Rails offers. I admit that I was confused as well and took it&#8217;s magic for granted. Not any longer.</p>
 
 <p>I reference the word <em>asset</em> a lot in this article. An asset is a file that is to be included in your Rails application (JavaScript, CSS, Image, etc).</p>
@@ -1916,14 +1916,14 @@ The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e
 
 <h2>Moving Parts</h2>
 
-<p><img src="http://cavneb.github.io/images/posts/sprockets.png" class="fleft" align="top" />
+<p><img src="http://coderberry.me/images/posts/sprockets.png" class="fleft" align="top" />
 The asset pipeline is powered by two technologies: <a href="https://github.com/sstephenson/sprockets">Sprockets</a> and <a href="https://github.com/rtomayko/tilt">Tilt</a>, the latter being a dependency of the former (look at your <code>Gemfile.lock</code> if you don&#8217;t believe me).</p>
 
 <p><strong>Sprockets</strong> performs the asset packaging which takes the assets from all the specified paths, compiles them together and places them in the target path (public/assets).</p>
 
 <p><strong>Tilt</strong> is the template engine that Sprockets uses. This allows file types like <em>scss</em> and <em>erb</em> to be used in the asset pipeline. See the <a href="https://github.com/rtomayko/tilt/blob/master/README.md">Tilt Readme</a> for a list of supported template engines.</p>
 
-<p><img src="http://cavneb.github.io/images/posts/asset_pipeline_flow.png"></p>
+<p><img src="http://coderberry.me/images/posts/asset_pipeline_flow.png"></p>
 
 <h2>Asset Paths</h2>
 
@@ -2150,9 +2150,9 @@ The asset pipeline is powered by two technologies: <a href="https://github.com/s
   
   <entry>
     <title type="html"><![CDATA[Grails Domain Classes and Enums]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums/"/>
+    <link href="http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums/"/>
     <updated>2012-04-23T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums</id>
+    <id>http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums</id>
     <content type="html"><![CDATA[<p>For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -2392,9 +2392,9 @@ The asset pipeline is powered by two technologies: <a href="https://github.com/s
   
   <entry>
     <title type="html"><![CDATA[Groovy &amp; Grails - Want to know more?]]></title>
-    <link href="http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
+    <link href="http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
     <updated>2011-10-18T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
+    <id>http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
     <content type="html"><![CDATA[<p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>
@@ -2420,10 +2420,10 @@ The asset pipeline is powered by two technologies: <a href="https://github.com/s
   
   <entry>
     <title type="html"><![CDATA[Bunny RabbitMQ]]></title>
-    <link href="http://cavneb.github.io/blog/2011/08/09/bunny-rabbitmq/"/>
+    <link href="http://coderberry.me/blog/2011/08/09/bunny-rabbitmq/"/>
     <updated>2011-08-09T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/08/09/bunny-rabbitmq</id>
-    <content type="html"><![CDATA[<p><img src="http://cavneb.github.io/images/posts/crazy-rabbit.jpg"></p>
+    <id>http://coderberry.me/blog/2011/08/09/bunny-rabbitmq</id>
+    <content type="html"><![CDATA[<p><img src="http://coderberry.me/images/posts/crazy-rabbit.jpg"></p>
 
 <p>Recently I was asked to implement <a href="https://github.com/defunkt/resque">Redis/Resque</a> into an existing project that already had Redis up and running with another Redis server. This ended up being a lot more difficult than I had anticipated due to the <a href="https://github.com/defunkt/resque/blob/master/lib/resque.rb">singleton nature</a> of the Resque gem. This led us to explore other possible options and we ended up on <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
 
@@ -2623,9 +2623,9 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   
   <entry>
     <title type="html"><![CDATA[How to fix the iconv require error in Ruby 1.9 and RVM]]></title>
-    <link href="http://cavneb.github.io/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/"/>
+    <link href="http://coderberry.me/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/"/>
     <updated>2011-05-17T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm</id>
+    <id>http://coderberry.me/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm</id>
     <content type="html"><![CDATA[<p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
 
 <p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
@@ -2688,9 +2688,9 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   
   <entry>
     <title type="html"><![CDATA[Multi-Associative GORM Criteria with Projections]]></title>
-    <link href="http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/"/>
+    <link href="http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/"/>
     <updated>2011-03-29T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections</id>
+    <id>http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections</id>
     <content type="html"><![CDATA[<p>I have three domain classes: Lead, Submission and BuyerLog:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -2826,9 +2826,9 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   
   <entry>
     <title type="html"><![CDATA[Paginator for those suffering from PostgreSQL count(*) speed issues]]></title>
-    <link href="http://cavneb.github.io/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/"/>
+    <link href="http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/"/>
     <updated>2010-11-24T00:00:00-07:00</updated>
-    <id>http://cavneb.github.io/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues</id>
+    <id>http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues</id>
     <content type="html"><![CDATA[<p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into is that as our database grows (1mil+
 records), there is a major slowdown on page loads due to a <a href="http://sql-info.de/postgresql/postgres-gotchas.html#1_7">PostgreSQL bug</a>.</p>
 
@@ -2985,9 +2985,9 @@ records), there is a major slowdown on page loads due to a <a href="http://sql-i
   
   <entry>
     <title type="html"><![CDATA[Roll your own Ajax-Based Captcha in Grails]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/"/>
+    <link href="http://coderberry.me/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/"/>
     <updated>2010-10-28T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails</id>
+    <id>http://coderberry.me/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails</id>
     <content type="html"><![CDATA[<p>Recently, I was asked to come up with a better solution to our
 captcha needs. We have been using <a href="http://www.google.com/recaptcha">ReCaptcha</a>, which is great
 but difficult to read at times, and has caused frustrated
@@ -2996,7 +2996,7 @@ customers and lost sales. I found a great solution at
 graphics and let&#8217;s the user choose the right one to prove they
 are human. Here is a screenshot of my implementation:</p>
 
-<p><img src="http://cavneb.github.io/images/posts/Using-Criteria-Builder-with-Projections-1.png"></p>
+<p><img src="http://coderberry.me/images/posts/Using-Criteria-Builder-with-Projections-1.png"></p>
 
 <p>To make this work within Grails, I had to make several tweaks. The following files are required:</p>
 
@@ -3004,7 +3004,7 @@ are human. Here is a screenshot of my implementation:</p>
 <li><a href="http://jqueryui.com/">JQuery 1.2+</a> (I am using version - 1.4.2)</li>
 <li><a href="http://jqueryui.com/">JQuery UI</a> (I am using version - 1.8.2)</li>
 <li><a href="http://gist.github.com/651605">jquery.simpleCaptcha-0.2.js</a></li>
-<li><a href="http://cavneb.github.io/files/captchaImages.zip">Captcha Images</a> placed in images/captchaImages</li>
+<li><a href="http://coderberry.me/files/captchaImages.zip">Captcha Images</a> placed in images/captchaImages</li>
 <li><a href="http://gist.github.com/651613">BCrypt.java</a> by Damien Miller</li>
 <li>CaptchaController.groovy (below)</li>
 </ul>
@@ -3063,9 +3063,9 @@ are human. Here is a screenshot of my implementation:</p>
   
   <entry>
     <title type="html"><![CDATA[Uploading Files in Grails]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/12/uploading-files-in-grails/"/>
+    <link href="http://coderberry.me/blog/2010/10/12/uploading-files-in-grails/"/>
     <updated>2010-10-12T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/12/uploading-files-in-grails</id>
+    <id>http://coderberry.me/blog/2010/10/12/uploading-files-in-grails</id>
     <content type="html"><![CDATA[<p>Here&#8217;s the slides from a presentation I did at the
 <a href="http://groups.google.com/group/uggug">UGGUG</a> in May 2010. I
 found that I needed to use it again today so I posted it.</p>
@@ -3256,9 +3256,9 @@ found that I needed to use it again today so I posted it.</p>
   
   <entry>
     <title type="html"><![CDATA[Passing Data From View to Layout via pageProperty]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/"/>
+    <link href="http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/"/>
     <updated>2010-10-08T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty</id>
+    <id>http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty</id>
     <content type="html"><![CDATA[<p>I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub-header. For this to be used, I needed to be able to pass those two strings from the view to the layout.</p>
 
 <p>Here&#8217;s what my view looks like:</p>
@@ -3303,9 +3303,9 @@ found that I needed to use it again today so I posted it.</p>
   
   <entry>
     <title type="html"><![CDATA[Using Tag Lib within Controllers and Services]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
+    <link href="http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
     <updated>2010-10-07T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
+    <id>http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
     <content type="html"><![CDATA[<p>So let&#8217;s say you want to utilize the standard grails tag lib
 of formatNumber within your domain class, controller or
 service. How would you go about doing it? With the help of a

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Shiro | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/shiro/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Shiro | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/shiro/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Grails Authentication with Shiro]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro/"/>
+    <link href="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/"/>
     <updated>2012-04-26T18:03:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro</id>
+    <id>http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro</id>
     <content type="html"><![CDATA[<blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
 
 <p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>

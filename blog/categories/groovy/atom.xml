@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Groovy | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/groovy/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Groovy | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/groovy/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Stupid Simple POST/GET with Groovy HTTPBuilder]]></title>
-    <link href="http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
+    <link href="http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
     <updated>2012-05-07T16:57:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
+    <id>http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
     <content type="html"><![CDATA[<p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
 
 <p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
@@ -172,9 +172,9 @@ def response = ApiConsumer.postText(url, path, query)
   
   <entry>
     <title type="html"><![CDATA[Grails Domain Classes and Enums]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums/"/>
+    <link href="http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums/"/>
     <updated>2012-04-23T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/23/grails-domain-classes-and-enums</id>
+    <id>http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums</id>
     <content type="html"><![CDATA[<p>For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following:</p>
 
 <p>```java
@@ -341,9 +341,9 @@ package org.example</p>
   
   <entry>
     <title type="html"><![CDATA[Groovy &amp; Grails - Want to know more?]]></title>
-    <link href="http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
+    <link href="http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
     <updated>2011-10-18T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
+    <id>http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
     <content type="html"><![CDATA[<p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>
@@ -369,9 +369,9 @@ package org.example</p>
   
   <entry>
     <title type="html"><![CDATA[Using Tag Lib within Controllers and Services]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
+    <link href="http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
     <updated>2010-10-07T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
+    <id>http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
     <content type="html"><![CDATA[<p>So let's say you want to utilize the standard grails tag lib
 of formatNumber within your domain class, controller or
 service. How would you go about doing it? With the help of a
@@ -447,9 +447,9 @@ return berry.formatXML("....")
   
   <entry>
     <title type="html"><![CDATA[Using Criteria Builder with Projections]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/06/using-criteria-builder-with-projections/"/>
+    <link href="http://coderberry.me/blog/2010/10/06/using-criteria-builder-with-projections/"/>
     <updated>2010-10-06T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/06/using-criteria-builder-with-projections</id>
+    <id>http://coderberry.me/blog/2010/10/06/using-criteria-builder-with-projections</id>
     <content type="html"><![CDATA[<p>Something I had to dig around for today was how to perform a sum on a table using Criteria Builder. It seems that it is treated a bit different than a normal query would be. Here is an example of what I tried and failed at:</p>
 
 <p>``` java

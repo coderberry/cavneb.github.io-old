@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Ajax | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/ajax/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Ajax | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/ajax/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Roll your own Ajax-Based Captcha in Grails]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/"/>
+    <link href="http://coderberry.me/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/"/>
     <updated>2010-10-28T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails</id>
+    <id>http://coderberry.me/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails</id>
     <content type="html"><![CDATA[<p>Recently, I was asked to come up with a better solution to our
 captcha needs. We have been using <a href="http://www.google.com/recaptcha">ReCaptcha</a>, which is great
 but difficult to read at times, and has caused frustrated

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Views | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/views/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Views | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/views/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Passing Data From View to Layout via pageProperty]]></title>
-    <link href="http://cavneb.github.io/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/"/>
+    <link href="http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/"/>
     <updated>2010-10-08T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty</id>
+    <id>http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty</id>
     <content type="html"><![CDATA[<p>I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub-header. For this to be used, I needed to be able to pass those two strings from the view to the layout.</p>
 
 <p>Here's what my view looks like:</p>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Rails | My Octopress Blog]]></title>
-  <link href="http://cavneb.github.io/blog/categories/rails/atom.xml" rel="self"/>
-  <link href="http://cavneb.github.io/"/>
-  <updated>2013-04-23T07:45:10-06:00</updated>
-  <id>http://cavneb.github.io/</id>
+  <title><![CDATA[Category: Rails | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-04-23T07:48:50-06:00</updated>
+  <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[AngularJS on Rails 4 - Part 1]]></title>
-    <link href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
+    <link href="http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
     <updated>2013-04-22T22:28:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
+    <id>http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
     <content type="html"><![CDATA[<div style="width: 242px;
       height: 388px;
       margin: 10px 30px 10px 0;
@@ -221,9 +221,9 @@ end
   
   <entry>
     <title type="html"><![CDATA[Simple fix for pagination with Twitter Bootstrap]]></title>
-    <link href="http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
+    <link href="http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
     <updated>2012-10-09T16:40:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
+    <id>http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
     <content type="html"><![CDATA[<p>As a Rails guy, I always perform my table pagination using mislav's <a href="https://github.com/mislav/will_paginate">will_paginate</a> gem. However, when I use it combined with Twitter Bootstrap, I get an undesired result:</p>
 
 <p><img src="/images/posts/pagination-bad.png"></p>
@@ -373,9 +373,9 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
   
   <entry>
     <title type="html"><![CDATA[Asset Pipeline for Dummies]]></title>
-    <link href="http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies/"/>
+    <link href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/"/>
     <updated>2012-04-24T08:41:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies</id>
+    <id>http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies</id>
     <content type="html"><![CDATA[<p>The Rails asset pipeline is very powerful, but often misunderstood. At the <a href="http://utruby.org">Utah Ruby User Group</a>, most of the attendees aren't sure how to use it fully in their Rails app. It's considered as one of the <em>magic</em> features that Rails offers. I admit that I was confused as well and took it's magic for granted. Not any longer.</p>
 
 <p>I reference the word <em>asset</em> a lot in this article. An asset is a file that is to be included in your Rails application (JavaScript, CSS, Image, etc).</p>
@@ -388,7 +388,7 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
 
 <h2>Moving Parts</h2>
 
-<p><img src="http://cavneb.github.io/images/posts/sprockets.png" class="fleft" align="top" />
+<p><img src="http://coderberry.me/images/posts/sprockets.png" class="fleft" align="top" />
 The asset pipeline is powered by two technologies: <a href="https://github.com/sstephenson/sprockets">Sprockets</a> and <a href="https://github.com/rtomayko/tilt">Tilt</a>, the latter being a dependency of the former (look at your <code>Gemfile.lock</code> if you don't believe me).</p>
 
 <p><strong>Sprockets</strong> performs the asset packaging which takes the assets from all the specified paths, compiles them together and places them in the target path (public/assets).</p>
@@ -434,12 +434,12 @@ The asset pipeline is powered by two technologies: <a href="https://github.com/s
 
 <p><code>ruby
 audio_path("horse.wav")   # =&gt; /audios/horse.wav
-audio_tag("sound")        # =&gt; &lt;audio src="http://cavneb.github.io/audios/sound" /&gt;
+audio_tag("sound")        # =&gt; &lt;audio src="http://coderberry.me/audios/sound" /&gt;
 font_path("font.ttf")     # =&gt; /fonts/font.ttf
 image_path("edit.png")    # =&gt; "/images/edit.png"
-image_tag("icon.png")     # =&gt; &lt;img src="http://cavneb.github.io/images/icon.png" alt="Icon" /&gt;
+image_tag("icon.png")     # =&gt; &lt;img src="http://coderberry.me/images/icon.png" alt="Icon" /&gt;
 video_path("hd.avi")      # =&gt; /videos/hd.avi
-video_tag("trailer.ogg")  # =&gt; &lt;video src="http://cavneb.github.io/videos/trailer.ogg" /&gt;
+video_tag("trailer.ogg")  # =&gt; &lt;video src="http://coderberry.me/videos/trailer.ogg" /&gt;
 </code></p>
 
 <p>See <a href="http://api.rubyonrails.org/classes/ActionView/Helpers/AssetTagHelper.html">ActionView::Helpers::AssetTagHelper</a> documentation for more information.</p>
@@ -595,9 +595,9 @@ end
   
   <entry>
     <title type="html"><![CDATA[Using multiple SMTP accounts with Rails &amp; ActionMailer]]></title>
-    <link href="http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/"/>
+    <link href="http://coderberry.me/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/"/>
     <updated>2009-03-30T00:00:00-06:00</updated>
-    <id>http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer</id>
+    <id>http://coderberry.me/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer</id>
     <content type="html"><![CDATA[<p>Recently I ran into a problem where I needed to be able to send emails via two different SMTP accounts within the same Rails application. I scoured the net trying to find a method to do this, but I couldn't find one. So I pulled out my hack-hat and got started.</p>
 
 <p>If there are any better ways to do this, I would love to hear about it.</p>
@@ -723,9 +723,9 @@ end
   
   <entry>
     <title type="html"><![CDATA[Creating Custom SOAP Requests with Ruby and Net::HTTP]]></title>
-    <link href="http://cavneb.github.io/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http/"/>
+    <link href="http://coderberry.me/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http/"/>
     <updated>2008-12-19T00:00:00-07:00</updated>
-    <id>http://cavneb.github.io/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http</id>
+    <id>http://coderberry.me/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http</id>
     <content type="html"><![CDATA[<p><img src="/images/posts/golf_scale.jpg"></p>
 
 <p>I interviewed at a company a while ago and one of the questions they asked me was the familiar "You have 8 golf balls and a justice scale. One of the golf balls has a bubble in it making it a tiny bit lighter, but you can't tell by looking at it or holding it. How many times do you need to use the scale in order to find the defective ball?". I left the interview thinking that the answer was 3. After about 3 hours of thinking about it, I realized that the answer was 2 tries.</p>
