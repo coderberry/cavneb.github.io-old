@@ -12,7 +12,7 @@ categories:
       height: 388px;
       margin: 10px 30px 10px 0;
       float: left;
-      background: transparent url(/images/posts/angular_mug.jpg) -60px -80px no-repeat;">
+      background: transparent url(http://f.cl.ly/items/1n0f2g2z2w2U0s2h2t40/angular_mug.jpg) -60px -80px no-repeat;">
 </div>
 
 AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers.

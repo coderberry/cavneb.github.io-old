@@ -486,5 +486,5 @@ On lines 12-13, we have added the function *isSelected*. It will return 'active'
 
 ## Final Product
 
-{% img /images/posts/angular_casts.png %}
+{% img http://f.cl.ly/items/2r0I1w1L3d1s0N0l2A0v/angular_casts.png %}
 
