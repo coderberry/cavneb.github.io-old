@@ -9,8 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="Let&#8217;s pick up where we left off. If you haven&#8217;t already, make sure you go through Part 1 to create your base Rails app with the API setup &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -104,7 +103,174 @@
   </header>
 
 
-<div class="entry-content">
+<div class="entry-content"><p>Let&#8217;s pick up where we left off. If you haven&#8217;t already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
+
+<p>You can either continue using the code you have created on part 1 or you can catch up by checking out the tagged code:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/angular_casts
+$ cd angular_casts
+$ git checkout 'step-2'
+$ bundle install
+$ rake db:migrate
+</code></pre>
+
+<h2>Add AngularJS Libraries</h2>
+
+<p>There are a couple of different ways we can add AngularJS into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="angularjs-rails">angular-rails gem</a>. I found this to be a bit outdated and overkill for what we are trying to do. Not only that, it&#8217;s good to know how to do this without a gem.</p>
+
+<p>Go to <a href="http://code.angularjs.org/1.0.6/">http://code.angularjs.org/1.0.6/</a> and download the following files into your vendor/assets/javascripts folder:</p>
+
+<ul>
+<li><a href="http://code.angularjs.org/1.0.6/angular.js">http://code.angularjs.org/1.0.6/angular.js</a></li>
+<li><a href="http://code.angularjs.org/1.0.6/angular-resource.js">http://code.angularjs.org/1.0.6/angular-resource.js</a></li>
+</ul>
+
+
+<p>Here&#8217;s a shortcut to do this:</p>
+
+<pre><code>$ wget http://code.angularjs.org/1.0.6/angular.js -P vendor/assets/javascripts
+$ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/javascripts
+</code></pre>
+
+<h3>Setup the Javascript Folders</h3>
+
+<p>We want to keep our code organized. We will place our controllers, filters, services, directives, etc. in the app/assets/javascripts folder. Create the following directories:</p>
+
+<ul>
+<li>app/assets/javascripts/angular/controllers</li>
+<li>app/assets/javascripts/angular/directives</li>
+<li>app/assets/javascripts/angular/filters</li>
+<li>app/assets/javascripts/angular/models</li>
+<li>app/assets/javascripts/angular/services</li>
+</ul>
+
+
+<p>Here&#8217;s a shortcut to do this:</p>
+
+<pre><code>$ mkdir -p app/assets/javascripts/angular/controllers \
+           app/assets/javascripts/angular/directives \
+           app/assets/javascripts/angular/filters \
+           app/assets/javascripts/angular/models \
+           app/assets/javascripts/angular/services
+</code></pre>
+
+<p>We will not use all of these folders, but it is good to have them there so when we do end up needing to create additional files, we know where to put them.</p>
+
+<h3>Update the Asset Pipeline</h3>
+
+<p>Let&#8217;s do some cleanup of the Asset Pipeline. First, create the main javascript file which will drive our AngularJS application.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular_casts.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@app = </span><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s">&#39;AngularCasts&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;ngResource&#39;</span><span class="p">])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>this.app</code>. We also add the dependency of <code>ngResource</code> which is our angular-resource.js file.</p>
+
+<p>Now open up <em>app/assets/javascripts/application.js</em> and make the following changes:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//= require angular</span>
+</span><span class='line'><span class="c1">//= require angular-resource</span>
+</span><span class='line'><span class="c1">//= require angular_casts</span>
+</span><span class='line'><span class="c1">//= require_tree ./angular</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The order of these is important due to the latter ones depending on the ones prior to them. Note that we do not have jQuery in here. AngularJS works great without jQuery and by removing it, we are forced to think the <em>Angular</em> way.</p>
+
+<p>Let&#8217;s now clean up our Gemfile. We no longer have any dependencies on <em>jquery</em>, <em>turbolinks</em> or <em>jbuilder</em>. Remove them from the Gemfile.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># Gemfile</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">source</span> <span class="s1">&#39;https://rubygems.org&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;rails&#39;</span><span class="p">,</span> <span class="s1">&#39;4.0.0.beta1&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;sqlite3&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;feedzirra&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">group</span> <span class="ss">:assets</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;sass-rails&#39;</span><span class="p">,</span>   <span class="s1">&#39;~&gt; 4.0.0.beta1&#39;</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;coffee-rails&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 4.0.0.beta1&#39;</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;uglifier&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;= 1.0.3&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run <code>bundle install</code> to remove the gems from <code>Gemfile.lock</code>.</p>
+
+<pre><code>$ bundle install
+</code></pre>
+
+<p>Now that we have removed this, we need to update our layout to not include these libraries. Open up <em>app/views/layouts/application.html.erb</em> and update the javascript and stylesheet includes to the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">%= stylesheet_link_tag    &quot;application&quot;, media: &quot;all&quot; %&gt;</span>
+</span><span class='line'><span class="sx">&lt;%=</span> <span class="n">javascript_include_tag</span> <span class="s2">&quot;application&quot;</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Let&#8217;s Get It Working!</h2>
+
+<p>We now have everything in place for our AngularJS application except for the view. We are going to use a simple controller named <code>home</code> with a single view, <code>index</code>.</p>
+
+<p>Run the following command:</p>
+
+<pre><code>$ rails g controller home index
+</code></pre>
+
+<p>We now have a controller and view. Let&#8217;s set this to as our <em>root_path</em> in <code>routes.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/episodes&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;episodes#index&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/episodes/:id&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;episodes#show&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">root</span> <span class="ss">to</span><span class="p">:</span> <span class="s1">&#39;home#index&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note that the line <code>get 'home#index'</code> was removed. This is not needed because the root path directs to it.</em></p>
+
+<p>Let&#8217;s start our app up and make sure it&#8217;s working.</p>
+
+<pre><code>$ rails s
+</code></pre>
+
+<p>Now open <a href="http://localhost:3000">http://localhost:3000</a>. Works? YAY!</p>
+
+<h3>Adding Angular to our Views</h3>
 </div>
 
 
