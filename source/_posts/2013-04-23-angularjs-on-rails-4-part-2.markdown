@@ -4,6 +4,9 @@ title: "AngularJS on Rails 4 - Part 2"
 date: 2013-04-23 07:35
 comments: true
 categories: 
+- Rails
+- AngularJS
+- JavaScript
 ---
 
 Let's pick up where we left off. If you haven't already, make sure you go through [Part 1](/blog/2013/04/22/angularjs-on-rails-4-part-1/) to create your base Rails app with the API setup.
