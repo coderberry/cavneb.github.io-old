@@ -173,4 +173,4 @@ Example:
 
 Let's stop for now. Our next steps will be getting our hands dirty with AngularJS.
 
-### Go to [Part 2](/blog/2013/04/22/angularjs-on-rails-4-part-2/)
+### Go to [Part 2](/blog/2013/04/23/angularjs-on-rails-4-part-2/)
