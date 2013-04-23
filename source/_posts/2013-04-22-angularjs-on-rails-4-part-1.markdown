@@ -29,7 +29,7 @@ Let's start off by creating a new Rails application called *Angular Casts*
 
     $ rails new angular_casts
 
-Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is [feedzirra]. Go ahead and add it to the Gemfile and run `bundle install`.
+Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is [feedzirra](https://github.com/pauldix/feedzirra). Go ahead and add it to the Gemfile and run `bundle install`.
 
     gem 'feedzirra'
 
