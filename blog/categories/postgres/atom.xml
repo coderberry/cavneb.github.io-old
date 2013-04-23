@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Postgres | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/postgres/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Paginator for those suffering from PostgreSQL count(*) speed issues]]></title>
+    <link href="http://cavneb.github.io/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/"/>
+    <updated>2010-11-24T00:00:00-07:00</updated>
+    <id>http://cavneb.github.io/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues</id>
+    <content type="html"><![CDATA[<p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we've run into is that as our database grows (1mil+
+records), there is a major slowdown on page loads due to a <a href="http://sql-info.de/postgresql/postgres-gotchas.html#1_7">PostgreSQL bug</a>.</p>
+
+<p>To resolve this, I had to re-create a new paginator that didn't rely on the count(*) sql call. I changed it to work similar to how Google performs their queries relying solely on the offset and max to determine which pagination buttons to show.</p>
+
+<p>Here's my final taglib:</p>
+
+<p>``` java
+package com.example</p>
+
+<p>import org.springframework.web.servlet.support.RequestContextUtils as RCU</p>
+
+<p>class PagerTagLib {</p>
+
+<p>  /<em><em>
+   * Creates next/previous links to support pagination for the current controller
+   * This is developed to avoid problems with the PostgreSQL count(</em>) bug.
+   * http://sql-info.de/postgresql/postgres-gotchas.html#1_7
+   *
+   * &lt;g:pager total="${accountListInstance.size()}" params="${params}" />
+   </em>/
+  def pager = { attrs -></p>
+
+<pre><code>  def writer = out
+  if (attrs.total == null) {
+      throwTagError("Tag [pager] is missing required attribute [total] which is the total showing for the current page")
+  }
+
+  def messageSource = grailsAttributes.messageSource
+  def locale = RCU.getLocale(request)
+
+def total = attrs.int('total') ?: 0
+
+  def action = (attrs.action ? attrs.action : (params.action ? params.action : "list"))
+  def offset = params.int('offset') ?: 0
+  def max = params.int('max')
+
+  if (!offset) offset = (attrs.int('offset') ?: 0)
+  if (!max) max = (attrs.int('max') ?: 10)
+
+  def linkParams = [:]
+  if (attrs.params) linkParams.putAll(attrs.params)
+  linkParams.offset = offset - max
+  linkParams.max = max
+  if (params.sort) linkParams.sort = params.sort
+  if (params.order) linkParams.order = params.order
+
+  def linkTagAttrs = [action:action]
+  if (attrs.controller) {
+      linkTagAttrs.controller = attrs.controller
+  }
+  if (attrs.id!=null) {
+      linkTagAttrs.id = attrs.id
+  }
+  linkTagAttrs.params = linkParams
+
+  // determine paging variables
+def isFirstStep = (offset == 0)
+def isLastStep = (total &lt; max)
+
+  // display previous link when not on firststep
+  if (!isFirstStep) {
+      linkTagAttrs.class = 'prevLink'
+      linkParams.offset = offset - max
+      writer &lt;&lt; link(linkTagAttrs.clone()) {
+          (attrs.prev ? attrs.prev : messageSource.getMessage('paginate.prev', null, messageSource.getMessage('default.paginate.prev', null, 'Previous', locale), locale))
+      }
+  }
+
+  // display next link when not on laststep
+  if (!isLastStep) {
+      linkTagAttrs.class = 'nextLink'
+      linkParams.offset = offset + max
+      writer &lt;&lt; link(linkTagAttrs.clone()) {
+          (attrs.next ? attrs.next : messageSource.getMessage('paginate.next', null, messageSource.getMessage('default.paginate.next', null, 'Next', locale), locale))
+      }
+  }
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
+  
+</feed>

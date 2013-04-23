@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Multi-Associative GORM Criteria with Projections - My Octopress Blog</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="I have three domain classes: Lead, Submission and BuyerLog: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+class Lead { static hasMany = [ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:cavneb.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Multi-Associative GORM Criteria With Projections</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I have three domain classes: Lead, Submission and BuyerLog:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Lead</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submissions:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Date</span> <span class="n">dateCreated</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">Submission</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">lead:</span> <span class="n">Lead</span> <span class="o">]</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">buyerLogs:</span> <span class="n">BuyerLog</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Lead</span> <span class="n">lead</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">BuyerLog</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submission:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Submission</span> <span class="n">submission</span>
+</span><span class='line'>  <span class="n">String</span> <span class="n">leadBuyer</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have a need to get the number of duplicate leads which share the same leadBuyer (in the BuyerLog domain class). Here is the SQL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">FROM</span> <span class="n">lead</span> <span class="k">AS</span> <span class="n">l</span><span class="p">,</span> <span class="n">submission</span> <span class="k">AS</span> <span class="n">s</span><span class="p">,</span> <span class="n">buyerLog</span> <span class="k">as</span> <span class="n">bl</span>
+</span><span class='line'>    <span class="k">WHERE</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">leadId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">bl</span><span class="p">.</span><span class="n">submissionId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">bl</span><span class="p">.</span><span class="n">leadBuyer</span> <span class="o">=</span> <span class="err">$</span><span class="n">buyerName</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">!=</span> <span class="err">$</span><span class="n">lead</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">dateCreated</span><span class="p">::</span><span class="nb">date</span> <span class="o">&gt;</span> <span class="err">$</span><span class="n">daysAgo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I want to do this using GORM / Criteria Builder. Here&#8217;s my final code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Count duplicate submissions within 45 days</span>
+</span><span class='line'><span class="cm"> * SELECT count(l.id)</span>
+</span><span class='line'><span class="cm"> *      FROM lead AS l, submission AS s, buyerLog as bl</span>
+</span><span class='line'><span class="cm"> *      WHERE l.id = s.leadId</span>
+</span><span class='line'><span class="cm"> *          AND s.id = bl.submissionId</span>
+</span><span class='line'><span class="cm"> *          AND bl.leadBuyer = $buyerName</span>
+</span><span class='line'><span class="cm"> *          AND l.id != $lead.id</span>
+</span><span class='line'><span class="cm"> *          AND l.dateCreated::date &gt; $daysAgo</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">protected</span> <span class="n">def</span> <span class="n">Boolean</span> <span class="nf">isDuplicateSubmission</span><span class="o">(</span><span class="n">Lead</span> <span class="n">lead</span><span class="o">,</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">buyerNames</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">isDuplicate</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">daysAgo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">()</span> <span class="o">-</span> <span class="mi">45</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">Lead</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">not</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">idEq</span><span class="o">(</span><span class="n">lead</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">and</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">le</span><span class="o">(</span><span class="err">&#39;</span><span class="n">dateCreated</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">daysAgo</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">submissions</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">buyerLogs</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">inList</span><span class="o">(</span><span class="err">&#39;</span><span class="n">leadBuyer</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">buyerNames</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">rowCount</span><span class="o">()</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thanks to schmolly159 on the #grails freenode IRC channel for the examples and continued help.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/gorm/'>GORM</a>, <a class='category' href='/blog/categories/grails/'>Grails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/" data-via="" data-counturl="http://cavneb.github.io/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/" title="Previous Post: Paginator for those suffering from PostgreSQL count(*) speed issues">&laquo; Paginator for those suffering from PostgreSQL count(*) speed issues</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/" title="Next Post: How to fix the iconv require error in Ruby 1.9 and RVM">How to fix the iconv require error in Ruby 1.9 and RVM &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">AngularJS on Rails 4 - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">AngularJS on Rails 4 - Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What is the best memory config for RubyMine?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS with Yeoman</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/">Simple fix for pagination with Twitter Bootstrap</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

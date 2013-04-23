@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Authentication | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/authentication/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Grails Authentication with Shiro]]></title>
+    <link href="http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro/"/>
+    <updated>2012-04-26T18:03:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2012/04/26/grails-authentication-with-shiro</id>
+    <content type="html"><![CDATA[<blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
+
+<p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>
+
+<p>My goal for this article is to help people understand how to implement the Shiro plugin into their Grails application as simply as possible. I will also cover some common usages of the plugin for reference.</p>
+
+<h2>A bit more about Shiro</h2>
+
+<p>I strongly suggest going through the <a href="http://shiro.apache.org/documentation.html">documentation</a> for Shiro before continuing. If not, there are a couple of tidbits that will help you understand how it works.</p>
+
+<p>First, a term that Shiro uses for a <em>User</em> is <em>Subject</em>. Anytime the <em>Subject</em> is referenced, it is referring to Shiro's version of a User class.</p>
+
+<p>Second, there is always a <em>Subject</em> that represents the current user. The <em>Subject</em> can be handled prior to authentication. This means that if someone was to visit your site without any authentication, there is already an instanciated class that represents them. In Java, you can obtain the <em>Subject</em> with the following:</p>
+
+<p><code>java
+Subject currentUser = SecurityUtils.getSubject();
+</code></p>
+
+<p>To authenticate the user, you must create a <code>UserPasswordToken</code> and call <code>login</code> on the instanciated <em>Subject</em>. The success or failure of the login are returned via <a href="http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authc/AuthenticationException.html">exceptions</a>. Here is an example of code that may be used when logging in a user.</p>
+
+<p>```java
+if ( !currentUser.isAuthenticated() ) {</p>
+
+<pre><code>UsernamePasswordToken token = new UsernamePasswordToken("foo", "bar");
+token.setRememberMe(true); // Use remember me if desired - all built in!
+
+// Attempt to authenticate. If no exception thrown, the login was successful
+try {
+  currentUser.login( token );
+
+// Username wasn't in the system
+} catch ( UnknownAccountException uae ) {
+
+// Password didn't match
+} catch ( IncorrectCredentialsException ice ) {
+
+// Account with username is locked
+} catch ( LockedAccountException lae ) {
+
+// Unexpected error      
+} catch ( AuthenticationException ae ) {
+
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Cool! Now we have a bit of knowledge to help us know what we are doing in our Grails implementation.</p>
+
+<h2>Installation</h2>
+
+<p>Let's start by creating a new Grails application. I am using version 2.0.3. In the code samples to follow, anything that starts with a $ means that it is a shell command.</p>
+
+<pre><code>$ grails create-app shiro-example
+$ cd shiro-example</code></pre>
+
+
+<p>The <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> can be installed by using the dependency in your <code>BuildConfig.groovy</code>. Even though the plugin page shows version 1.1.4, we will use the latest snapshot release:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">runtime</span> <span class="s">&quot;:shiro:1.2.0-SNAPSHOT&quot;</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Once you have the dependency setup in the <code>BuildConfig.groovy</code> file, you must compile the app to make sure the dependencies are installed.</p>
+
+<pre><code>$ grails compile</code></pre>
+
+
+<p>Let's kickstart our app now by using the <code>shiro-quick-start</code> command. I am using the optional <code>--prefix=[package]</code>. Make sure you have a dot at the end if you are using the prefix.</p>
+
+<pre><code>$ grails shiro-quick-start --prefix=com.example.
+| Created file grails-app/domain/com/example/User.groovy
+| Created file grails-app/domain/com/example/Role.groovy
+| Created file grails-app/realms/com/example/DbRealm.groovy
+| Created file grails-app/controllers/com/example/AuthController.groovy
+| Created file grails-app/views/auth/login.gsp
+| Created file grails-app/conf/com/example/SecurityFilters.groovy</code></pre>
+
+
+<p>Whoa! What just happened? As you can see, you now have created some files:</p>
+
+<p><code>domain/../User.groovy</code> is the <em>domain class</em> for your user.</p>
+
+<p><code>domain/../Role.groovy</code> is the <em>domain class</em> for your user roles.</p>
+
+<p><code>realms/../DbRealm.groovy</code> is the class Shiro uses to handle authentication and permissions.</p>
+
+<p><code>controllers/../AuthController.groovy</code> and <code>views/auth/login.gsp</code> are the user-facing controller and view meant to handle login.</p>
+
+<p><code>config/../SecurityFilters.groovy</code> adds a <a href="http://grails.org/doc/2.0.3/ref/Controllers/beforeInterceptor.html">beforeInterceptor</a> to all url's. This blocks/redirects users from accessing pages they are not authorized to visit (based on their roles).</p>
+
+<blockquote><p><strong>What is a realm?</strong><br/>
+Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</em> is basically a resource Shiro should use to authenticate a user. Further explanation can be found <a href="http://www.brucephillips.name/blog/index.cfm/2009/4/5/An-Introduction-to-Ki-formerly-JSecurity--A-Beginners--Tutorial-Part-2">here</a>.</p></blockquote>
+
+<h2>Configuration</h2>
+
+<h2>Bootstrapping</h2>
+
+<p>Bootstrapping users and roles is similar to how it's done with the <a href="http://grails.org/plugin/spring-security-core">Spring Security Core plugin</a>. Let's create a couple of roles and users to go with them.</p>
+
+<p>File /Users/eberry/Personal/cavneb.github.io/source/downloads/code/BootStrap.groovy could not be found</p>
+
+<p>On line 5, we include the Shiro Security Service. This is necessary for us to encode the password into a password hash for the user.</p>
+
+<p>On lines 9-15, the admin and user roles are created.</p>
+
+<p>On lines 17-21, the admin user is either loaded from the database or is created. Here is where we use the Shiro Security Service for encoding the password.</p>
+
+<p>On lines 23-26, the roles <em>ADMIN_ROLE</em> and <em>USER_ROLE</em> are assigned to the admin user. Note that we add both roles to this user. This allows the admin user to act as a normal user as well. This may or may not be appropriate, depending on the application.</p>
+
+<p>Lines 28-36 are similar to 23-26, but for the standard user role instead of the admin role.</p>
+
+<h2>Kick the Tires</h2>
+
+<p>Now that we have the default users created, let's run the app and test to make sure the login works. Start up the application with the <code>run-app</code> command:</p>
+
+<pre><code>$ grails run-app</code></pre>
+
+
+<p>Once it's running, open up the browser and go to <a href="http://localhost:8080/shiro-example/" target="_blank">http://localhost:8080/shiro-example/</a>.</p>
+
+<p><img src="/images/posts/shiro-example-1.png"></p>
+
+<p>Click on the link <em>com.example.AuthController</em> and login as the admin user (username: 'admin', password: 'password').</p>
+
+<p><img src="/images/posts/shiro-example-2.png"></p>
+
+<p>If you successfully logged in, you will be redirected back to the first page. This doesn't help us very much.</p>
+
+<h2>Adding Security</h2>
+
+<p>Now that we've figured out how to authenticate users with the login form, we need to create some pages that require being authenticated. Pay attention.. this is really the core of the plugin.. and the part that was most difficult for me to figure out.</p>
+
+<p>Let's start off by creating a controller with three actions: <code>index</code>, <code>secured</code> and <code>admin</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Home</code></pre>
+
+
+<p>Create three actions in the controller:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>grails-app/controllers/com/example/HomeController.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kd">class</span> <span class="nc">HomeController</span> <span class="o">{&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">def</span> <span class="n">index</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">render</span> <span class="s">&quot;This page is not secured&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">def</span> <span class="nf">secured</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">render</span> <span class="s">&quot;This page requires a user to be logged in&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">def</span> <span class="nf">admin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   <span class="n">render</span> <span class="s">&quot;This page requires the logged in user to be an administrator&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>As you can see, the three actions <em>should</em> have different security levels. <code>index</code> will allow anyone to be able to view the page. <code>secured</code> requires that a user be logged in. <code>admin</code> requries that the user logged in must have the <em>ROLE_ADMIN</em> role assigned to them.</p>
+
+<p>Try out the URL's to the new actions created. Notice that they all lead you back to the login page if you haven't logged in. Stranger yet is that once you log in, you should see this;</p>
+
+<p><img src="/images/posts/shiro-example-3.png"></p>
+
+<p>Don't worry though. This is expected and can be resolved easily by updating <code>SecurityFilters.groovy</code>.</p>
+
+<p>```java
+package com.example</p>
+
+<p>/<em>*
+ * Generated by the Shiro plugin. This filters class protects all URLs
+ * via access control by convention.
+ </em>/
+class SecurityFilters {</p>
+
+<pre><code>/**
+ * Array of controller/action combinations which will be skipped from authentication
+ * if the controller and action names match. The action value can also be '*' if it
+ * encompasses all actions within the controller.
+ */
+static nonAuthenticatedActions = [
+        [controller: 'home', action: 'index']
+]
+
+/**
+ * Array of controller/action combinations that will be authenticated against the user's
+ * role. The map also includes the roles which the controller/action pair will match
+ * against.
+ */
+static authenticatedActions = [
+        [controller: 'home', action: 'secured', roles: ['ROLE_ADMIN', 'ROLE_USER']],
+        [controller: 'home', action: 'admin', roles: ['ROLE_ADMIN']]
+]
+
+def filters = {
+
+    all(controller: '*', action: '*') {
+        before = {
+
+            // Determine if the controller/action belongs is not to be authenticated
+            def needsAuth = !nonAuthenticatedActions.find {
+                (it.controller == controllerName) &amp;&amp;
+                        ((it.action == '*') || (it.action == actionName))
+            }
+
+            if (needsAuth) {
+
+                // Get the map within the authenticated actions which pertain to the current
+                // controller and view.
+                def authRoles = authenticatedActions.find {
+                    (it.controller == controllerName) &amp;&amp;
+                            ((it.action == '*') || (it.action == actionName))
+                }
+
+                if (authRoles) {
+
+                    // Perform the access control for each of the roles provided in the authRoles
+                    accessControl {
+                        authRoles.roles.each { roleName -&gt;
+                            role(roleName)
+                        }
+                    }
+                }
+
+                // Skip authentication if the authRoles was not found
+                else {
+                    return true
+                }
+            }
+
+            // Skip authentication if no auth is needed
+            else {
+                return true
+            }
+        }
+    }
+
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>This may be a lot to take in but the only sections that are really important are lines 14-16 and 23-26. Here we are establishing which controller/action combinations are not to be authenticated, and which are to be authenticated against the provided roles.</p>
+
+<p>Now when you access the pages, the expected security should be in place. Give it a shot.</p>
+
+<blockquote><p><strong>Confused?</strong><br/>
+This can be a confusing topic, and moreso a confusing portion of the topic. Please feel free to ask any questions in the comments section and I will do my best to help out.*</p></blockquote>
+
+<h2>Creating Users</h2>
+
+<p>The <code>shiro-quick-start</code> command did create the login page and authentication controller, but it didn't help us a bit on creating users. Good thing it's pretty easy to do.</p>
+
+<p>We could create a controller called <em>Users</em> to handle the signup process, however, I don't want to do that. The reason is because I would like to eventually have a <em>Users</em> controller that will perform all the CRUD operations for the users and would only be accessible by administrators.</p>
+
+<p>Instead, let's create a new controller for handling the signup process. Let's call it <code>Signup</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Signup
+| Created file grails-app/controllers/com/example/SignupController.groovy
+| Created file grails-app/views/signup
+| Created file test/unit/com/example/SignupControllerTests.groovy</code></pre>
+
+
+<p>Update your SignupController as follows:</p>
+
+<p>```java
+package com.example</p>
+
+<p>import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.SecurityUtils</p>
+
+<p>class SignupController {</p>
+
+<pre><code>def shiroSecurityService
+
+def index() {
+    User user = new User()
+    [user: user]
+}
+
+def register() {
+
+    // Check to see if the username already exists
+    def user = User.findByUsername(params.username)
+    if (user) {
+        flash.message = "User already exists with the username '${params.username}'"
+        render('index')
+    }
+
+    // User doesn't exist with username. Let's create one
+    else {
+
+        // Make sure the passwords match
+        if (params.password != params.password2) {
+            flash.message = "Passwords do not match"
+            render('index')
+        }
+
+        // Passwords match. Let's attempt to save the user
+        else {
+            // Create user
+            user = new User(
+                    username: params.username,
+                    passwordHash: shiroSecurityService.encodePassword(params.password)
+            )
+
+            if (user.save()) {
+
+                // Add USER role to new user
+                user.addToRoles(Role.findByName('ROLE_USER'))
+
+                // Login user
+                def authToken = new UsernamePasswordToken(user.username, params.password)
+                SecurityUtils.subject.login(authToken)
+
+                redirect(controller: 'home', action: 'secured')
+            }
+            else {
+
+        }
+        }
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>In the code above, there are two actions: <code>index</code> and <code>register</code>. The <code>index</code> action is what contains the form (view). The <code>register</code> action performs the user registration and responds/redirects according to the results.</p>
+
+<p>Paste this into your <code>/grails-app/views/home/index.gsp</code> view:</p>
+
+<p>```html
+&lt;%@ page contentType="text/html;charset=UTF-8" %>
+<html>
+<head></p>
+
+<pre><code>&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/&gt;
+&lt;title&gt;Register&lt;/title&gt;
+&lt;meta name="layout" content="main"/&gt;
+</code></pre>
+
+<p></head></p>
+
+<p><body></p>
+
+<h1>Signup</h1>
+
+
+<p>&lt;g:if test="${flash.message}"></p>
+
+<pre><code>&lt;div class="alert alert-info"&gt;${flash.message}&lt;/div&gt;
+</code></pre>
+
+<p>&lt;/g:if></p>
+
+<p>&lt;g:hasErrors bean="${user}"></p>
+
+<pre><code>&lt;div class="alert alert-error"&gt;
+    &lt;g:renderErrors bean="${user}" as="list"/&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>&lt;/g:hasErrors></p>
+
+<p>&lt;g:form action="register"></p>
+
+<pre><code>&lt;p&gt;
+    &lt;label for="username"&gt;Username&lt;/label&gt;
+    &lt;g:textField name="username" value="${user.username}"/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+    &lt;label for="password"&gt;Password&lt;/label&gt;
+    &lt;g:passwordField name="password" value=""/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+    &lt;label for="password"&gt;Confirm Password&lt;/label&gt;
+    &lt;g:passwordField name="password2" value=""/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+    &lt;g:submitButton name="submit" value="Submit"/&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>&lt;/g:form></p>
+
+<p></body>
+</html>
+```</p>
+
+<p>Go ahead and try the signup by going to <a href="http://localhost:8080/shiro-example/signup">http://localhost:8080/shiro-example/signup</a>.</p>
+
+<p><img src="/images/posts/shiro-example-4.png"></p>
+
+<p>If the signup is successful, you will see a page like this:</p>
+
+<p><img src="/images/posts/shiro-example-5.png"></p>
+
+<p>Congrats! You now have a full circle authenticated app using <strong>Shiro</strong>!</p>
+
+<h2>Tag Lib Reference</h2>
+
+<p><code>
+&lt;shiro:isLoggedIn&gt;Body&lt;/shiro:isLoggedIn&gt;
+</code>
+This tag only writes its body to the output if the current user is logged in.</p>
+
+<p><code>
+&lt;shiro:isNotLoggedIn&gt;Body&lt;/shiro:isNotLoggedIn&gt;
+</code>
+This tag only writes its body to the output if the current user is NOT logged in.</p>
+
+<p><code>
+&lt;shiro:authenticated /&gt;
+</code>
+A synonym for 'isLoggedIn'. This is the same name as used by the standard Shiro tag library.</p>
+
+<p><code>
+&lt;shiro:notAuthenticated /&gt;
+</code>
+A synonym for 'isNotLoggedIn'. This is the same name as used by the standard Shiro tag library.</p>
+
+<p><code>
+&lt;shiro:user&gt;Body&lt;/shiro:user&gt;
+</code>
+This tag only writes its body to the output if the current user is either logged in or remembered from a previous session (via the "remember me" cookie).</p>
+
+<p><code>
+&lt;shiro:notUser&gt;Body&lt;/shiro:notUser&gt;
+</code>
+This tag only writes its body to the output if the current user is neither logged in nor remembered from a previous session (via the "remember me" cookie).</p>
+
+<p><code>
+&lt;shiro:remembered&gt;Body&lt;/shiro:remembered&gt;
+</code>
+This tag only writes its body to the output if the current user is remembered from a previous session (via the "remember me" cookie) but not currently logged in.</p>
+
+<p><code>
+&lt;shiro:notRemembered&gt;Body&lt;/shiro:notRemembered&gt;
+</code>
+This tag only writes its body to the output if the current user is not remembered from a previous session (via the "remember me" cookie). This is the case if they are a guest user or logged in.</p>
+
+<p><code>
+&lt;shiro:principal type="type" property="property" /&gt;
+</code>
+Outputs the string form of the current user's identity. By default this assumes that the subject has only one principal; its string representation is written to the page.</p>
+
+<p>The <strong><em>type</em></strong> is the species the type or class of the principal to use.</p>
+
+<p>The <strong><em>property</em></strong> value specifies the name of the property on the principal to use as the string representation, e.g. <code>firstName</code>.</p>
+
+<p><code>
+&lt;shiro:hasRole name="role_name"&gt;Body&lt;/shiro:hasRole&gt;
+</code>
+This tag only writes its body to the output if the current user has the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<p><code>
+&lt;shiro:lacksRole name="role_name"&gt;Body&lt;/shiro:lacksRole&gt;
+</code>
+This tag only writes its body to the output if the current user does not have the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<p><code>
+&lt;shiro:hasAllRoles in="roles"&gt;Body&lt;/shiro:hasAllRoles&gt;
+</code>
+This tag only writes its body to the output if the current user has all the given roles (inversion of lacksAnyRole).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<p><code>
+&lt;shiro:lacksAllRoles in="roles"&gt;Body&lt;/shiro:lacksAllRoles&gt;
+</code>
+This tag only writes its body to the output if the current user doesn't have all of the given roles (inversion of hasAllRoles).
+The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<p><code>
+&lt;shiro:hasAnyRole in="roles"&gt;Body&lt;/shiro:hasAnyRole&gt;
+</code>
+This tag only writes its body to the output if the current user has any of the given roles (inversion of lacksAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<p><code>
+&lt;shiro:lacksAnyRole in="roles"&gt;Body&lt;/shiro:lacksAnyRole&gt;
+</code>
+This tag only writes its body to the output if the current user has none of the given roles (inversion of hasAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<p>```
+&lt;shiro:hasPermission type="type"</p>
+
+<pre><code>                 permission="permission" 
+                 actions="actions" 
+                 target="target"&gt;Body&lt;/shiro:hasPermission&gt;
+</code></pre>
+
+<p>```
+This tag only writes its body to the output if the current user has the given permission.</p>
+
+<p>The <strong><em>type</em></strong> property is the permission type.</p>
+
+<p>The <strong><em>permission</em></strong> is the permission name. Either <em>type</em> or <em>permission</em> must be used.</p>
+
+<p>The <strong><em>actions</em></strong> must be present if the <em>type</em> is present.</p>
+
+<p>The <em>target</em> is optional and will be defaulted to '<em>' if not provided. It is also only applicable for when the </em>type* attribute is available.</p>
+
+<p>```
+&lt;shiro:hasPermission type="type"</p>
+
+<pre><code>                 permission="permission" 
+                 actions="actions" 
+                 target="target"&gt;Body&lt;/shiro:hasPermission&gt;
+</code></pre>
+
+<p><code>``
+This tag only writes its body to the output if the current user has the given permission. Attribute descriptions are the same as found on</code>hasPermissions` above.</p>
+
+<p>```
+&lt;shiro:hasPermission type="type"</p>
+
+<pre><code>                  permission="permission" 
+                  actions="actions" 
+                  target="target"&gt;Body&lt;/shiro:hasPermission&gt;
+</code></pre>
+
+<p><code>``
+This tag only writes its body to the output if the current user does not have the given permission. Attribute descriptions are the same as found on</code>hasPermissions` above.</p>
+
+<h2>Notes</h2>
+
+<p>I did not cover topics such as permissions. For more information on this, please refer to the <a href="http://shiro.apache.org/documentation.html">Shiro documentation</a> and the <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> source code.</p>
+
+<p><a href="https://github.com/gavinhogan">Gavin Hogan</a> has forked the grails-shiro plugin and has done some excellent work on updating the documentation. His fork can be found at <a href="https://github.com/gavinhogan/grails-shiro/">https://github.com/gavinhogan/grails-shiro/</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

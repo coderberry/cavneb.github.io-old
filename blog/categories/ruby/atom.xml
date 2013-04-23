@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Asset Pipeline for Dummies]]></title>
+    <link href="http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies/"/>
+    <updated>2012-04-24T08:41:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies</id>
+    <content type="html"><![CDATA[<p>The Rails asset pipeline is very powerful, but often misunderstood. At the <a href="http://utruby.org">Utah Ruby User Group</a>, most of the attendees aren't sure how to use it fully in their Rails app. It's considered as one of the <em>magic</em> features that Rails offers. I admit that I was confused as well and took it's magic for granted. Not any longer.</p>
+
+<p>I reference the word <em>asset</em> a lot in this article. An asset is a file that is to be included in your Rails application (JavaScript, CSS, Image, etc).</p>
+
+<p><strong>In this article, I want to simplify the asset pipeline so it is better understood.</strong></p>
+
+<h2>Purpose</h2>
+
+<p>The asset pipeline has three goals: precompile, concatenate and minify assets into one central path. Or in other words, it takes all of your stylesheets, javascript files, images and any other files you want, joins them together when possible, and places them in the public/assets folder.</p>
+
+<h2>Moving Parts</h2>
+
+<p><img src="http://cavneb.github.io/images/posts/sprockets.png" class="fleft" align="top" />
+The asset pipeline is powered by two technologies: <a href="https://github.com/sstephenson/sprockets">Sprockets</a> and <a href="https://github.com/rtomayko/tilt">Tilt</a>, the latter being a dependency of the former (look at your <code>Gemfile.lock</code> if you don't believe me).</p>
+
+<p><strong>Sprockets</strong> performs the asset packaging which takes the assets from all the specified paths, compiles them together and places them in the target path (public/assets).</p>
+
+<p><strong>Tilt</strong> is the template engine that Sprockets uses. This allows file types like <em>scss</em> and <em>erb</em> to be used in the asset pipeline. See the <a href="https://github.com/rtomayko/tilt/blob/master/README.md">Tilt Readme</a> for a list of supported template engines.</p>
+
+<p><img src="/images/posts/asset_pipeline_flow.png"></p>
+
+<h2>Asset Paths</h2>
+
+<p>Rails applications default to having three possible asset paths.</p>
+
+<p><code>app/assets</code> is for assets that are owned by the application, such as custom images, JavaScript files or stylesheets.</p>
+
+<p><code>lib/assets</code> is for your own libraries’ code that doesn’t really fit into the scope of the application or those libraries which are shared across applications.</p>
+
+<p><code>vendor/assets</code> is for assets that are owned by outside entities, such as code for JavaScript plugins and CSS frameworks.</p>
+
+<h2>The Manifest</h2>
+
+<p>The keystone of the asset pipeline is the manifest file. By default, Rails creates one for stylesheets (<code>app/assets/stylesheets/application.css</code>) and JavaScript files (<code>app/assets/javascripts/application.js</code>). This file uses <em>directives</em> to declare dependencies in asset source files.</p>
+
+<p>For directives that take a path argument, you may specify either a logical path or a relative path. Relative paths begin with ./ and reference files relative to the location of the current file.</p>
+
+<p>Here are some <em>directives</em> that can be used:</p>
+
+<ul>
+<li><code>require</code> <em>[path]</em> inserts the contents of the asset source file specified by path. If the file is required multiple times, it will appear in the bundle only once.</li>
+<li><code>include</code> <em>[path]</em> works like require, but inserts the contents of the specified source file even if it has already been included or required.
+<code>require_directory</code> <em>[path]</em> requires all source files of the same format in the directory specified by path. Files are required in alphabetical order.</li>
+<li><code>require_tree</code> <em>[path]</em> works like require_directory, but operates recursively to require all files in all subdirectories of the directory specified by path.</li>
+<li><code>require_self</code> tells Sprockets to insert the body of the current source file before any subsequent require or include directives.</li>
+<li><code>depend_on</code> <em>[path]</em> declares a dependency on the given path without including it in the bundle. This is useful when you need to expire an asset's cache in response to a change in another file.</li>
+<li><code>stub</code> <em>[path]</em> allows dependency to be excluded from the asset bundle. The path must be a valid asset and may or may not already be part of the bundle. Once stubbed, it is blacklisted and can't be brought back by any other require.</li>
+</ul>
+
+
+<p>Documentation for this section was largely extracted from the <a href="https://github.com/sstephenson/sprockets">Sprockets</a> README.</p>
+
+<h2>Usage</h2>
+
+<p>Using the asset pipeline is very simple. All it involves is placing assets (js/css/images/other) into the asset path. You can access the files using multiple helper methods within your views:</p>
+
+<p><code>ruby
+audio_path("horse.wav")   # =&gt; /audios/horse.wav
+audio_tag("sound")        # =&gt; &lt;audio src="http://cavneb.github.io/audios/sound" /&gt;
+font_path("font.ttf")     # =&gt; /fonts/font.ttf
+image_path("edit.png")    # =&gt; "/images/edit.png"
+image_tag("icon.png")     # =&gt; &lt;img src="http://cavneb.github.io/images/icon.png" alt="Icon" /&gt;
+video_path("hd.avi")      # =&gt; /videos/hd.avi
+video_tag("trailer.ogg")  # =&gt; &lt;video src="http://cavneb.github.io/videos/trailer.ogg" /&gt;
+</code></p>
+
+<p>See <a href="http://api.rubyonrails.org/classes/ActionView/Helpers/AssetTagHelper.html">ActionView::Helpers::AssetTagHelper</a> documentation for more information.</p>
+
+<h2>Misconceptions</h2>
+
+<h4>Files must belong in their respective paths. For example, all JavaScript files must be in a <code>javascripts</code> folder within an asset path.</h4>
+
+<p>The truth is that the paths (<em>stylesheets</em>, <em>javascripts</em>, <em>images</em>) are only there for organization. You can have all the assets in a single folder or in a hundred.</p>
+
+<h4><a href="http://sass-lang.com/">Sass</a> files need to use <em>erb</em> extension to allow for asset path inclusions within the files.</h4>
+
+<p>The truth is that <code>sass-rails</code> provides <code>-url</code> and <code>-path</code> helpers for the following asset types: image, font, video, audio, JavaScript and stylesheet.</p>
+
+<p><code>ruby
+image-url("rails.png")         # becomes url(/assets/rails.png)
+image-path("rails.png")        # becomes "/assets/rails.png".
+asset-url("rails.png", image)  # becomes url(/assets/rails.png)
+asset-path("rails.png", image) # becomes "/assets/rails.png"
+</code></p>
+
+<p>See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#coding-links-to-assets">Rails Asset Pipeline</a> guide (2.2.2) for more information.</p>
+
+<h2>Adding to Gems</h2>
+
+<p>A good way to include assets easily in a Rails application is by using gems. To include assets within a gem to be precompiled with the Rails application that is using it, all you need is to place the assets in one of the three standard asset paths: <code>app/assets</code>, <code>lib/assets</code> and <code>vendor/assets</code>. These will be automatically included in by Sprockets when the assets are compiled. See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#adding-assets-to-your-gems">Rails documentation</a> for more information.</p>
+
+<h2>FAQ</h2>
+
+<h4>Q: Why doesn't the auto-generated scss and coffeescript only get included in their respective controller views?</h4>
+
+<p>Because the assets all concatenate into one file, there are no seperate files to be included on a view-by-view basis. There is a way to get around this by using css classes.</p>
+
+<p>Let's say we have a controller named <code>Users</code> with an accompanying sass file called <code>users.css.scss</code>. Make sure your css is wrapped in a class which includes the name of the controller:</p>
+
+<p><code>css
+body-users {
+  // Custom css goes here
+}
+</code></p>
+
+<p>Next, add a class to the body tag of your layout:</p>
+
+<p><code>html
+&lt;body class="body-#{controller_name}"&gt;
+</code></p>
+
+<p>Now the css in <code>users.css.scss</code> will only be applied to views under the <code>Users</code> controller.</p>
+
+<h4>Q: Do I have to use the asset pipeline?</h4>
+
+<p>No. In Rails 3.1, the asset pipeline is enabled by default. It can be disabled in <code>config/application.rb</code> by putting this line inside the application class definition:</p>
+
+<p><code>ruby
+config.assets.enabled = false
+</code></p>
+
+<h4>Q: What happens if there are duplicate file names in different asset folders?</h4>
+
+<p>Let's say you have two asset files with the same name in different paths. For example, let's say we have two files: <code>app/assets/stylesheets/style.css.scss</code> and <code>vendor/assets/stylesheets/style.css.scss</code>.</p>
+
+<p>When the assets are compiled, it disregards all the duplicate files after the first one found in the asset path. Let's look at the asset path using the <em>rails console</em>:</p>
+
+<p>```bash</p>
+
+<blockquote><blockquote><h2>y Rails.application.config.assets.paths</h2>
+
+<ul>
+<li>/Users/eberry/example/app/assets/images</li>
+<li>/Users/eberry/example/app/assets/javascripts</li>
+<li>/Users/eberry/example/app/assets/stylesheets</li>
+<li>/Users/eberry/example/vendor/assets/javascripts</li>
+<li>/Users/eberry/example/vendor/assets/stylesheets</li>
+<li>/Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/jquery-rails-2.0.2/vendor/assets/javascripts</li>
+<li>/Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/coffee-rails-3.2.2/lib/assets/javascripts
+```</li>
+</ul>
+</blockquote></blockquote>
+
+<p>Note that the path <code>/Users/eberry/example/app/assets/stylesheets</code> appears before the path <code>/Users/eberry/example/vendor/assets/stylesheets</code>.</p>
+
+<h4>Q: How can I precompile assets that aren't to be used in the pipeline?</h4>
+
+<p>Let's say you want to include the folder <code>other/assets</code> into the asset pipeline to be precompiled. This is a simple addition in the <code>application.rb</code> file (or environment specific config file).</p>
+
+<p>```ruby
+module Foo
+  class Application &lt; Rails::Application</p>
+
+<pre><code>...
+# Add additional path to the assets path for pipeline compilation
+config.assets.paths &lt;&lt; "#{Rails.root}/other/assets"
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now when you run the command <code>Rails.application.config.assets.paths</code> in the Rails console, you will see the new asset path.</p>
+
+<h4>Q: How can I have certain JavaScript files appear at the bottom of the HTML page?</h4>
+
+<p>Multiple manifests can be created in the assets folder. For example, I can have a separate manifest called <code>footer.js</code> which includes the files <code>footer_1.js</code> and <code>footer_2.js</code>.</p>
+
+<p><code>javascript
+//= require footer_1
+//= require footer_2
+</code></p>
+
+<p>I can add this into the HTML by using the same <code>javascript_include_tag</code> that is used in the HTML header of the layout.</p>
+
+<p>```html</p>
+
+<pre><code>&lt;%= javascript_include_tag("footer") %&gt;
+</code></pre>
+
+<p>  </body>
+</html>
+```</p>
+
+<h4>Q: How can I precompile additional assets without having to include them in the manifest?</h4>
+
+<p>Let's say we have a file called <code>search.js</code> in our <code>app/assets/javascripts</code> directory and we don't include it in the manifest. We still would like it to be compiled and placed into the <code>public/assets</code> when the assets are compiled.</p>
+
+<p>This is very simple. Just add the following to your <code>application.rb</code> file (or environment specific config file):</p>
+
+<p>```ruby</p>
+
+<h1>Precompile additional assets (application.js,</h1>
+
+<h1>application.css, and all non-JS/CSS are already added)</h1>
+
+<p>config.assets.precompile += %w( search.js )
+```</p>
+
+<p>This configuration option appears by default in <code>config/environments/production.rb</code>.</p>
+
+<h2>Summary</h2>
+
+<p>As I said before, the asset pipeline has three goals: <em><em>precompile</em>, </em>concatenate<em> and </em>minify* assets.</p>
+
+<p><strong>Precompilation</strong> let's you use higher-level languages to create actual assets (for example, Sass to CSS).</p>
+
+<p><strong>Concatenation</strong> is very important in the production environment. It can reduce the number of requests that a browser makes to render a web page, which leads to faster load time.</p>
+
+<p><strong>Minification</strong> takes out the extra whitespace and comments from your assets. This allows for smaller asset file size, which leads to faster load times.</p>
+
+<p>I strongly suggest learning more about the asset pipeline by going to the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails documentation</a>. Ryan Bates also two excellent Railscasts on <a href="http://railscasts.com/episodes/279-understanding-the-asset-pipeline">Understanding the Asset Pipeline</a> and <a href="http://railscasts.com/episodes/341-asset-pipeline-in-production">Asset Pipeline in Production</a>.</p>
+
+<p>Feel free to hop on the #urug channel on Freenode to chat with me anytime. Also, for a different perspective on asset handling, see the <a href="http://grails-plugins.github.com/grails-resources/">Resources</a> plugin for <a href="http://grails.org">Grails</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bunny RabbitMQ]]></title>
+    <link href="http://cavneb.github.io/blog/2011/08/09/bunny-rabbitmq/"/>
+    <updated>2011-08-09T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2011/08/09/bunny-rabbitmq</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/crazy-rabbit.jpg"></p>
+
+<p>Recently I was asked to implement <a href="https://github.com/defunkt/resque">Redis/Resque</a> into an existing project that already had Redis up and running with another Redis server. This ended up being a lot more difficult than I had anticipated due to the <a href="https://github.com/defunkt/resque/blob/master/lib/resque.rb">singleton nature</a> of the Resque gem. This led us to explore other possible options and we ended up on <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
+
+<p>RabbitMQ has two heavily supported gems that can be used to interface with our Rails app. One of them is the <a href="http://rubydoc.info/github/ruby-amqp/amqp/master/file/docs/AMQP091ModelExplained.textile">AMQP gem</a>. It is very powerful and acts as a daemon for both publisher and consumer. Our needs aren't as big, however, so we decided to use the <a href="https://github.com/celldee/bunny">bunny gem</a>.</p>
+
+<p>Initially, I started off by wanting to create a publisher/consumer scenario. I installed RabbitMQ on a <a href="http://www.virtualbox.org/">VirtualBox</a> using <a href="http://vagrantup.com/">Vagrant</a>.</p>
+
+<p><code>
+$ gem install vagrant # See vangrantup.com for install instructions
+$ vagrant box add base http://files.vagrantup.com/lucid32.box
+$ vagrant init
+</code></p>
+
+<p>Make sure you modify your Vagrantfile to allow port access for the tcp protocol:</p>
+
+<p><code>ruby    
+config.vm.forward_port "tcp", 5672, 5672
+</code></p>
+
+<p>Then I started up the server, logged in and installed the RabbitMQ server:</p>
+
+<pre><code>$ vagrant up
+$ vagrant ssh
+vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
+...
+</code></pre>
+
+<p>Once this is done, the RabbitMQ server starts automatically. To ensure that it's working you can run the following command. Remember to run it as sudo.</p>
+
+<p><code>
+vagrant@lucid32:~$ sudo rabbitmqctl list_queues
+Listing queues ...
+...done.
+vagrant@lucid32:~$
+</code></p>
+
+<p>Now that this works, let's play with the gem. Ensure that you have the bunny gem installed.</p>
+
+<p><code>
+$ gem install bunny
+</code></p>
+
+<p>Once this is installed, start up a console and we will create a queue.</p>
+
+<p>``` ruby
+$ irb</p>
+
+<blockquote><p>require 'rubygems'
+ => true
+require 'bunny'
+ => true
+my_client = Bunny.new
+ => #&lt;Bunny::Client:0x1095a..., @port=5672>
+my_client.start
+ => :connected
+my_queue = my_client.queue('my_first_queue')
+ => #&lt;Bunny::Queue:0x1063v..., @port=5672>>
+```</p></blockquote>
+
+<p>Now we have a queue created. Let's go back to our RabbitMQ server and run the list_queues command again.</p>
+
+<p><code>
+vagrant@lucid32:~$ sudo rabbitmqctl list_queues
+Listing queues ...
+my_first_queue  0
+...done.
+vagrant@lucid32:~$
+</code></p>
+
+<p>As you can see, we now have the <em>my_first_queue</em> queue created with 0 items in the queue.</p>
+
+<p>Let's now add a message to the queue.</p>
+
+<p>``` ruby</p>
+
+<blockquote><p>direct_exchange = my_client.exchange('')
+direct_exchange.publish('This is my first message', :key => my_queue.name
+ => nil
+my_queue.message_count
+ => 1
+```</p></blockquote>
+
+<p>And now when you run the <em>list_queues</em> command, you will see it has a <strong>1</strong> after the <em>my_first_queue</em>.</p>
+
+<p><code>
+vagrant@lucid32:~$ sudo rabbitmqctl list_queues
+Listing queues ...
+my_first_queue  1
+...done.
+vagrant@lucid32:~$
+</code></p>
+
+<p>Awesome. Now that we know how to add messages into our RabbitMQ server using the bunny gem, let's now create a consumer to read the messages from the queue.</p>
+
+<p>Let's open up another terminal and run irb. This part will be the same as before.</p>
+
+<p>```
+$ irb</p>
+
+<blockquote><p>require 'rubygems'
+ => true
+require 'bunny'
+ => true
+my_client = Bunny.new
+ => #&lt;Bunny::Client:0x1095a..., @port=5672>
+my_client.start
+ => :connected
+my_queue = my_client.queue('my_first_queue')
+ => #&lt;Bunny::Queue:0x1063v..., @port=5672>>
+ ...
+my_queue.message_count
+ => 1
+```</p></blockquote>
+
+<p>To grab the next item in the queue, we would call <em>pop</em> on <em>my_queue</em></p>
+
+<p>``` ruby</p>
+
+<blockquote><p>msg = my_queue.pop[:payload]
+ => "This is a test message"
+my_queue.message_count
+ => 0
+```</p></blockquote>
+
+<p>If we want it to run as a listener, we can place the <em>pop</em> in a loop.</p>
+
+<p>``` ruby</p>
+
+<blockquote><p>loop do
+  if my_queue.message_count > 0</p>
+
+<pre><code>msg = my_queue.pop[:payload]
+puts "Found Message: #{msg}"
+</code></pre>
+
+<p>  else</p>
+
+<pre><code>sleep 5
+</code></pre>
+
+<p>  end
+end
+```</p></blockquote>
+
+<p>There you have it!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to fix the iconv require error in Ruby 1.9 and RVM]]></title>
+    <link href="http://cavneb.github.io/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/"/>
+    <updated>2011-05-17T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm</id>
+    <content type="html"><![CDATA[<p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
+
+<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
+
+<p><code>
+'require': no such file to load – iconv (LoadError)
+</code></p>
+
+<p><strong>To fix the issue, perform the following steps:</strong></p>
+
+<ol>
+<li>Install readline using rvm: rvm install readline rvm package install readline</li>
+<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
+<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
+</ol>
+
+
+<p><code>
+$ rvm remove 1.9.2
+</code></p>
+
+<ol>
+<li>The final step is to re-install the version of ruby:</li>
+</ol>
+
+
+<p><code>
+$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr
+</code></p>
+
+<p><strong>Now to test that it worked:</strong></p>
+
+<ol>
+<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
+<li>Check you are on the right version of ruby:</li>
+</ol>
+
+
+<p><code>
+$ ruby -v
+ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]
+</code></p>
+
+<ol>
+<li>Start a new irb session</li>
+<li>Now you should be able to require 'iconv' and get a 'true' result</li>
+</ol>
+
+
+<p><code>
+ruby-1.9.2-p180 :001 &gt; require 'iconv'
+=&gt; true
+</code></p>
+
+<p>Now you should be good to go!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Multi-Line Rails Logger Trick]]></title>
+    <link href="http://cavneb.github.io/blog/2010/05/27/multi-line-rails-logger-trick/"/>
+    <updated>2010-05-27T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2010/05/27/multi-line-rails-logger-trick</id>
+    <content type="html"><![CDATA[<p>One thing that I like to do with my logger output is allow for multi-line output. It makes it much easier to read and keeps my code cleaner.</p>
+
+<p>Instead of doing this:</p>
+
+<p><code>ruby
+logger.info "Current Contest: #{@contest.name}"
+logger.info "Current User: #{@contest.name}"
+</code></p>
+
+<p>You can do this:</p>
+
+<p>``` ruby
+logger.info """</p>
+
+<pre><code>Current Contest: #{@contest.name}
+Current User: #{@contest.name}
+</code></pre>
+
+<p>"""
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using multiple SMTP accounts with Rails &amp; ActionMailer]]></title>
+    <link href="http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/"/>
+    <updated>2009-03-30T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer</id>
+    <content type="html"><![CDATA[<p>Recently I ran into a problem where I needed to be able to send emails via two different SMTP accounts within the same Rails application. I scoured the net trying to find a method to do this, but I couldn't find one. So I pulled out my hack-hat and got started.</p>
+
+<p>If there are any better ways to do this, I would love to hear about it.</p>
+
+<p>I first created a new YAML file in my config folder called <code>action_mailer.yml</code>. In this file, I specified three different nodes with the actionmailer settings.</p>
+
+<p>```yaml
+development:
+  ...</p>
+
+<p>test:
+  ...</p>
+
+<p>production:
+  website1:</p>
+
+<pre><code>domain: "gary@superfriends.com"
+user_name: gary
+password: superduper
+address: smtp.gmail.com
+port: 587
+authentication: :plain
+</code></pre>
+
+<p>  website2:</p>
+
+<pre><code>domain: mysupercooldomain.com
+user_name: ABCDEF
+password: blahblah
+address: mail.authsmtp.com
+port: 25
+authentication: :plain
+</code></pre>
+
+<p>```</p>
+
+<p>Afterwards, I created two mailer models that represent each of the different mailers I will use.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/mailer1.rb</h1>
+
+<p>class Website1 &lt; ActionMailer::Base
+  def load_settings</p>
+
+<pre><code>options = YAML.load_file("#{RAILS_ROOT}/config/action_mailer.yml")[RAILS_ENV]["website1"]
+@@smtp_settings = {
+  :address              =&gt; options["address"],
+  :port                 =&gt; options["port"],
+  :domain               =&gt; options["domain"],
+  :authentication       =&gt; options["authentication"],
+  :user_name            =&gt; options["user_name"],
+  :password             =&gt; options["password"]
+}
+</code></pre>
+
+<p>  end</p>
+
+<p>  def welcome_email(recipient, sent_at = Time.now)</p>
+
+<pre><code>load_settings
+@subject = 'Thank you for visiting website 1'
+@recipients = RAILS_ENV == "production" ? recipient : "cavneb@gmail.com"
+@from = 'gary@superfriends.com'
+@sent_on = sent_at
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>```ruby</p>
+
+<h1>app/models/mailer2.rb</h1>
+
+<p>class Website2 &lt; ActionMailer::Base
+  def load_settings</p>
+
+<pre><code>options = YAML.load_file("#{RAILS_ROOT}/config/action_mailer.yml")[RAILS_ENV]["website2"]
+@@smtp_settings = {
+  :address              =&gt; options["address"],
+  :port                 =&gt; options["port"],
+  :domain               =&gt; options["domain"],
+  :authentication       =&gt; options["authentication"],
+  :user_name            =&gt; options["user_name"],
+  :password             =&gt; options["password"]
+}
+</code></pre>
+
+<p>  end</p>
+
+<p>  def welcome_email(recipient, sent_at = Time.now)</p>
+
+<pre><code>load_settings
+@subject = 'Thank you for visiting website 2'
+@recipients = RAILS_ENV == "production" ? recipient : "cavneb@gmail.com"
+@from = 'info@mysupercooldomain.com'
+@sent_on = sent_at
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>So now when I send an email, I can first determine which mailer to use and then send the email.</p>
+
+<p>For example, your controller might have code that looks like this:</p>
+
+<p>```ruby</p>
+
+<h1>Found in code of controller</h1>
+
+<p>if session[:template_name] == "website1"
+  Website1.deliver_welcome_email("cavneb@gmail.com")
+else
+  Website2.deliver_welcome_email("cavneb@gmail.com")
+end
+```</p>
+
+<p>I realize this is probably the hard way, but hey, it's a start. Please post any plugins or alternatives to doing this if you know of any.</p>
+]]></content>
+  </entry>
+  
+</feed>

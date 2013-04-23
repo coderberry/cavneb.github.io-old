@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>AngularJS on Rails 4 - Part 1 - My Octopress Blog</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="<div style="width: 242px; height: 388px; margin: 10px 30px 10px 0; float: left; background: transparent url(http://farm8.staticflickr.com/7225/ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:cavneb.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">AngularJS on Rails 4 - Part 1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-22T22:28:00-06:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div style="width: 242px;
+      height: 388px;
+      margin: 10px 30px 10px 0;
+      float: left;
+      background: transparent url(http://farm8.staticflickr.com/7225/7399778412_0de724ac40_z.jpg) -60px -80px no-repeat;">
+</div>
+
+
+<p>AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers.</p>
+
+<p>Here I want to create a useful Rails application using AngularJS. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
+
+<p>We will take it a step further though and set up filtering using search boxes and perhaps more. So let&#8217;s get started!</p>
+
+<div style="clear: both;"></div>
+
+
+<h2>Creating the Rails Application</h2>
+
+<p>Let&#8217;s start off by creating a new Rails application called <em>Angular Casts</em></p>
+
+<pre><code>$ rails new angular_casts
+</code></pre>
+
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is [feedzirra]. Go ahead and add it to the Gemfile and run <code>bundle install</code>.</p>
+
+<pre><code>gem 'feedzirra'
+
+$ bundle install
+</code></pre>
+
+<h2>Importing Data</h2>
+
+<p>Now that we have our app in place, we want to be able to import feed data into our application. To do so, we will need to store it in our database.</p>
+
+<p>Create a new model using the <em>resource</em> generator. This will generate the controller but not the views. Let&#8217;s call our model <strong>episode</strong>.</p>
+
+<pre><code>$ rails g resource episode title description pub_date:datetime video_url link guid duration source
+</code></pre>
+
+<p>The easiest way for us to import the data is with a rake task. This is a good way to go if we don&#8217;t plan on doing continuous updates to the feed. The rake task will simply call the importer library that we will write.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># lib/tasks/episode_sync.rake</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;railscast_feed&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">namespace</span> <span class="ss">:episode_sync</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">desc</span> <span class="s1">&#39;sync all missing episodes from Railscasts.com&#39;</span>
+</span><span class='line'>  <span class="n">task</span> <span class="ss">:railscasts</span> <span class="o">=&gt;</span> <span class="ss">:environment</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">RailscastFeed</span><span class="o">.</span><span class="n">sync</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we need to create the importing functionality in a lib file.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># lib/railscast_feed.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;feedzirra&#39;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">RailscastFeed</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">sync</span>
+</span><span class='line'>    <span class="c1"># add additional elements to be parsed from the feed entries</span>
+</span><span class='line'>    <span class="ss">Feedzirra</span><span class="p">:</span><span class="ss">:Feed</span><span class="o">.</span><span class="n">add_common_feed_entry_element</span><span class="p">(</span><span class="ss">:enclosure</span><span class="p">,</span> <span class="ss">:value</span> <span class="o">=&gt;</span> <span class="ss">:url</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:video_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="ss">Feedzirra</span><span class="p">:</span><span class="ss">:Feed</span><span class="o">.</span><span class="n">add_common_feed_entry_element</span><span class="p">(</span><span class="s1">&#39;itunes:duration&#39;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:duration</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">feed</span> <span class="o">=</span> <span class="ss">Feedzirra</span><span class="p">:</span><span class="ss">:Feed</span><span class="o">.</span><span class="n">fetch_and_parse</span><span class="p">(</span><span class="s2">&quot;http://feeds.feedburner.com/railscasts&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">feed</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">entry</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Episode</span><span class="o">.</span><span class="n">create_from</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s1">&#39;railscasts&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, let&#8217;s update our model to create the entries, along with validators to ensure we have good data.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/episode.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Episode</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">validates</span> <span class="ss">:guid</span><span class="p">,</span> <span class="ss">presence</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">uniqueness</span><span class="p">:</span> <span class="o">[</span> <span class="ss">scope</span><span class="p">:</span> <span class="ss">:source</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">validates</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:pub_date</span><span class="p">,</span> <span class="ss">:video_url</span><span class="p">,</span> <span class="ss">:link</span><span class="p">,</span> <span class="ss">:source</span><span class="p">,</span> <span class="ss">presence</span><span class="p">:</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">create_from</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">Episode</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:guid</span> <span class="o">=&gt;</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span> <span class="ss">:source</span> <span class="o">=&gt;</span> <span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">first_or_create</span><span class="p">(</span>
+</span><span class='line'>      <span class="ss">title</span><span class="p">:</span>       <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">description</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">summary</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">pub_date</span><span class="p">:</span>    <span class="n">entry</span><span class="o">.</span><span class="n">published</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">video_url</span><span class="p">:</span>   <span class="n">entry</span><span class="o">.</span><span class="n">video_url</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">link</span><span class="p">:</span>        <span class="n">entry</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">duration</span><span class="p">:</span>    <span class="n">entry</span><span class="o">.</span><span class="n">duration</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that this is all complete, import the episodes using the rake task we created.</p>
+
+<pre><code>$ rake episode_sync:railscasts
+</code></pre>
+
+<p>Congrats! But no time to celebrate.. let&#8217;s move on.</p>
+
+<h2>Making Episodes Accessible via API</h2>
+
+<p>Because we are planning on using AngularJS for our front-end, we only need to expose our data as JSON. This will allow AngularJS to talk to the backend via ajax calls.</p>
+
+<p>We are going to only use two calls to the API:</p>
+
+<ul>
+<li><strong>/episodes.json</strong> - returns a full list of episodes</li>
+<li><strong>/episodes/ID.json</strong> - returns data for a specified episode (where ID is the unique ID of the episode in our db)</li>
+</ul>
+
+
+<p>Our routes already include the resources mapping for the episodes. However, let&#8217;s do some cleanup and make sure we only are allowing what we want to use. We will default the format to &#8216;json&#8217; because we will not be using anything else.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="c1"># resources :episodes</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/episodes&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;episodes#index&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/episodes/:id&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;episodes#show&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now update the controller to render the correct JSON data for the two URL&#8217;s.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/episodes_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">EpisodesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">respond_to</span> <span class="ss">:json</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="n">respond_with</span> <span class="no">Episode</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">show</span>
+</span><span class='line'>    <span class="n">respond_with</span> <span class="no">Episode</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/episodes.json">http://localhost:3000/episodes.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/episodes/1.json">http://localhost:3000/episodes/1.json</a> and see the data belonging to a single episode.</p>
+
+<p>Example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;episode&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;#412 Fast Rails Commands&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;pub_date&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-04-04T07:00:00.000Z&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;video_url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;link&quot;</span><span class="o">:</span> <span class="s2">&quot;http://railscasts.com/episodes/412-fast-rails-commands&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;guid&quot;</span><span class="o">:</span> <span class="s2">&quot;fast-rails-commands&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;duration&quot;</span><span class="o">:</span> <span class="s2">&quot;8:06&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;source&quot;</span><span class="o">:</span> <span class="s2">&quot;railscasts&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;created_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-04-23T04:46:32.768Z&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;updated_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-04-23T04:46:32.768Z&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
+
+<h3>Go to <a href="/blog/2013/04/22/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-22T22:28:00-06:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>JavaScript</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/" data-via="" data-counturl="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/20/rubymine-memory-config-vmoptions/" title="Previous Post: What is the best memory config for RubyMine?">&laquo; What is the best memory config for RubyMine?</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/04/23/angularjs-on-rails-4-part-2/" title="Next Post: AngularJS on Rails 4 - Part 2">AngularJS on Rails 4 - Part 2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">AngularJS on Rails 4 - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">AngularJS on Rails 4 - Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What is the best memory config for RubyMine?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS with Yeoman</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/">Simple fix for pagination with Twitter Bootstrap</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

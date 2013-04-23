@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Security | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/security/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Roll your own Ajax-Based Captcha in Grails]]></title>
+    <link href="http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/"/>
+    <updated>2010-10-28T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails</id>
+    <content type="html"><![CDATA[<p>Recently, I was asked to come up with a better solution to our
+captcha needs. We have been using <a href="http://www.google.com/recaptcha">ReCaptcha</a>, which is great
+but difficult to read at times, and has caused frustrated
+customers and lost sales. I found a great solution at
+<a href="http://www.jkdesign.org/captcha">http://www.jkdesign.org/captcha</a> which displays a number of
+graphics and let's the user choose the right one to prove they
+are human. Here is a screenshot of my implementation:</p>
+
+<p><img src="/images/posts/Using-Criteria-Builder-with-Projections-1.png"></p>
+
+<p>To make this work within Grails, I had to make several tweaks. The following files are required:</p>
+
+<ul>
+<li><a href="http://jqueryui.com/">JQuery 1.2+</a> (I am using version - 1.4.2)</li>
+<li><a href="http://jqueryui.com/">JQuery UI</a> (I am using version - 1.8.2)</li>
+<li><a href="http://gist.github.com/651605">jquery.simpleCaptcha-0.2.js</a></li>
+<li><a href="/files/captchaImages.zip">Captcha Images</a> placed in images/captchaImages</li>
+<li><a href="http://gist.github.com/651613">BCrypt.java</a> by Damien Miller</li>
+<li>CaptchaController.groovy (below)</li>
+</ul>
+
+
+<p>Create a new controller called Captcha. This can really be named anything, but if you do rename it, it will have to be updated in the jquery.simpleCaptcha-0.2.js file or passed in as an option via the javascript.</p>
+
+<p><div><script src='https://gist.github.com/1291660.js'></script>
+<noscript><pre><code></code></pre></noscript></div>
+</p>
+
+<p>What this controller does is return a JSON object with the data needed to generate the captcha. The JSON appears like so:</p>
+
+<p><div><script src='https://gist.github.com/1291662.js'></script>
+<noscript><pre><code></code></pre></noscript></div>
+</p>
+
+<p>Now we just need to implement this in our GSP file and controller. Suppose we have a page like shown above with a pickup code and the last 4 digits of the persons phone number. With adding our captcha div and required javascript, our GSP would look like this:</p>
+
+<p><div><script src='https://gist.github.com/1291664.js'></script>
+<noscript><pre><code></code></pre></noscript></div>
+</p>
+
+<p>Finally, we need to perform the validation on the controller side. The modified authentication action would look like the following:</p>
+
+<p>``` java
+def pickup = {</p>
+
+<pre><code>// Determine if the captcha is picked correctly
+if (params.captchaSelection != session.selectedCaptchaText) {
+
+  // They selected the correct Captcha image. Continue with Authentication
+
+} else {
+    flash.message = "You did not click the correct image below. Please Try Again."   
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>So there ya go. It's actually pretty easy and customers seem to like choosing an image much more than typing a word that is difficult to read.</p>
+]]></content>
+  </entry>
+  
+</feed>

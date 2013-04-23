@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: AngularJS | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/angularjs/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[AngularJS on Rails 4 - Part 1]]></title>
+    <link href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
+    <updated>2013-04-22T22:28:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
+    <content type="html"><![CDATA[<div style="width: 242px;
+      height: 388px;
+      margin: 10px 30px 10px 0;
+      float: left;
+      background: transparent url(http://farm8.staticflickr.com/7225/7399778412_0de724ac40_z.jpg) -60px -80px no-repeat;">
+</div>
+
+
+<p>AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers.</p>
+
+<p>Here I want to create a useful Rails application using AngularJS. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
+
+<p>We will take it a step further though and set up filtering using search boxes and perhaps more. So let's get started!</p>
+
+<div style="clear: both;"></div>
+
+
+<h2>Creating the Rails Application</h2>
+
+<p>Let's start off by creating a new Rails application called <em>Angular Casts</em></p>
+
+<pre><code>$ rails new angular_casts
+</code></pre>
+
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is [feedzirra]. Go ahead and add it to the Gemfile and run <code>bundle install</code>.</p>
+
+<pre><code>gem 'feedzirra'
+
+$ bundle install
+</code></pre>
+
+<h2>Importing Data</h2>
+
+<p>Now that we have our app in place, we want to be able to import feed data into our application. To do so, we will need to store it in our database.</p>
+
+<p>Create a new model using the <em>resource</em> generator. This will generate the controller but not the views. Let's call our model <strong>episode</strong>.</p>
+
+<pre><code>$ rails g resource episode title description pub_date:datetime video_url link guid duration source
+</code></pre>
+
+<p>The easiest way for us to import the data is with a rake task. This is a good way to go if we don't plan on doing continuous updates to the feed. The rake task will simply call the importer library that we will write.</p>
+
+<p>```ruby</p>
+
+<h1>lib/tasks/episode_sync.rake</h1>
+
+<p>require 'railscast_feed'</p>
+
+<p>namespace :episode_sync do
+  desc 'sync all missing episodes from Railscasts.com'
+  task :railscasts => :environment do</p>
+
+<pre><code>RailscastFeed.sync
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now we need to create the importing functionality in a lib file.</p>
+
+<p>```ruby</p>
+
+<h1>lib/railscast_feed.rb</h1>
+
+<p>require 'feedzirra'
+class RailscastFeed</p>
+
+<p>  def self.sync</p>
+
+<pre><code># add additional elements to be parsed from the feed entries
+Feedzirra::Feed.add_common_feed_entry_element(:enclosure, :value =&gt; :url, :as =&gt; :video_url)
+Feedzirra::Feed.add_common_feed_entry_element('itunes:duration', :as =&gt; :duration)
+
+feed = Feedzirra::Feed.fetch_and_parse("http://feeds.feedburner.com/railscasts")
+feed.entries.each do |entry|
+  Episode.create_from(entry, 'railscasts')
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>end
+```</p>
+
+<p>Finally, let's update our model to create the entries, along with validators to ensure we have good data.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/episode.rb</h1>
+
+<p>class Episode &lt; ActiveRecord::Base</p>
+
+<p>  validates :guid, presence: true, uniqueness: [ scope: :source ]
+  validates :title, :description, :pub_date, :video_url, :link, :source, presence: true</p>
+
+<p>  def self.create_from(entry, source)</p>
+
+<pre><code>Episode.where(:guid =&gt; entry.entry_id, :source =&gt; source).first_or_create(
+  title:       entry.title,
+  description: entry.summary,
+  pub_date:    entry.published,
+  video_url:   entry.video_url,
+  link:        entry.url,
+  duration:    entry.duration
+)
+</code></pre>
+
+<p>  end</p>
+
+<p>end
+```</p>
+
+<p>Now that this is all complete, import the episodes using the rake task we created.</p>
+
+<pre><code>$ rake episode_sync:railscasts
+</code></pre>
+
+<p>Congrats! But no time to celebrate.. let's move on.</p>
+
+<h2>Making Episodes Accessible via API</h2>
+
+<p>Because we are planning on using AngularJS for our front-end, we only need to expose our data as JSON. This will allow AngularJS to talk to the backend via ajax calls.</p>
+
+<p>We are going to only use two calls to the API:</p>
+
+<ul>
+<li><strong>/episodes.json</strong> - returns a full list of episodes</li>
+<li><strong>/episodes/ID.json</strong> - returns data for a specified episode (where ID is the unique ID of the episode in our db)</li>
+</ul>
+
+
+<p>Our routes already include the resources mapping for the episodes. However, let's do some cleanup and make sure we only are allowing what we want to use. We will default the format to 'json' because we will not be using anything else.</p>
+
+<p>```ruby</p>
+
+<h1>config/routes.rb</h1>
+
+<p>AngularCasts::Application.routes.draw do
+  # resources :episodes
+  get '/episodes' => 'episodes#index', format: 'json'
+  get '/episodes/:id' => 'episodes#show', format: 'json'
+end
+```</p>
+
+<p>Now update the controller to render the correct JSON data for the two URL's.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/episodes_controller.rb</h1>
+
+<p>class EpisodesController &lt; ApplicationController
+  respond_to :json</p>
+
+<p>  def index</p>
+
+<pre><code>respond_with Episode.all
+</code></pre>
+
+<p>  end</p>
+
+<p>  def show</p>
+
+<pre><code>respond_with Episode.find(params[:id])
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/episodes.json">http://localhost:3000/episodes.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/episodes/1.json">http://localhost:3000/episodes/1.json</a> and see the data belonging to a single episode.</p>
+
+<p>Example:</p>
+
+<p>```javascript
+{
+  "episode": {</p>
+
+<pre><code>"id": 1,
+"title": "#412 Fast Rails Commands",
+"description": "Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.",
+"pub_date": "2013-04-04T07:00:00.000Z",
+"video_url": "http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4",
+"link": "http://railscasts.com/episodes/412-fast-rails-commands",
+"guid": "fast-rails-commands",
+"duration": "8:06",
+"source": "railscasts",
+"created_at": "2013-04-23T04:46:32.768Z",
+"updated_at": "2013-04-23T04:46:32.768Z"
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Let's stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
+
+<h3>Go to <a href="/blog/2013/04/22/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bootstrapping AngularJS with Yeoman]]></title>
+    <link href="http://cavneb.github.io/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/"/>
+    <updated>2013-02-13T16:13:00-07:00</updated>
+    <id>http://cavneb.github.io/blog/2013/02/13/bootstrapping-angularjs-with-yeoman</id>
+    <content type="html"><![CDATA[<p><em>Note: This post is incomplete and will be worked on over the next week</em></p>
+
+<div style="width: 242px;
+      height: 388px;
+      margin: 10px 30px 10px 0;
+      float: left;
+      background: transparent url(/images/posts/angular-yeoman.png) top left no-repeat;">
+</div>
+
+
+<p><strong><a href="http://angularjs.org/">AngularJS</a> is awesome.</strong></p>
+
+<p>If you are here, you already know that. If not, <a href="http://www.youtube.com/user/angularjs">watch these videos</a>.</p>
+
+<p><strong><a href="http://yeoman.io">Yeoman</a> is awesome.</strong></p>
+
+<p>If you are here, you <em>might</em> not know that already. It is similar to <a href="http://middlemanapp.com">middleman</a> but is Node driven instead of ruby. For a kickstart, watch the <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=vFacaBinGZ0">screencast by Addi Osmani</a>.</p>
+
+<p>Yeoman also provides support for easy scaffolding, auto-compilation of CoffeeScript and Compass, live preview servers and more. Yup, I was just listing some of the features from <a href="http://yeoman.io/">their site</a>.</p>
+
+<p>Combine these together and you have an excellent solution to bootstrapping your AngularJS applications.</p>
+
+<h2>Install Yeoman</h2>
+
+<p>Install Yeoman with the following command:</p>
+
+<pre><code>$ curl -L get.yeoman.io | bash
+</code></pre>
+
+<p>Once this is done, you can confirm the install and version:</p>
+
+<pre><code>$ yeoman --version
+yeoman  v0.9.1
+</code></pre>
+
+<h2>AngularJS Generators</h2>
+
+<p>The generators that Yeoman provides for AngularJS can be found on <a href="https://github.com/yeoman/generator-angular">GitHub</a>. To view the available generators, type <code>$ yeoman init --help</code>. Here are the Angular related generators</p>
+
+<h4>angular:controller</h4>
+
+<pre><code>Usage:
+  yeoman init angular:controller NAME [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false
+
+Description:
+    Creates a new Angular controller
+
+Example:
+    yeoman init angular:controller Thing
+
+    This will create:
+        app/scripts/controllers/thing-ctrl.js
+</code></pre>
+
+<h4>angular:filter</h4>
+
+<pre><code>Usage:
+  yeoman init angular:filter NAME [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false
+
+Description:
+    Creates a new AngularJS filter
+
+Example:
+    yeoman init angular:filter thing
+
+    This will create:
+        app/scripts/filters/thing.js
+</code></pre>
+
+<h4>angular:route</h4>
+
+<pre><code>Usage:
+  yeoman init angular:route NAME [options]
+
+Options:
+  -h, --help                # Print generator's options and usage  
+                            # Default: false
+      --angular:controller  # Angular:controller to be invoked     
+                            # Default: 
+      --angular:view        # Angular:view to be invoked           
+                            # Default: 
+
+Description:
+    Creates a new AngularJS route
+
+Example:
+    yeoman init angular:route thing
+
+    This will create:
+        app/scripts/controllers/thing.js
+        app/views/thing.html
+    And add routing to:
+        app.js
+</code></pre>
+
+<h4>angular:service</h4>
+
+<pre><code>Usage:
+  yeoman init angular:service NAME [type] [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false
+
+Description:
+    Creates a new AngularJS service.
+    Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
+
+Example:
+    yeoman init angular:service thing
+
+    This will create:
+        app/scripts/services/thing.js
+</code></pre>
+
+<h4>angular:view</h4>
+
+<pre><code>Usage:
+  yeoman init angular:view NAME [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false
+
+Description:
+    Creates a new AngularJS view
+
+Example:
+    yeoman init angular:view Thing
+
+    This will create:
+        app/scripts/views/thing.html
+</code></pre>
+
+<h4>angular:directive</h4>
+
+<pre><code>Usage:
+  yeoman init angular:directive NAME [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false
+
+Description:
+    Creates a new Angular directive
+
+Example:
+    yeoman init angular:directive thing
+
+    This will create:
+        app/scripts/directives/thing.js
+</code></pre>
+
+<h4>angular:app</h4>
+
+<pre><code>Usage:
+  yeoman init angular:app [options]
+
+Options:
+  -h, --help  # Print generator's options and usage  
+              # Default: false  
+
+Description:
+    Create a base Angular application
+
+Example:
+    yeoman init angular:app
+
+    This will create:
+        app/.htaccess
+        app/404.html
+        app/favicon.ico
+        app/robots.txt
+        app/scripts/vendor/angular.js
+        app/scripts/vendor/angular.min.js
+        app/styles/main.css
+        app/views/main.html
+        Gruntfile.js
+        package.json
+        test/lib/angular-mocks.js
+        app/scripts/thing.js
+        app/index.html
+</code></pre>
+
+<h4>angular:all</h4>
+
+<pre><code>Usage:
+  yeoman init angular:all [options]
+
+Options:
+  -h, --help                # Print generator's options and usage  
+                            # Default: false
+      --angular:app         # Angular:app to be invoked            
+                            # Default: 
+      --angular:controller  # Angular:controller to be invoked     
+                            # Default: 
+      --testacular:app      # Testacular:app to be invoked         
+                            # Default: 
+
+Description:
+    Creates a complete starter Angular application with a main 
+    controller, view and tests
+
+Example:
+    yeoman init angular
+
+    This will create:
+        app/.htaccess
+        app/404.html
+        app/favicon.ico
+        app/robots.txt
+        app/scripts/vendor/angular.js
+        app/scripts/vendor/angular.min.js
+        app/styles/main.css
+        app/views/main.html
+        Gruntfile.js
+        package.json
+        test/lib/angular-mocks.js
+        app/scripts/thing.js
+        app/index.html
+        app/scripts/controllers/main.js
+        test/spec/controllers/main.js
+        testacular.conf.js
+</code></pre>
+
+<h2>Bootstrap your app</h2>
+
+<div style="width: 170px;
+      height: 200px;
+      margin: 10px 0 10px 30px;
+      float: right;
+      background: transparent url(/images/posts/instant-gratification.png) top left no-repeat;">
+</div>
+
+
+<p>The first thing that must be done is create a base folder for the application.</p>
+
+<pre><code>$ mkdir my_app
+$ cd my_app/
+</code></pre>
+
+<p>Now run the <strong>angular:all</strong> generator:</p>
+
+<pre><code>$ yeoman init angular:all
+</code></pre>
+
+<p>Finally, start up your server by running</p>
+
+<pre><code>$ yeoman server
+</code></pre>
+
+<p>Now when you make code changes, it will update live to the app.</p>
+
+<h2>TBD</h2>
+
+<ul>
+<li>Enhance the documentation listed above.</li>
+<li>Show how to use the yo CLI tool</li>
+<li>Use yeoman to create CoffeeScript instead of JavaScript</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

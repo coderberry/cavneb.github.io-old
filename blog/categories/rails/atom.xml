@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rails | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[AngularJS on Rails 4 - Part 1]]></title>
+    <link href="http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
+    <updated>2013-04-22T22:28:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
+    <content type="html"><![CDATA[<div style="width: 242px;
+      height: 388px;
+      margin: 10px 30px 10px 0;
+      float: left;
+      background: transparent url(http://farm8.staticflickr.com/7225/7399778412_0de724ac40_z.jpg) -60px -80px no-repeat;">
+</div>
+
+
+<p>AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers.</p>
+
+<p>Here I want to create a useful Rails application using AngularJS. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
+
+<p>We will take it a step further though and set up filtering using search boxes and perhaps more. So let's get started!</p>
+
+<div style="clear: both;"></div>
+
+
+<h2>Creating the Rails Application</h2>
+
+<p>Let's start off by creating a new Rails application called <em>Angular Casts</em></p>
+
+<pre><code>$ rails new angular_casts
+</code></pre>
+
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is [feedzirra]. Go ahead and add it to the Gemfile and run <code>bundle install</code>.</p>
+
+<pre><code>gem 'feedzirra'
+
+$ bundle install
+</code></pre>
+
+<h2>Importing Data</h2>
+
+<p>Now that we have our app in place, we want to be able to import feed data into our application. To do so, we will need to store it in our database.</p>
+
+<p>Create a new model using the <em>resource</em> generator. This will generate the controller but not the views. Let's call our model <strong>episode</strong>.</p>
+
+<pre><code>$ rails g resource episode title description pub_date:datetime video_url link guid duration source
+</code></pre>
+
+<p>The easiest way for us to import the data is with a rake task. This is a good way to go if we don't plan on doing continuous updates to the feed. The rake task will simply call the importer library that we will write.</p>
+
+<p>```ruby</p>
+
+<h1>lib/tasks/episode_sync.rake</h1>
+
+<p>require 'railscast_feed'</p>
+
+<p>namespace :episode_sync do
+  desc 'sync all missing episodes from Railscasts.com'
+  task :railscasts => :environment do</p>
+
+<pre><code>RailscastFeed.sync
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now we need to create the importing functionality in a lib file.</p>
+
+<p>```ruby</p>
+
+<h1>lib/railscast_feed.rb</h1>
+
+<p>require 'feedzirra'
+class RailscastFeed</p>
+
+<p>  def self.sync</p>
+
+<pre><code># add additional elements to be parsed from the feed entries
+Feedzirra::Feed.add_common_feed_entry_element(:enclosure, :value =&gt; :url, :as =&gt; :video_url)
+Feedzirra::Feed.add_common_feed_entry_element('itunes:duration', :as =&gt; :duration)
+
+feed = Feedzirra::Feed.fetch_and_parse("http://feeds.feedburner.com/railscasts")
+feed.entries.each do |entry|
+  Episode.create_from(entry, 'railscasts')
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>end
+```</p>
+
+<p>Finally, let's update our model to create the entries, along with validators to ensure we have good data.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/episode.rb</h1>
+
+<p>class Episode &lt; ActiveRecord::Base</p>
+
+<p>  validates :guid, presence: true, uniqueness: [ scope: :source ]
+  validates :title, :description, :pub_date, :video_url, :link, :source, presence: true</p>
+
+<p>  def self.create_from(entry, source)</p>
+
+<pre><code>Episode.where(:guid =&gt; entry.entry_id, :source =&gt; source).first_or_create(
+  title:       entry.title,
+  description: entry.summary,
+  pub_date:    entry.published,
+  video_url:   entry.video_url,
+  link:        entry.url,
+  duration:    entry.duration
+)
+</code></pre>
+
+<p>  end</p>
+
+<p>end
+```</p>
+
+<p>Now that this is all complete, import the episodes using the rake task we created.</p>
+
+<pre><code>$ rake episode_sync:railscasts
+</code></pre>
+
+<p>Congrats! But no time to celebrate.. let's move on.</p>
+
+<h2>Making Episodes Accessible via API</h2>
+
+<p>Because we are planning on using AngularJS for our front-end, we only need to expose our data as JSON. This will allow AngularJS to talk to the backend via ajax calls.</p>
+
+<p>We are going to only use two calls to the API:</p>
+
+<ul>
+<li><strong>/episodes.json</strong> - returns a full list of episodes</li>
+<li><strong>/episodes/ID.json</strong> - returns data for a specified episode (where ID is the unique ID of the episode in our db)</li>
+</ul>
+
+
+<p>Our routes already include the resources mapping for the episodes. However, let's do some cleanup and make sure we only are allowing what we want to use. We will default the format to 'json' because we will not be using anything else.</p>
+
+<p>```ruby</p>
+
+<h1>config/routes.rb</h1>
+
+<p>AngularCasts::Application.routes.draw do
+  # resources :episodes
+  get '/episodes' => 'episodes#index', format: 'json'
+  get '/episodes/:id' => 'episodes#show', format: 'json'
+end
+```</p>
+
+<p>Now update the controller to render the correct JSON data for the two URL's.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/episodes_controller.rb</h1>
+
+<p>class EpisodesController &lt; ApplicationController
+  respond_to :json</p>
+
+<p>  def index</p>
+
+<pre><code>respond_with Episode.all
+</code></pre>
+
+<p>  end</p>
+
+<p>  def show</p>
+
+<pre><code>respond_with Episode.find(params[:id])
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/episodes.json">http://localhost:3000/episodes.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/episodes/1.json">http://localhost:3000/episodes/1.json</a> and see the data belonging to a single episode.</p>
+
+<p>Example:</p>
+
+<p>```javascript
+{
+  "episode": {</p>
+
+<pre><code>"id": 1,
+"title": "#412 Fast Rails Commands",
+"description": "Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.",
+"pub_date": "2013-04-04T07:00:00.000Z",
+"video_url": "http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4",
+"link": "http://railscasts.com/episodes/412-fast-rails-commands",
+"guid": "fast-rails-commands",
+"duration": "8:06",
+"source": "railscasts",
+"created_at": "2013-04-23T04:46:32.768Z",
+"updated_at": "2013-04-23T04:46:32.768Z"
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Let's stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
+
+<h3>Go to <a href="/blog/2013/04/22/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Simple fix for pagination with Twitter Bootstrap]]></title>
+    <link href="http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
+    <updated>2012-10-09T16:40:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
+    <content type="html"><![CDATA[<p>As a Rails guy, I always perform my table pagination using mislav's <a href="https://github.com/mislav/will_paginate">will_paginate</a> gem. However, when I use it combined with Twitter Bootstrap, I get an undesired result:</p>
+
+<p><img src="/images/posts/pagination-bad.png"></p>
+
+<p>There is a very simple fix for this which doesn't require using an <a href="https://github.com/yrgoldteeth/bootstrap-will_paginate">additional gem</a>.</p>
+
+<p>Add the following CSS to your application:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>assets/stylesheets/pagination_fix.css </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">pre</span><span class="o">&gt;&lt;</span><span class="nt">code</span><span class="o">&gt;//</span><span class="nt">-------------------------------------------------------------------------------</span>
+</span><span class='line'><span class="o">//</span>   <span class="nt">Pagination</span> <span class="nt">fix</span> <span class="nt">for</span> <span class="nt">will_paginate</span> <span class="nt">and</span> <span class="nt">bootstrap</span>
+</span><span class='line'><span class="o">//</span><span class="nt">-------------------------------------------------------------------------------</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.pagination</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">span</span><span class="o">.</span><span class="n">disabled</span> <span class="err">{</span>
+</span><span class='line'>    <span class="k">color</span><span class="o">:</span> <span class="m">#aaa</span> <span class="cp">!important</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nt">em</span><span class="nc">.current</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">float</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">padding</span><span class="o">:</span> <span class="m">0</span> <span class="m">14px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">line-height</span><span class="o">:</span> <span class="m">38px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">text-decoration</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#DDD</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border-left-width</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nc">.previous_page</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">border-left</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#ddd</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nt">code</span><span class="o">&gt;&lt;/</span><span class="nt">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Refresh your page and the pagination issues should be resolved:</p>
+
+<p><img src="/images/posts/pagination-good.png"></p>
+
+<p>Hope this helps!</p>
+
+<h4>Update (Dec 4, 2012):</h4>
+
+<p>I recently attempted to use the will_paginate gem with the latest version of Bootstrap (v2.2.1) and the pagination no longer
+rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I added the following into an initializer:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>config/initializers/will_paginate.rb </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="n">defined?</span><span class="p">(</span><span class="no">WillPaginate</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">WillPaginate</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;module ActionView</span>
+</span><span class='line'><span class="sr">  def will_paginate(collection = nil, options = {})</span>
+</span><span class='line'><span class="sr">    options[:renderer] ||= BootstrapLinkRenderer</span>
+</span><span class='line'><span class="sr">    super.try :html_safe</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">  class BootstrapLinkRenderer &amp;lt; LinkRenderer</span>
+</span><span class='line'><span class="sr">    protected</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def html_container(html)</span>
+</span><span class='line'><span class="sr">      tag :div, tag(:ul, html), container_attributes</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def page_number(page)</span>
+</span><span class='line'><span class="sr">      tag :li, link(page, page, :rel =&amp;gt; rel_value(page)), :class =&amp;gt; (&#39;active&#39; if page == current_page)</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def previous_or_next_page(page, text, classname)</span>
+</span><span class='line'><span class="sr">      tag :li, link(text, page || &#39;#&#39;), :class =&amp;gt; [classname[0..3], classname, (&#39;disabled&#39; unless page)].join(&#39; &#39;)</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def gap</span>
+</span><span class='line'><span class="sr">      tag :li, link(super, &#39;#&#39;), :class =&amp;gt; &#39;disabled&#39;</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This tip was provided by <a href="https://github.com/houen">Søren Houen</a> and found on the <a href="http://railscasts.com/episodes/329-more-on-twitter-bootstrap?view=comments">Railscasts comments</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Asset Pipeline for Dummies]]></title>
+    <link href="http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies/"/>
+    <updated>2012-04-24T08:41:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2012/04/24/asset-pipeline-for-dummies</id>
+    <content type="html"><![CDATA[<p>The Rails asset pipeline is very powerful, but often misunderstood. At the <a href="http://utruby.org">Utah Ruby User Group</a>, most of the attendees aren't sure how to use it fully in their Rails app. It's considered as one of the <em>magic</em> features that Rails offers. I admit that I was confused as well and took it's magic for granted. Not any longer.</p>
+
+<p>I reference the word <em>asset</em> a lot in this article. An asset is a file that is to be included in your Rails application (JavaScript, CSS, Image, etc).</p>
+
+<p><strong>In this article, I want to simplify the asset pipeline so it is better understood.</strong></p>
+
+<h2>Purpose</h2>
+
+<p>The asset pipeline has three goals: precompile, concatenate and minify assets into one central path. Or in other words, it takes all of your stylesheets, javascript files, images and any other files you want, joins them together when possible, and places them in the public/assets folder.</p>
+
+<h2>Moving Parts</h2>
+
+<p><img src="http://cavneb.github.io/images/posts/sprockets.png" class="fleft" align="top" />
+The asset pipeline is powered by two technologies: <a href="https://github.com/sstephenson/sprockets">Sprockets</a> and <a href="https://github.com/rtomayko/tilt">Tilt</a>, the latter being a dependency of the former (look at your <code>Gemfile.lock</code> if you don't believe me).</p>
+
+<p><strong>Sprockets</strong> performs the asset packaging which takes the assets from all the specified paths, compiles them together and places them in the target path (public/assets).</p>
+
+<p><strong>Tilt</strong> is the template engine that Sprockets uses. This allows file types like <em>scss</em> and <em>erb</em> to be used in the asset pipeline. See the <a href="https://github.com/rtomayko/tilt/blob/master/README.md">Tilt Readme</a> for a list of supported template engines.</p>
+
+<p><img src="/images/posts/asset_pipeline_flow.png"></p>
+
+<h2>Asset Paths</h2>
+
+<p>Rails applications default to having three possible asset paths.</p>
+
+<p><code>app/assets</code> is for assets that are owned by the application, such as custom images, JavaScript files or stylesheets.</p>
+
+<p><code>lib/assets</code> is for your own libraries’ code that doesn’t really fit into the scope of the application or those libraries which are shared across applications.</p>
+
+<p><code>vendor/assets</code> is for assets that are owned by outside entities, such as code for JavaScript plugins and CSS frameworks.</p>
+
+<h2>The Manifest</h2>
+
+<p>The keystone of the asset pipeline is the manifest file. By default, Rails creates one for stylesheets (<code>app/assets/stylesheets/application.css</code>) and JavaScript files (<code>app/assets/javascripts/application.js</code>). This file uses <em>directives</em> to declare dependencies in asset source files.</p>
+
+<p>For directives that take a path argument, you may specify either a logical path or a relative path. Relative paths begin with ./ and reference files relative to the location of the current file.</p>
+
+<p>Here are some <em>directives</em> that can be used:</p>
+
+<ul>
+<li><code>require</code> <em>[path]</em> inserts the contents of the asset source file specified by path. If the file is required multiple times, it will appear in the bundle only once.</li>
+<li><code>include</code> <em>[path]</em> works like require, but inserts the contents of the specified source file even if it has already been included or required.
+<code>require_directory</code> <em>[path]</em> requires all source files of the same format in the directory specified by path. Files are required in alphabetical order.</li>
+<li><code>require_tree</code> <em>[path]</em> works like require_directory, but operates recursively to require all files in all subdirectories of the directory specified by path.</li>
+<li><code>require_self</code> tells Sprockets to insert the body of the current source file before any subsequent require or include directives.</li>
+<li><code>depend_on</code> <em>[path]</em> declares a dependency on the given path without including it in the bundle. This is useful when you need to expire an asset's cache in response to a change in another file.</li>
+<li><code>stub</code> <em>[path]</em> allows dependency to be excluded from the asset bundle. The path must be a valid asset and may or may not already be part of the bundle. Once stubbed, it is blacklisted and can't be brought back by any other require.</li>
+</ul>
+
+
+<p>Documentation for this section was largely extracted from the <a href="https://github.com/sstephenson/sprockets">Sprockets</a> README.</p>
+
+<h2>Usage</h2>
+
+<p>Using the asset pipeline is very simple. All it involves is placing assets (js/css/images/other) into the asset path. You can access the files using multiple helper methods within your views:</p>
+
+<p><code>ruby
+audio_path("horse.wav")   # =&gt; /audios/horse.wav
+audio_tag("sound")        # =&gt; &lt;audio src="http://cavneb.github.io/audios/sound" /&gt;
+font_path("font.ttf")     # =&gt; /fonts/font.ttf
+image_path("edit.png")    # =&gt; "/images/edit.png"
+image_tag("icon.png")     # =&gt; &lt;img src="http://cavneb.github.io/images/icon.png" alt="Icon" /&gt;
+video_path("hd.avi")      # =&gt; /videos/hd.avi
+video_tag("trailer.ogg")  # =&gt; &lt;video src="http://cavneb.github.io/videos/trailer.ogg" /&gt;
+</code></p>
+
+<p>See <a href="http://api.rubyonrails.org/classes/ActionView/Helpers/AssetTagHelper.html">ActionView::Helpers::AssetTagHelper</a> documentation for more information.</p>
+
+<h2>Misconceptions</h2>
+
+<h4>Files must belong in their respective paths. For example, all JavaScript files must be in a <code>javascripts</code> folder within an asset path.</h4>
+
+<p>The truth is that the paths (<em>stylesheets</em>, <em>javascripts</em>, <em>images</em>) are only there for organization. You can have all the assets in a single folder or in a hundred.</p>
+
+<h4><a href="http://sass-lang.com/">Sass</a> files need to use <em>erb</em> extension to allow for asset path inclusions within the files.</h4>
+
+<p>The truth is that <code>sass-rails</code> provides <code>-url</code> and <code>-path</code> helpers for the following asset types: image, font, video, audio, JavaScript and stylesheet.</p>
+
+<p><code>ruby
+image-url("rails.png")         # becomes url(/assets/rails.png)
+image-path("rails.png")        # becomes "/assets/rails.png".
+asset-url("rails.png", image)  # becomes url(/assets/rails.png)
+asset-path("rails.png", image) # becomes "/assets/rails.png"
+</code></p>
+
+<p>See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#coding-links-to-assets">Rails Asset Pipeline</a> guide (2.2.2) for more information.</p>
+
+<h2>Adding to Gems</h2>
+
+<p>A good way to include assets easily in a Rails application is by using gems. To include assets within a gem to be precompiled with the Rails application that is using it, all you need is to place the assets in one of the three standard asset paths: <code>app/assets</code>, <code>lib/assets</code> and <code>vendor/assets</code>. These will be automatically included in by Sprockets when the assets are compiled. See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#adding-assets-to-your-gems">Rails documentation</a> for more information.</p>
+
+<h2>FAQ</h2>
+
+<h4>Q: Why doesn't the auto-generated scss and coffeescript only get included in their respective controller views?</h4>
+
+<p>Because the assets all concatenate into one file, there are no seperate files to be included on a view-by-view basis. There is a way to get around this by using css classes.</p>
+
+<p>Let's say we have a controller named <code>Users</code> with an accompanying sass file called <code>users.css.scss</code>. Make sure your css is wrapped in a class which includes the name of the controller:</p>
+
+<p><code>css
+body-users {
+  // Custom css goes here
+}
+</code></p>
+
+<p>Next, add a class to the body tag of your layout:</p>
+
+<p><code>html
+&lt;body class="body-#{controller_name}"&gt;
+</code></p>
+
+<p>Now the css in <code>users.css.scss</code> will only be applied to views under the <code>Users</code> controller.</p>
+
+<h4>Q: Do I have to use the asset pipeline?</h4>
+
+<p>No. In Rails 3.1, the asset pipeline is enabled by default. It can be disabled in <code>config/application.rb</code> by putting this line inside the application class definition:</p>
+
+<p><code>ruby
+config.assets.enabled = false
+</code></p>
+
+<h4>Q: What happens if there are duplicate file names in different asset folders?</h4>
+
+<p>Let's say you have two asset files with the same name in different paths. For example, let's say we have two files: <code>app/assets/stylesheets/style.css.scss</code> and <code>vendor/assets/stylesheets/style.css.scss</code>.</p>
+
+<p>When the assets are compiled, it disregards all the duplicate files after the first one found in the asset path. Let's look at the asset path using the <em>rails console</em>:</p>
+
+<p>```bash</p>
+
+<blockquote><blockquote><h2>y Rails.application.config.assets.paths</h2>
+
+<ul>
+<li>/Users/eberry/example/app/assets/images</li>
+<li>/Users/eberry/example/app/assets/javascripts</li>
+<li>/Users/eberry/example/app/assets/stylesheets</li>
+<li>/Users/eberry/example/vendor/assets/javascripts</li>
+<li>/Users/eberry/example/vendor/assets/stylesheets</li>
+<li>/Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/jquery-rails-2.0.2/vendor/assets/javascripts</li>
+<li>/Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/coffee-rails-3.2.2/lib/assets/javascripts
+```</li>
+</ul>
+</blockquote></blockquote>
+
+<p>Note that the path <code>/Users/eberry/example/app/assets/stylesheets</code> appears before the path <code>/Users/eberry/example/vendor/assets/stylesheets</code>.</p>
+
+<h4>Q: How can I precompile assets that aren't to be used in the pipeline?</h4>
+
+<p>Let's say you want to include the folder <code>other/assets</code> into the asset pipeline to be precompiled. This is a simple addition in the <code>application.rb</code> file (or environment specific config file).</p>
+
+<p>```ruby
+module Foo
+  class Application &lt; Rails::Application</p>
+
+<pre><code>...
+# Add additional path to the assets path for pipeline compilation
+config.assets.paths &lt;&lt; "#{Rails.root}/other/assets"
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now when you run the command <code>Rails.application.config.assets.paths</code> in the Rails console, you will see the new asset path.</p>
+
+<h4>Q: How can I have certain JavaScript files appear at the bottom of the HTML page?</h4>
+
+<p>Multiple manifests can be created in the assets folder. For example, I can have a separate manifest called <code>footer.js</code> which includes the files <code>footer_1.js</code> and <code>footer_2.js</code>.</p>
+
+<p><code>javascript
+//= require footer_1
+//= require footer_2
+</code></p>
+
+<p>I can add this into the HTML by using the same <code>javascript_include_tag</code> that is used in the HTML header of the layout.</p>
+
+<p>```html</p>
+
+<pre><code>&lt;%= javascript_include_tag("footer") %&gt;
+</code></pre>
+
+<p>  </body>
+</html>
+```</p>
+
+<h4>Q: How can I precompile additional assets without having to include them in the manifest?</h4>
+
+<p>Let's say we have a file called <code>search.js</code> in our <code>app/assets/javascripts</code> directory and we don't include it in the manifest. We still would like it to be compiled and placed into the <code>public/assets</code> when the assets are compiled.</p>
+
+<p>This is very simple. Just add the following to your <code>application.rb</code> file (or environment specific config file):</p>
+
+<p>```ruby</p>
+
+<h1>Precompile additional assets (application.js,</h1>
+
+<h1>application.css, and all non-JS/CSS are already added)</h1>
+
+<p>config.assets.precompile += %w( search.js )
+```</p>
+
+<p>This configuration option appears by default in <code>config/environments/production.rb</code>.</p>
+
+<h2>Summary</h2>
+
+<p>As I said before, the asset pipeline has three goals: <em><em>precompile</em>, </em>concatenate<em> and </em>minify* assets.</p>
+
+<p><strong>Precompilation</strong> let's you use higher-level languages to create actual assets (for example, Sass to CSS).</p>
+
+<p><strong>Concatenation</strong> is very important in the production environment. It can reduce the number of requests that a browser makes to render a web page, which leads to faster load time.</p>
+
+<p><strong>Minification</strong> takes out the extra whitespace and comments from your assets. This allows for smaller asset file size, which leads to faster load times.</p>
+
+<p>I strongly suggest learning more about the asset pipeline by going to the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails documentation</a>. Ryan Bates also two excellent Railscasts on <a href="http://railscasts.com/episodes/279-understanding-the-asset-pipeline">Understanding the Asset Pipeline</a> and <a href="http://railscasts.com/episodes/341-asset-pipeline-in-production">Asset Pipeline in Production</a>.</p>
+
+<p>Feel free to hop on the #urug channel on Freenode to chat with me anytime. Also, for a different perspective on asset handling, see the <a href="http://grails-plugins.github.com/grails-resources/">Resources</a> plugin for <a href="http://grails.org">Grails</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using multiple SMTP accounts with Rails &amp; ActionMailer]]></title>
+    <link href="http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/"/>
+    <updated>2009-03-30T00:00:00-06:00</updated>
+    <id>http://cavneb.github.io/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer</id>
+    <content type="html"><![CDATA[<p>Recently I ran into a problem where I needed to be able to send emails via two different SMTP accounts within the same Rails application. I scoured the net trying to find a method to do this, but I couldn't find one. So I pulled out my hack-hat and got started.</p>
+
+<p>If there are any better ways to do this, I would love to hear about it.</p>
+
+<p>I first created a new YAML file in my config folder called <code>action_mailer.yml</code>. In this file, I specified three different nodes with the actionmailer settings.</p>
+
+<p>```yaml
+development:
+  ...</p>
+
+<p>test:
+  ...</p>
+
+<p>production:
+  website1:</p>
+
+<pre><code>domain: "gary@superfriends.com"
+user_name: gary
+password: superduper
+address: smtp.gmail.com
+port: 587
+authentication: :plain
+</code></pre>
+
+<p>  website2:</p>
+
+<pre><code>domain: mysupercooldomain.com
+user_name: ABCDEF
+password: blahblah
+address: mail.authsmtp.com
+port: 25
+authentication: :plain
+</code></pre>
+
+<p>```</p>
+
+<p>Afterwards, I created two mailer models that represent each of the different mailers I will use.</p>
+
+<p>```ruby</p>
+
+<h1>app/models/mailer1.rb</h1>
+
+<p>class Website1 &lt; ActionMailer::Base
+  def load_settings</p>
+
+<pre><code>options = YAML.load_file("#{RAILS_ROOT}/config/action_mailer.yml")[RAILS_ENV]["website1"]
+@@smtp_settings = {
+  :address              =&gt; options["address"],
+  :port                 =&gt; options["port"],
+  :domain               =&gt; options["domain"],
+  :authentication       =&gt; options["authentication"],
+  :user_name            =&gt; options["user_name"],
+  :password             =&gt; options["password"]
+}
+</code></pre>
+
+<p>  end</p>
+
+<p>  def welcome_email(recipient, sent_at = Time.now)</p>
+
+<pre><code>load_settings
+@subject = 'Thank you for visiting website 1'
+@recipients = RAILS_ENV == "production" ? recipient : "cavneb@gmail.com"
+@from = 'gary@superfriends.com'
+@sent_on = sent_at
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>```ruby</p>
+
+<h1>app/models/mailer2.rb</h1>
+
+<p>class Website2 &lt; ActionMailer::Base
+  def load_settings</p>
+
+<pre><code>options = YAML.load_file("#{RAILS_ROOT}/config/action_mailer.yml")[RAILS_ENV]["website2"]
+@@smtp_settings = {
+  :address              =&gt; options["address"],
+  :port                 =&gt; options["port"],
+  :domain               =&gt; options["domain"],
+  :authentication       =&gt; options["authentication"],
+  :user_name            =&gt; options["user_name"],
+  :password             =&gt; options["password"]
+}
+</code></pre>
+
+<p>  end</p>
+
+<p>  def welcome_email(recipient, sent_at = Time.now)</p>
+
+<pre><code>load_settings
+@subject = 'Thank you for visiting website 2'
+@recipients = RAILS_ENV == "production" ? recipient : "cavneb@gmail.com"
+@from = 'info@mysupercooldomain.com'
+@sent_on = sent_at
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>So now when I send an email, I can first determine which mailer to use and then send the email.</p>
+
+<p>For example, your controller might have code that looks like this:</p>
+
+<p>```ruby</p>
+
+<h1>Found in code of controller</h1>
+
+<p>if session[:template_name] == "website1"
+  Website1.deliver_welcome_email("cavneb@gmail.com")
+else
+  Website2.deliver_welcome_email("cavneb@gmail.com")
+end
+```</p>
+
+<p>I realize this is probably the hard way, but hey, it's a start. Please post any plugins or alternatives to doing this if you know of any.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Creating Custom SOAP Requests with Ruby and Net::HTTP]]></title>
+    <link href="http://cavneb.github.io/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http/"/>
+    <updated>2008-12-19T00:00:00-07:00</updated>
+    <id>http://cavneb.github.io/blog/2008/12/19/creating-custom-soap-requests-with-ruby-and-net-http</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/golf_scale.jpg"></p>
+
+<p>I interviewed at a company a while ago and one of the questions they asked me was the familiar "You have 8 golf balls and a justice scale. One of the golf balls has a bubble in it making it a tiny bit lighter, but you can't tell by looking at it or holding it. How many times do you need to use the scale in order to find the defective ball?". I left the interview thinking that the answer was 3. After about 3 hours of thinking about it, I realized that the answer was 2 tries.</p>
+
+<p>The reason I share this with you is because today I found the answer to something that I've been thinking about for much longer than 3 hours. For about 1 1/2 years, I have been trying to find a good way to simply post a SOAP request via ruby without having to use SOAP4r or WSDL's. Some of you might find this a bit odd that it took me this long to figure this out, but then again, it's almost impossible to find any examples of this online.</p>
+
+<p>Enough history. Let's get to the code.</p>
+
+<p>In my book, <a href="http://www.amazon.com/gp/product/0596520700?ie=UTF8&amp;tag=kobu-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0596520700">Rails Pocket Reference</a>, I have a section about using SOAP. In the example, I used the soap/wsdlDriver library to parse a WSDL from GeoCoder.us, a free US address geocoder tool. Instead of using the WSDL, you can access the response directly.</p>
+
+<p>```ruby
+require 'net/http'
+require 'net/https'</p>
+
+<h1>Create te http object</h1>
+
+<p>http = Net::HTTP.new('rpc.geocoder.us', 80)
+http.use_ssl = false
+path = '/service/soap/'</p>
+
+<h1>Create the SOAP Envelope</h1>
+
+<p>data = &lt;<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+&lt;SOAP-ENV:Envelope
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  &lt;SOAP-ENV:Body></p>
+
+<pre><code>&lt;m:geocode xmlns:m="http://rpc.geocoder.us/Geo/Coder/US/"&gt;
+  &lt;location xsi:type="xsd:string"&gt;1005 Gravenstein Highway North Sebastopol, CA 95472&lt;/location&gt;
+&lt;/m:geocode&gt;
+</code></pre>
+
+<p>  &lt;/SOAP-ENV:Body>
+&lt;/SOAP-ENV:Envelope>
+EOF</p>
+
+<h1>Set Headers</h1>
+
+<p>headers = {
+  'Referer' => 'http://www.appfusion.net',
+  'Content-Type' => 'text/xml',
+  'Host' => 'rpc.geocoder.us'
+}</p>
+
+<h1>Post the request</h1>
+
+<p>resp, data = http.post(path, data, headers)</p>
+
+<h1>Output the results</h1>
+
+<p>puts 'Code = ' + resp.code
+puts 'Message = ' + resp.message
+resp.each { |key, val| puts key + ' = ' + val }
+puts data
+```</p>
+
+<p>I hope this makes using SOAP with Ruby a lot less cryptic for other as it does me.</p>
+]]></content>
+  </entry>
+  
+</feed>

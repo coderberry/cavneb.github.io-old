@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: IDE | My Octopress Blog]]></title>
+  <link href="http://cavneb.github.io/blog/categories/ide/atom.xml" rel="self"/>
+  <link href="http://cavneb.github.io/"/>
+  <updated>2013-04-23T07:44:39-06:00</updated>
+  <id>http://cavneb.github.io/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[What is the best memory config for RubyMine?]]></title>
+    <link href="http://cavneb.github.io/blog/2013/02/20/rubymine-memory-config-vmoptions/"/>
+    <updated>2013-02-20T08:30:00-07:00</updated>
+    <id>http://cavneb.github.io/blog/2013/02/20/rubymine-memory-config-vmoptions</id>
+    <content type="html"><![CDATA[<p>RubyMine has become <em>awesomer</em> and <em>awesomer</em> over the years and is now my primary development tool for Rails development. One thing I've found frustrating however is that there is very little documentation on the best memory settings for your computer.</p>
+
+<p>I'd like to get a thread going here with people identifying their computer, CPU, memory and config settings for RubyMine.</p>
+
+<p>The config file can be located in the <code>bin</code> folder of your application. On my mac, the file is <code>/Applications/RubyMine/bin/idea.vmoptions</code>. If it doesn't exist you may need to create it.</p>
+
+<p>So here are my computer specs and vmoptions:</p>
+
+<p>MacBook Pro Retina 2.6 GHz Intel Core i7 with 16 GB memory</p>
+
+<p><code>
+-Xms128m
+-Xmx2048m
+-XX:MaxPermSize=500m
+-XX:ReservedCodeCacheSize=128m
+-XX:+UseCodeCacheFlushing
+-XX:+UseCompressedOops
+</code></p>
+
+<p>Please feel free to post yours in the comments below. I believe this will help others optimize their RubyMine experience.</p>
+]]></content>
+  </entry>
+  
+</feed>
