@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-04-23T08:57:38-06:00</updated>
+  <updated>2013-04-23T17:38:08-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -31,7 +31,7 @@ $ rake db:migrate
 
 <h2>Add AngularJS Libraries</h2>
 
-<p>There are a couple of different ways we can add AngularJS into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="angularjs-rails">angular-rails gem</a>. I found this to be a bit outdated and overkill for what we are trying to do. Not only that, it&#8217;s good to know how to do this without a gem.</p>
+<p>There are a couple of different ways we can add AngularJS into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="https://github.com/hiravgandhi/angularjs-rails">angular-rails gem</a>. I found this to be a bit outdated and overkill for what we are trying to do. Not only that, it&#8217;s good to know how to do this without a gem.</p>
 
 <p>Go to <a href="http://code.angularjs.org/1.0.6/">http://code.angularjs.org/1.0.6/</a> and download the following files into your vendor/assets/javascripts folder:</p>
 
@@ -84,7 +84,7 @@ $ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/java
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>this.app</code>. We also add the dependency of <code>ngResource</code> which is our angular-resource.js file.</p>
+<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>@app</code>. We also add the dependency of <code>ngResource</code> which is our angular-resource.js file.</p>
 
 <p>Now open up <em>app/assets/javascripts/application.js</em> and make the following changes:</p>
 
@@ -186,6 +186,583 @@ $ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/java
 <p>Now open <a href="http://localhost:3000">http://localhost:3000</a>. Works? YAY!</p>
 
 <h3>Adding Angular to our Views</h3>
+
+<p>For our app to recognize that it is an Angular application, we need to add the ng-app attribute to the html tag on our layout.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- app/views/layouts/application.html.erb --&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">&quot;AngularCasts&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s create a controller that will be used to list out the episodes. Create a new coffeescript file at <em>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</em></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@EpisodesCtrl = </span><span class="nx">@app</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;EpisodesCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;$scope&quot;</span><span class="p">,</span> <span class="nf">($scope) -&gt;</span>
+</span><span class='line'>  <span class="nv">$scope.message = </span><span class="s">&quot;Angular Rocks!&quot;</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&#8217;s update our controller view as well to display the message.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- app/views/home/index.html.erb --&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;header&gt;</span>
+</span><span class='line'>  AngularCasts
+</span><span class='line'><span class="nt">&lt;/header&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;EpisodesCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h1&gt;</span>Message: {{message}}<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we have bound the contents of the <em>div</em> to the controller <em>EpisodesCtrl</em>. Refresh the browser and you should see &#8216;Message: Angular Rocks!&#8217;</p>
+
+<h2>List the Episodes</h2>
+
+<p>Now that we have Angular talking to our views, let&#8217;s integrate our episodes data. Remember that we can access the JSON data by calling <a href="http://localhost:3000/episodes.json">http://localhost:3000/episodes.json</a>.</p>
+
+<p>Modify your controller to perform the ajax request and place the results into the <code>$scope</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@EpisodesCtrl = </span><span class="nx">@app</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;EpisodesCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;$scope&quot;</span><span class="p">,</span> <span class="s">&quot;$http&quot;</span><span class="p">,</span> <span class="nf">($scope, $http) -&gt;</span>
+</span><span class='line'>  <span class="nv">$scope.episodes = </span><span class="p">[]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadEpisodes = </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">$http</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;/episodes.json&quot;</span><span class="p">).</span><span class="nx">success</span><span class="p">(</span><span class="nf">(data, status, headers, config) -&gt;</span>
+</span><span class='line'>      <span class="nx">angular</span><span class="p">.</span><span class="nx">forEach</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(value) -&gt;</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">episodes</span><span class="p">.</span><span class="nx">push</span> <span class="nx">value</span><span class="p">.</span><span class="nx">episode</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">loadEpisodes</span><span class="p">()</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>*** DESCRIPTION TO FOLLOW</p>
+
+<p>Let&#8217;s update our view as well to list out the episodes in the scope.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- app/views/home/index.html.erb --&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;header&gt;</span>
+</span><span class='line'>  AngularCasts
+</span><span class='line'><span class="nt">&lt;/header&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;EpisodesCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;episode-list-container&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;episode in episodes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>{{episode.title}} <span class="nt">&lt;small&gt;</span>({{episode.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Try it out. If all worked well, you should see a list of episodes. Now lets add the much needed CSS to our application. Copy the following into <em>app/assets/stylesheets/episodes.css.scss</em></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="c">/* app/assets/stylesheets/episodes.css.scss */</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">body</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">font-size</span><span class="o">:</span> <span class="m">12px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">font-family</span><span class="o">:</span> <span class="n">Helvetica</span><span class="o">,</span> <span class="k">sans-serif</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#ddd</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">margin</span><span class="o">:</span> <span class="m">0px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">header</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#4F4F4F</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="m">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">position</span><span class="o">:</span> <span class="k">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">height</span><span class="o">:</span> <span class="m">36px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">top</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">left</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">right</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">font-size</span><span class="o">:</span> <span class="m">18px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">line-height</span><span class="o">:</span> <span class="m">36px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">font-weight</span><span class="o">:</span> <span class="k">bold</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding-left</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nf">#episode-list-container</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">position</span><span class="o">:</span> <span class="k">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">width</span><span class="o">:</span> <span class="m">300px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">top</span><span class="o">:</span> <span class="m">37px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">left</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">bottom</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">overflow</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">overflow</span><span class="o">-</span><span class="n">scrolling</span><span class="o">:</span> <span class="n">touch</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">ul</span> <span class="err">{</span>
+</span><span class='line'>    <span class="k">margin</span><span class="o">:</span> <span class="m">0px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">list-style</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">padding</span><span class="o">:</span> <span class="m">0px</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">li</span> <span class="err">{</span>
+</span><span class='line'>      <span class="k">cursor</span><span class="o">:</span> <span class="k">pointer</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">border-bottom</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#ddd</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">padding</span><span class="o">:</span> <span class="m">0</span> <span class="m">10px</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="err">}</span>
+</span><span class='line'>  <span class="nt">h3</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">font-size</span><span class="o">:</span> <span class="m">14px</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">small</span> <span class="err">{</span>
+</span><span class='line'>      <span class="k">font-size</span><span class="o">:</span> <span class="m">12px</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">color</span><span class="o">:</span> <span class="m">#ccc</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">font-weight</span><span class="o">:</span> <span class="k">normal</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="o">&amp;</span><span class="nc">.active</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="err">}</span>
+</span><span class='line'><span class="err">}</span>
+</span><span class='line'><span class="nf">#episode-view-container</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">position</span><span class="o">:</span> <span class="k">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border-left</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#d0d0d0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">top</span><span class="o">:</span> <span class="m">37px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">left</span><span class="o">:</span> <span class="m">300px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">right</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">bottom</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">min-height</span><span class="o">:</span> <span class="m">400px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">5px</span> <span class="m">25px</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="m">#player</span> <span class="err">{</span>
+</span><span class='line'>    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#000</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">max-width</span><span class="o">:</span> <span class="m">800px</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh the browser again. Ooooh!</p>
+
+<h2>Show the Selected Episode</h2>
+
+<p>When we click on the episode on the left, we want to be able to view the episode with more information in the main area. This can be done in a few steps:</p>
+
+<h3>Add an event listener to the episode</h3>
+
+<p>This is an easy part. Add the ng-click attribute to the <em>h3</em> tag to call the method <em>showEpisode</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h3</span> <span class="na">ng-click=</span><span class="s">&quot;showEpisode(episode)&quot;</span><span class="nt">&gt;</span>{{episode.title}} <span class="nt">&lt;small&gt;</span>({{episode.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, we added <code>ng-click="showEpisode(episode)"</code> to the <em>h3</em> tag. The function call takes the episode as it&#8217;s parameter, which is available from the ng-repeat.</p>
+
+<h3>Add the function into the controller</h3>
+
+<p>Let&#8217;s add the <em>showEpisode</em> function to our controller.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@EpisodesCtrl = </span><span class="nx">@app</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;EpisodesCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;$scope&quot;</span><span class="p">,</span> <span class="s">&quot;$http&quot;</span><span class="p">,</span> <span class="nf">($scope, $http) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.episodes = </span><span class="p">[]</span>
+</span><span class='line'>  <span class="nv">$scope.selectedEpisode = </span><span class="kc">null</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.showEpisode = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedEpisode = </span><span class="nx">episode</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadEpisodes = </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">$http</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;/episodes.json&quot;</span><span class="p">).</span><span class="nx">success</span><span class="p">(</span><span class="nf">(data, status, headers, config) -&gt;</span>
+</span><span class='line'>      <span class="nx">angular</span><span class="p">.</span><span class="nx">forEach</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(value) -&gt;</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">episodes</span><span class="p">.</span><span class="nx">push</span> <span class="nx">value</span><span class="p">.</span><span class="nx">episode</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">loadEpisodes</span><span class="p">()</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On line 6, we added the scoped variable <em>selectedEpisode</em> with a default value of <em>null</em>.</p>
+
+<p>On lines 8-9, we added the scoped function which is called by the <em>ng-click</em> and sets the <em>selectedEpisode</em> value to the passed in episode.</p>
+
+<p>Now back on the view, let&#8217;s add the container for the <em>show</em> view.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- app/views/home/index.html.erb --&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;header&gt;</span>
+</span><span class='line'>  AngularCasts
+</span><span class='line'><span class="nt">&lt;/header&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;EpisodesCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;episode-list-container&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;episode in episodes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3</span> <span class="na">ng-click=</span><span class="s">&quot;showEpisode(episode)&quot;</span><span class="nt">&gt;</span>{{episode.title}} <span class="nt">&lt;small&gt;</span>({{episode.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;episode-view-container&quot;</span> <span class="na">ng-show=</span><span class="s">&quot;selectedEpisode&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h2&gt;</span>{{selectedEpisode.title}}<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>{{selectedEpisode.description}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;player&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we have added lines 16-21. In our container div, there is the attribute <code>ng-show="selectedEpisode"</code>. This ensures that the div is only visible if the scoped variable <em>selectedEpisode</em> is set. Line 20 will contain our video, but we&#8217;ll get to that.</p>
+
+<p>Then inside the div, we display the episode information for the selected episode.</p>
+
+<p>Try it out by <a href="http://localhost:3000">reloading your browser</a>.</p>
+
+<h3>Embed the Video</h3>
+
+<p>Now that we can see the individual episode information, we can add the video embed code. For this we are going to use <a href="http://flowplayer.org">flowplayer</a>. It is fairly simple to set up.</p>
+
+<p>First we need to add the required <em>css</em> and <em>javascript</em> libraries to our layout. Open up <em>application.html.erb</em> and make the following changes:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- app/views/layouts/application.html.erb --&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">&quot;AngularCasts&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span>AngularCasts<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= stylesheet_link_tag &quot;application&quot;, &quot;http://releases.flowplayer.org/5.4.0/skin/minimalist.css&quot; %&gt;
+</span><span class='line'>  <span class="err">&lt;</span>%= javascript_include_tag &quot;application&quot;,
+</span><span class='line'>                             &quot;http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js&quot;,
+</span><span class='line'>                             &quot;http://releases.flowplayer.org/5.4.0/flowplayer.min.js&quot; %&gt;
+</span><span class='line'>  <span class="err">&lt;</span>%= csrf_meta_tags %&gt;
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;</span>%= yield %&gt;
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we added a new stylesheet and two additional javascript files to our include tags. As you can see, jQuery was included. This is a dependency of flowplayer, so we had to add it. But we have made it this far without it!</p>
+
+<p>Now we can embed the video from within our controller. This is very simple.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@EpisodesCtrl = </span><span class="nx">@app</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;EpisodesCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;$scope&quot;</span><span class="p">,</span> <span class="s">&quot;$http&quot;</span><span class="p">,</span> <span class="nf">($scope, $http) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.episodes = </span><span class="p">[]</span>
+</span><span class='line'>  <span class="nv">$scope.selectedEpisode = </span><span class="kc">null</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.showEpisode = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedEpisode = </span><span class="nx">episode</span>
+</span><span class='line'>    <span class="nx">loadVideo</span><span class="p">(</span><span class="nx">episode</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadVideo = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s">&quot;</span><span class="err">#</span><span class="s">player&quot;</span><span class="p">).</span><span class="nx">flowplayer</span>
+</span><span class='line'>      <span class="nv">playlist: </span><span class="p">[[</span><span class="nv">mp4: </span><span class="nx">episode</span><span class="p">.</span><span class="nx">video_url</span><span class="p">]]</span>
+</span><span class='line'>      <span class="nv">ratio: </span><span class="mi">9</span> <span class="o">/</span> <span class="mi">14</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadEpisodes = </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">$http</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;/episodes.json&quot;</span><span class="p">).</span><span class="nx">success</span><span class="p">(</span><span class="nf">(data, status, headers, config) -&gt;</span>
+</span><span class='line'>      <span class="nx">angular</span><span class="p">.</span><span class="nx">forEach</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(value) -&gt;</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">episodes</span><span class="p">.</span><span class="nx">push</span> <span class="nx">value</span><span class="p">.</span><span class="nx">episode</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">loadEpisodes</span><span class="p">()</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On line 10, we added a call to the function <em>loadVideo</em> passing in the episode.</p>
+
+<p>On lines 12-15, we define a function which performs the javascript in order to load the video into <code>&lt;div id="player"&gt;&lt;/div&gt;</code>. You can see that we pass in the episode&#8217;s video_url as the mp4 and set the ratio to 9/14.</p>
+
+<p>Let&#8217;s give it another go. Refresh your browser. You should now have a fully-functional AngularJS application!!!</p>
+
+<h2>Visual Feedback</h2>
+
+<p>The final item we will be adding in our application is some visual feedback as to which video we are watching. In other words, we want to highlight the selected video on the left list.</p>
+
+<p>Add the following <em>ng-class</em> attribute to the <em>h3</em> tag:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'><span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;episode in episodes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h3</span> <span class="na">ng-click=</span><span class="s">&quot;showEpisode(episode)&quot;</span> <span class="na">ng-class=</span><span class="s">&quot;isSelected(episode)&quot;</span><span class="nt">&gt;</span> <span class="nt">&lt;small&gt;</span>()<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'><span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We now are using the function <code>isSelected(episode)</code> as the class name. Let&#8217;s add this to our controller.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</span>
+</span><span class='line'>
+</span><span class='line'><span class="vi">@EpisodesCtrl = </span><span class="nx">@app</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;EpisodesCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;$scope&quot;</span><span class="p">,</span> <span class="s">&quot;$http&quot;</span><span class="p">,</span> <span class="nf">($scope, $http) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.episodes = </span><span class="p">[]</span>
+</span><span class='line'>  <span class="nv">$scope.selectedEpisode = </span><span class="kc">null</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.showEpisode = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedEpisode = </span><span class="nx">episode</span>
+</span><span class='line'>    <span class="nx">loadVideo</span><span class="p">(</span><span class="nx">episode</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">$scope.isSelected = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="s">&#39;active&#39;</span> <span class="k">if</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">selectedEpisode</span> <span class="o">==</span> <span class="nx">episode</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadVideo = </span><span class="nf">(episode) -&gt;</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s">&quot;</span><span class="err">#</span><span class="s">player&quot;</span><span class="p">).</span><span class="nx">flowplayer</span>
+</span><span class='line'>      <span class="nv">playlist: </span><span class="p">[[</span><span class="nv">mp4: </span><span class="nx">episode</span><span class="p">.</span><span class="nx">video_url</span><span class="p">]]</span>
+</span><span class='line'>      <span class="nv">ratio: </span><span class="mi">9</span> <span class="o">/</span> <span class="mi">14</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">loadEpisodes = </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">$http</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;/episodes.json&quot;</span><span class="p">).</span><span class="nx">success</span><span class="p">(</span><span class="nf">(data, status, headers, config) -&gt;</span>
+</span><span class='line'>      <span class="nx">angular</span><span class="p">.</span><span class="nx">forEach</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(value) -&gt;</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">episodes</span><span class="p">.</span><span class="nx">push</span> <span class="nx">value</span><span class="p">.</span><span class="nx">episode</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">loadEpisodes</span><span class="p">()</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On lines 12-13, we have added the function <em>isSelected</em>. It will return &#8216;active&#8217; if the selectedEpisode is the episode that was clicked.</p>
+
+<h2>Final Product</h2>
+
+<p><img src="http://f.cl.ly/items/2r0I1w1L3d1s0N0l2A0v/angular_casts.png"></p>
 ]]></content>
   </entry>
   
@@ -198,7 +775,7 @@ $ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/java
       height: 388px;
       margin: 10px 30px 10px 0;
       float: left;
-      background: transparent url(http://farm8.staticflickr.com/7225/7399778412_0de724ac40_z.jpg) -60px -80px no-repeat;">
+      background: transparent url(http://f.cl.ly/items/1n0f2g2z2w2U0s2h2t40/angular_mug.jpg) -60px -80px no-repeat;">
 </div>
 
 
