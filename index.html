@@ -953,7 +953,7 @@ $ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/java
 
 <p>Let&#8217;s create a model based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
 
-<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime, source, video_url --timestamps=false
+<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime source video_url --timestamps=false
 </code></pre>
 
 <p>Note that in our generate command, we skipped timestamps. By having the published_at date and time, we don&#8217;t need to store the additional information <em>unless you really really wanted to</em>.</p>

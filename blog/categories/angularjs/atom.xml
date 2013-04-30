@@ -4,7 +4,7 @@
   <title><![CDATA[Category: AngularJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/angularjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-04-28T00:53:36-06:00</updated>
+  <updated>2013-04-30T08:26:46-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -644,7 +644,7 @@ loadVideo(episode)
 
 <p>Let's create a model based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
 
-<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime, source, video_url --timestamps=false
+<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime source video_url --timestamps=false
 </code></pre>
 
 <p>Note that in our generate command, we skipped timestamps. By having the published_at date and time, we don't need to store the additional information <em>unless you really really wanted to</em>.</p>
