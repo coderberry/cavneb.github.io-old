@@ -192,8 +192,6 @@ $ rake db:migrate RAILS_ENV=test
 
 <p>If all worked well, you should see something like <strong>0 tests, 0 assertions, 0 failures, 0 errors, 0 skips</strong>. This means that the test suite ran, but it didn&#8217;t find any tests to run.</p>
 
-<p>Open up the auto-generated file <em>test/models/screencast_test.rb</em>.</p>
-
 <p>There are a few things we will want to test. Let&#8217;s list them out:</p>
 
 <ol>
@@ -214,6 +212,24 @@ $ rake db:migrate RAILS_ENV=test
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
 </pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="c1"># Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html</span>
 </span><span class='line'>
 </span><span class='line'><span class="l-Scalar-Plain">fast_rails_commands</span><span class="p-Indicator">:</span>
@@ -224,10 +240,28 @@ $ rake db:migrate RAILS_ENV=test
 </span><span class='line'>  <span class="l-Scalar-Plain">published_at</span><span class="p-Indicator">:</span> <span class="s">&quot;Thu,</span><span class="nv"> </span><span class="s">04</span><span class="nv"> </span><span class="s">Apr</span><span class="nv"> </span><span class="s">2013</span><span class="nv"> </span><span class="s">00:00:00</span><span class="nv"> </span><span class="s">-0700&quot;</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">source</span><span class="p-Indicator">:</span> <span class="s">&quot;railscasts&quot;</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">video_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">wizard_forms_with_wicked</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="s">&quot;Wizard</span><span class="nv"> </span><span class="s">Forms</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">Wicked&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">summary</span><span class="p-Indicator">:</span> <span class="s">&quot;Creating</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">wizard</span><span class="nv"> </span><span class="s">form</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">tricky</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Rails.</span><span class="nv"> </span><span class="s">Learn</span><span class="nv"> </span><span class="s">how</span><span class="nv"> </span><span class="s">Wicked</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">help</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">turning</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">controller</span><span class="nv"> </span><span class="s">into</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">series</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">multiple</span><span class="nv"> </span><span class="s">steps.&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">duration</span><span class="p-Indicator">:</span> <span class="s">&quot;11:57&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">link</span><span class="p-Indicator">:</span> <span class="s">&quot;http://railscasts.com/episodes/346-wizard-forms-with-wicked&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">published_at</span><span class="p-Indicator">:</span> <span class="s">&quot;Thu,</span><span class="nv"> </span><span class="s">03</span><span class="nv"> </span><span class="s">May</span><span class="nv"> </span><span class="s">2012</span><span class="nv"> </span><span class="s">00:00:00</span><span class="nv"> </span><span class="s">-0700&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">source</span><span class="p-Indicator">:</span> <span class="s">&quot;railscasts&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">video_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://media.railscasts.com/assets/episodes/videos/346-wizard-forms-with-wicked.mp4&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">sending_html_emails</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="s">&quot;Sending</span><span class="nv"> </span><span class="s">HTML</span><span class="nv"> </span><span class="s">Email&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">summary</span><span class="p-Indicator">:</span> <span class="s">&quot;HTML</span><span class="nv"> </span><span class="s">email</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">difficult</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">code</span><span class="nv"> </span><span class="s">because</span><span class="nv"> </span><span class="s">any</span><span class="nv"> </span><span class="s">CSS</span><span class="nv"> </span><span class="s">should</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">made</span><span class="nv"> </span><span class="s">inline.</span><span class="nv"> </span><span class="s">Here</span><span class="nv"> </span><span class="s">I</span><span class="nv"> </span><span class="s">present</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">few</span><span class="nv"> </span><span class="s">tools</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">doing</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">including</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">premailer-rails3</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">roadie</span><span class="nv"> </span><span class="s">gems.&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">duration</span><span class="p-Indicator">:</span> <span class="s">&quot;5:42&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">link</span><span class="p-Indicator">:</span> <span class="s">&quot;http://railscasts.com/episodes/312-sending-html-email&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">published_at</span><span class="p-Indicator">:</span> <span class="s">&quot;Mon,</span><span class="nv"> </span><span class="s">02</span><span class="nv"> </span><span class="s">Jan</span><span class="nv"> </span><span class="s">2012</span><span class="nv"> </span><span class="s">00:00:00</span><span class="nv"> </span><span class="s">-0800&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">source</span><span class="p-Indicator">:</span> <span class="s">&quot;railscasts&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">video_url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://media.railscasts.com/assets/episodes/videos/312-sending-html-email.mp4&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now open up <em>test/models/screencast_test.rb</em> and add the following tests:</p>
+<p>Open up the auto-generated file <em>test/models/screencast_test.rb</em> and add the following tests. If you are using Rails 3.x, the test file will appear under <em>test/unit/screencast_test.rb.</em></p>
 
 <figure class='code'><figcaption><span>test/models/screencast_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -407,6 +441,10 @@ $ bundle install
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;feedzirra&#39;</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">ScreencastImporter</span>
@@ -422,9 +460,13 @@ $ bundle install
 </span><span class='line'>    <span class="c1"># Capture the feed and iterate over each entry</span>
 </span><span class='line'>    <span class="n">feed</span> <span class="o">=</span> <span class="ss">Feedzirra</span><span class="p">:</span><span class="ss">:Feed</span><span class="o">.</span><span class="n">fetch_and_parse</span><span class="p">(</span><span class="s2">&quot;http://feeds.feedburner.com/railscasts&quot;</span><span class="p">)</span>
 </span><span class='line'>    <span class="n">feed</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">entry</span><span class="o">|</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Strip out the episode number from the title</span>
+</span><span class='line'>      <span class="n">title</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/^#\d{1,}\s/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'>
 </span><span class='line'>      <span class="c1"># Find or create the screencast data into our database</span>
 </span><span class='line'>      <span class="no">Screencast</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">video_url</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">video_url</span><span class="p">)</span><span class="o">.</span><span class="n">first_or_create</span><span class="p">(</span>
-</span><span class='line'>        <span class="ss">title</span><span class="p">:</span>        <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+</span><span class='line'>        <span class="ss">title</span><span class="p">:</span>        <span class="n">title</span><span class="p">,</span>
 </span><span class='line'>        <span class="ss">summary</span><span class="p">:</span>      <span class="n">entry</span><span class="o">.</span><span class="n">summary</span><span class="p">,</span>
 </span><span class='line'>        <span class="ss">duration</span><span class="p">:</span>     <span class="n">entry</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
 </span><span class='line'>        <span class="ss">link</span><span class="p">:</span>         <span class="n">entry</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
@@ -440,6 +482,8 @@ $ bundle install
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>Note that on lines 17-18, we strip out the episode number from the Railscast title. So &#8220;#412 Fast Rails Commands&#8221; would become &#8220;Fast Rails Commands&#8221;. See <a href="http://rubular.com/r/duWf3x2mSp">this Rubular</a> to see how I determined the RegExp pattern.</p>
+
 <p>Now if we were to go into our Rails console, we could trigger this import manually. Give it a shot!</p>
 
 <pre><code>$ rails c
@@ -449,11 +493,14 @@ Loading development environment (Rails 4.0.0.beta1)
 =&gt; true
 
 &gt;&gt; ScreencastImporter.import_railscasts
-=&gt; .... lots ... of .. feedback ....
+.... lots ... of ... feedback ....
+=&gt; 344
 
 &gt;&gt; Screencast.count
 =&gt; 344
 </code></pre>
+
+<h6>At the time of writing this article, there were 344 public Railscasts. This number will increase as time goes on.</h6>
 
 <h3>Trigger Import via Rake</h3>
 
@@ -564,7 +611,7 @@ There are now 344 screencasts from Railscasts.com
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/screencasts.json">http://localhost:3000/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/screencasts/1.json">http://localhost:3000/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
+<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
 
 <p>Example:</p>
 
@@ -580,7 +627,7 @@ There are now 344 screencasts from Railscasts.com
 <span class='line-number'>10</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
 </span><span class='line'>  <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;#412 Fast Rails Commands&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Fast Rails Commands&quot;</span><span class="p">,</span>
 </span><span class='line'>  <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="s2">&quot;Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.&quot;</span><span class="p">,</span>
 </span><span class='line'>  <span class="s2">&quot;duration&quot;</span><span class="o">:</span> <span class="s2">&quot;8:06&quot;</span><span class="p">,</span>
 </span><span class='line'>  <span class="s2">&quot;link&quot;</span><span class="o">:</span> <span class="s2">&quot;http://railscasts.com/episodes/412-fast-rails-commands&quot;</span><span class="p">,</span>
@@ -597,7 +644,7 @@ There are now 344 screencasts from Railscasts.com
 
 <p>Because we have scoped our route with &#8220;/api&#8221;, our auto-generated controller test does not work. This is not a bad thing. Delete it! We will not be performing a <em>controller</em> test. We are interested on the <em>API</em> side of things.</p>
 
-<pre><code>$ rm test/controllers/screencast_controller_test.rb
+<pre><code>$ rm test/controllers/screencasts_controller_test.rb
 </code></pre>
 
 <p>Now create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
@@ -653,6 +700,17 @@ There are now 344 screencasts from Railscasts.com
 ...
 2 tests, 7 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
+
+<p>Looks like our test are passing.</p>
+
+<p>If you are using Rails 4, you may be getting a <strong>DEPRECATION WARNING</strong> when running the test. To resolve this, open the file <em>config/initializers/secret_token.rb</em> and make the change:</p>
+
+<figure class='code'><figcaption><span>secret_token.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># change the attribute &#39;secret_token&#39; to &#39;secret_key_base&#39;</span>
+</span><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">secret_key_base</span> <span class="o">=</span> <span class="s1">&#39;....&#39;</span> <span class="c1"># &lt;- your token is here</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <hr />
 
