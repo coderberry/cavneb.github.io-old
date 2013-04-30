@@ -63,7 +63,7 @@ Before we create our model, we need to determine what information we want to sto
 
 Let's create a model based on this information. We need to add the *video_url* field as well, which will be used to embed the video into our app.
 
-    $ rails-api g model screencast title summary:text duration link published_at:datetime, source, video_url --timestamps=false
+    $ rails-api g model screencast title summary:text duration link published_at:datetime source video_url --timestamps=false
 
 Note that in our generate command, we skipped timestamps. By having the published_at date and time, we don't need to store the additional information *unless you really really wanted to*.
 
@@ -84,8 +84,6 @@ Start by running the rake task for testing to see make sure the tests run:
 
 If all worked well, you should see something like **0 tests, 0 assertions, 0 failures, 0 errors, 0 skips**. This means that the test suite ran, but it didn't find any tests to run.
 
-Open up the auto-generated file *test/models/screencast_test.rb*.
-
 There are a few things we will want to test. Let's list them out:
 
 1. Make sure that all the required data exists for each screencast.
@@ -104,9 +102,27 @@ fast_rails_commands:
   published_at: "Thu, 04 Apr 2013 00:00:00 -0700"
   source: "railscasts"
   video_url: "http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4"
+
+wizard_forms_with_wicked:
+  title: "Wizard Forms with Wicked"
+  summary: "Creating a wizard form can be tricky in Rails. Learn how Wicked can help by turning a controller into a series of multiple steps."
+  duration: "11:57"
+  link: "http://railscasts.com/episodes/346-wizard-forms-with-wicked"
+  published_at: "Thu, 03 May 2012 00:00:00 -0700"
+  source: "railscasts"
+  video_url: "http://media.railscasts.com/assets/episodes/videos/346-wizard-forms-with-wicked.mp4"
+
+sending_html_emails:
+  title: "Sending HTML Email"
+  summary: "HTML email can be difficult to code because any CSS should be made inline. Here I present a few tools for doing this including the premailer-rails3 and roadie gems."
+  duration: "5:42"
+  link: "http://railscasts.com/episodes/312-sending-html-email"
+  published_at: "Mon, 02 Jan 2012 00:00:00 -0800"
+  source: "railscasts"
+  video_url: "http://media.railscasts.com/assets/episodes/videos/312-sending-html-email.mp4"
 ```
 
-Now open up *test/models/screencast_test.rb* and add the following tests:
+Open up the auto-generated file *test/models/screencast_test.rb* and add the following tests. If you are using Rails 3.x, the test file will appear under *test/unit/screencast_test.rb.*
 
 ``` ruby test/models/screencast_test.rb
 require 'test_helper'
@@ -144,7 +160,6 @@ class ScreencastTest < ActiveSupport::TestCase
     assert screencast.errors[:video_url].include? "has already been taken"
   end
 end
-
 ```
 
 Once this is in place, run the tests again with the command `rake test`.
@@ -203,7 +218,7 @@ require 'feedzirra'
 
 class ScreencastImporter
   def self.import_railscasts
-    
+
     # because the Railscasts feed is targeted at itunes, there is additional metadata that
     # is not collected by Feedzirra by default. By using add_common_feed_entry_element,
     # we can let Feedzirra know how to map those values. See more information at
@@ -214,9 +229,13 @@ class ScreencastImporter
     # Capture the feed and iterate over each entry
     feed = Feedzirra::Feed.fetch_and_parse("http://feeds.feedburner.com/railscasts")
     feed.entries.each do |entry|
+
+      # Strip out the episode number from the title
+      title = entry.title.gsub(/^#\d{1,}\s/, '')
+
       # Find or create the screencast data into our database
       Screencast.where(video_url: entry.video_url).first_or_create(
-        title:        entry.title,
+        title:        title,
         summary:      entry.summary,
         duration:     entry.duration,
         link:         entry.url,
@@ -231,6 +250,8 @@ class ScreencastImporter
 end
 ```
 
+Note that on lines 17-18, we strip out the episode number from the Railscast title. So "#412 Fast Rails Commands" would become "Fast Rails Commands". See [this Rubular](http://rubular.com/r/duWf3x2mSp) to see how I determined the RegExp pattern.
+
 Now if we were to go into our Rails console, we could trigger this import manually. Give it a shot!
 
     $ rails c
@@ -240,10 +261,13 @@ Now if we were to go into our Rails console, we could trigger this import manual
     => true
 
     >> ScreencastImporter.import_railscasts
-    => .... lots ... of .. feedback ....
+    .... lots ... of ... feedback ....
+    => 344
 
     >> Screencast.count
     => 344
+
+###### At the time of writing this article, there were 344 public Railscasts. This number will increase as time goes on.
 
 ### Trigger Import via Rake
 
@@ -318,14 +342,14 @@ class ApplicationController < ActionController::API
 end
 ```
 
-Cool. If you are feeling brave, start up your Rails application and visit this link: [http://localhost:3000/screencasts.json](http://localhost:3000/screencasts.json). If all went well, you should see JSON data. You should also be able to view [http://localhost:3000/screencasts/1.json](http://localhost:3000/screencasts/1.json) and see the data belonging to a single screencast.
+Cool. If you are feeling brave, start up your Rails application and visit this link: [http://localhost:3000/api/screencasts.json](http://localhost:3000/api/screencasts.json). If all went well, you should see JSON data. You should also be able to view [http://localhost:3000/api/screencasts/1.json](http://localhost:3000/api/screencasts/1.json) and see the data belonging to a single screencast.
 
 Example:
 
 ``` javascript http://localhost:3000/api/screencasts/1.json
 {
   "id": 1,
-  "title": "#412 Fast Rails Commands",
+  "title": "Fast Rails Commands",
   "summary": "Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.",
   "duration": "8:06",
   "link": "http://railscasts.com/episodes/412-fast-rails-commands",
@@ -341,7 +365,7 @@ Of course we are going to test the API! It actually isn't as complicated as it m
 
 Because we have scoped our route with "/api", our auto-generated controller test does not work. This is not a bad thing. Delete it! We will not be performing a *controller* test. We are interested on the *API* side of things.
 
-    $ rm test/controllers/screencast_controller_test.rb
+    $ rm test/controllers/screencasts_controller_test.rb
 
 Now create a new integration test at *test/integration/api_screencasts_test.rb*.
 
@@ -375,6 +399,15 @@ Go ahead and run your tests:
     3 tests, 11 assertions, 0 failures, 0 errors, 0 skips
     ...
     2 tests, 7 assertions, 0 failures, 0 errors, 0 skips
+
+Looks like our test are passing. 
+
+If you are using Rails 4, you may be getting a **DEPRECATION WARNING** when running the test. To resolve this, open the file *config/initializers/secret_token.rb* and make the change:
+
+``` ruby secret_token.rb
+# change the attribute 'secret_token' to 'secret_key_base'
+AngularCasts::Application.config.secret_key_base = '....' # <- your token is here
+```
 
 ---
 
