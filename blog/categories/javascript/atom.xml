@@ -4,7 +4,7 @@
   <title><![CDATA[Category: JavaScript | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-04-30T09:06:00-06:00</updated>
+  <updated>2013-04-30T09:09:27-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,7 +18,9 @@
     <link href="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/"/>
     <updated>2013-04-23T07:35:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2</id>
-    <content type="html"><![CDATA[<p>Let's pick up where we left off. If you haven't already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
+    <content type="html"><![CDATA[<h6>This article is still being worked on. I didn't expect to get the response I did and felt that it was OK that I posted it early for the use of the Utah Ruby User's Group. I will update the article within a couple of days.</h6>
+
+<p>Let's pick up where we left off. If you haven't already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
 
 <p>You can either continue using the code you have created on part 1 or you can catch up by checking out the tagged code:</p>
 
