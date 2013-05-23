@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-05-22T20:35:35-06:00</updated>
+  <updated>2013-05-23T11:01:37-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -170,7 +170,7 @@ $ rake screencast_sync:railscasts
 
 <p>Start up your server and open up <a href="http://localhost:3000">http://localhost:3000</a>. Type in your name into the text field. If the content changes as you type, it worked! You now have a functional Angular application!</p>
 
-<p><img src="https://dl-web.dropbox.com/get/Public/Assets/angular_casts_1.gif?w=AAAI1JnNBiWomAz4enNeeNU-MX0qPe0dAs0LmdJKJoXoug"></p>
+<p><img src="http://coderberry.me/images/posts/angular_casts_1.gif"></p>
 
 <h6>If you are using Rails 3, you will need to delete the file <em>public/index.html</em></h6>
 
