@@ -111,46 +111,27 @@
 </div>
 
 
-<p>AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers. At the time of writing this article, AngularJS is the <a href="https://github.com/languages/JavaScript/most_watched">15th most watched project on GitHub</a>.</p>
+<p>Angular seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers. At the time of writing this article, AngularJS is the <a href="https://github.com/languages/JavaScript/most_watched">12th most watched project on GitHub</a>.</p>
 
-<p>A few days back, I presented at our local <a href="http://utruby.org">ruby users group</a> on writing an API-driven Rails app with AngularJS on the front end. Since then, I have received a lot of feedback on how I could have enhanced the app. This article has been re-written to reflect those changes. <em>Special thanks goes to <a href="http://tadthorley.com/">Tad Thorley</a> for providing the <a href="https://github.com/phaedryx/angularcast-example">excellent example application</a> based off of the original.</em></p>
+<p>Here I want to create a useful Rails application using Angular. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
 
-<p>Here I want to create a useful Rails application using AngularJS. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
-
-<h6>The title of the article states that we will be using Rails 4 in our application. We will be, however it is not necessary. There are no parts of this tutorial which use code specific to Rails 4.</h6>
+<h6>Originally I had presented this topic at our local <a href="http://utruby.org">ruby users group</a>. My typical workflow is to write a blog post before presenting and have that post be a reference to my presentation. Since then, I have received a lot of feedback on how I could have enhanced the app. These posts (part 1 and 2) been re-written to reflect those changes. <em>Special thanks goes to <a href="http://tadthorley.com/">Tad Thorley</a> for providing the <a href="https://github.com/phaedryx/angularcast-example">excellent example application</a> based off of the original. Also thanks goes out to those who have commented on these posts.</em></h6>
 
 <div style="clear: both;"></div>
 
 
 <h2>Creating the Rails Application</h2>
 
-<p>I had a hard time deciding when I began this project on whether to use a full Rails application or a very lightweight ruby web stack like <a href="http://sinatrarb.com">Sinatra</a>. In a <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a> by Ryan Bates, he describes an excellent middle-ground solution called <a href="https://github.com/rails-api/rails-api">Rails-Api</a>. By using the rails-api gem, we can make our Rails app much more lightweight and consequently faster than a normal Rails application.</p>
+<p>I had a hard time deciding when I began this project on whether to use a full Rails application or a very lightweight ruby web stack like <a href="http://sinatrarb.com">Sinatra</a>. I also experimented with a middle-ground solution called <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>). In the end, I used standard Rails (version 4.0.0.rc1). This gave me the flexibility I want; and for the scope of this tutorial I didn&#8217;t want to distract from learning how to use Angular in an Rails application.</p>
 
-<p>Before anything, we need to install the <em>rails-api</em> gem in order for us to create our app.</p>
+<p>Before anything, we need to create a new Rails application called <em>Angular Casts</em></p>
 
-<pre><code>$ gem install rails-api
+<pre><code>$ rails new angular_casts
+...
+$ cd angular_casts
 </code></pre>
 
-<p>Once that is installed, lets create a new Rails application called <em>Angular Casts</em></p>
-
-<pre><code>$ rails-api new angular_casts
-</code></pre>
-
-<p>For those familiar with Rails, you will notice that a lot of the auto-generated code has been removed. No helpers, views or even the asset pipeline are there. Being someone who loves CoffeeScript, I want to add the asset pipeline back into our app. With the rails-api gem, the asset pipeline support hasn&#8217;t been removed, just hidden. To re-enable this to use CoffeeScript, you will need to re-create the pipeline directory <em>app/assets/javascripts</em>:</p>
-
-<pre><code>$ mkdir -p app/assets/javascripts
-</code></pre>
-
-<p>and then create a <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">manifest file</a> called <em>application.js</em>:</p>
-
-<figure class='code'><figcaption><span>app/assets/javascripts/application.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//= require app</span>
-</span><span class='line'><span class="c1">//= require_tree .</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Create the Model</h2>
+<h2>Creating the Model and Controller</h2>
 
 <p>Our application will be pretty simple. We are only going to worry about storing screencast information in our database. Rails by default comes with a very lightweight database server called SQLite. If you aren&#8217;t familiar with this, you can visit <a href="http://guides.rubyonrails.org/getting_started.html#configuring-a-database">http://guides.rubyonrails.org/getting_started.html#configuring-a-database</a> to learn more.</p>
 
@@ -166,20 +147,30 @@
 </ul>
 
 
-<p>Let&#8217;s create a model based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
+<p>Let&#8217;s create a model and controller based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
 
-<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime source video_url --timestamps=false
+<pre><code>$ rails g resource screencast title summary:text duration link published_at:datetime source video_url
 </code></pre>
 
-<p>Note that in our generate command, we skipped timestamps. By having the published_at date and time, we don&#8217;t need to store the additional information <em>unless you really really wanted to</em>.</p>
+<p>By running the <em>resource</em> generator, we now have a model and a controller. The controller will provide our REST API. We also can see that the <em>screencasts</em> resources have been added to our routes:</p>
+
+<figure class='code'><figcaption><span>config/routes.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:screencasts</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Run the migration tasks for both development and test environments:</p>
 
-<pre><code>$ rake db:migrate
-$ rake db:migrate RAILS_ENV=test
+<pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
 </code></pre>
 
-<h3>Testing the Model</h3>
+<h2>Testing the Model</h2>
 
 <h6>Testing is not the primary topic of these blog posts, so less time and explanation will be given to them. If you want to learn more about testing, I recommend <a href="http://railscasts.com/episodes/275-how-i-test">http://railscasts.com/episodes/275-how-i-test</a>.</h6>
 
@@ -192,15 +183,15 @@ $ rake db:migrate RAILS_ENV=test
 
 <p>If all worked well, you should see something like <strong>0 tests, 0 assertions, 0 failures, 0 errors, 0 skips</strong>. This means that the test suite ran, but it didn&#8217;t find any tests to run.</p>
 
-<p>There are a few things we will want to test. Let&#8217;s list them out:</p>
+<p>There are a couple of things we will want to test:</p>
 
-<ol>
+<ul>
 <li>Make sure that all the required data exists for each screencast.</li>
 <li>Make sure that we do not have two of the same screencast (duplicates).</li>
-</ol>
+</ul>
 
 
-<p>Now that we have the list, we can write our tests. Let&#8217;s first update our fixtures file with some useable data:</p>
+<p>Before we write our tests, let&#8217;s update our fixtures file with some testable data:</p>
 
 <figure class='code'><figcaption><span>test/fixtures/screencasts.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -356,26 +347,24 @@ $ rake db:migrate RAILS_ENV=test
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
-<span class='line-number'>19</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rake <span class="nb">test</span>
-</span><span class='line'>Run options: --seed 16385
+</span><span class='line'>Run options: --seed 29768
 </span><span class='line'>
 </span><span class='line'><span class="c"># Running tests:</span>
 </span><span class='line'>
 </span><span class='line'>F.F
 </span><span class='line'>
-</span><span class='line'>Finished tests in 0.040478s, 74.1143 tests/s, 74.1143 assertions/s.
+</span><span class='line'>Finished tests in 0.048601s, 61.7271 tests/s, 61.7271 assertions/s.
 </span><span class='line'>
 </span><span class='line'>  1<span class="o">)</span> Failure:
-</span><span class='line'>ScreencastTest#test_should_be_invalid_if_missing_required_data <span class="o">[</span>/Users/eberry/Desktop/angular_casts/test/models/screencast_test.rb:18<span class="o">]</span>:
+</span><span class='line'>ScreencastTest#test_should_be_invalid_if_missing_required_data <span class="o">[</span>../angular_casts/test/models/screencast_test.rb:18<span class="o">]</span>:
 </span><span class='line'>Failed assertion, no message given.
 </span><span class='line'>
 </span><span class='line'>  2<span class="o">)</span> Failure:
-</span><span class='line'>ScreencastTest#test_should_only_allow_one_screencast_with_the_same_video_url <span class="o">[</span>/Users/eberry/Desktop/angular_casts/test/models/screencast_test.rb:32<span class="o">]</span>:
+</span><span class='line'>ScreencastTest#test_should_only_allow_one_screencast_with_the_same_video_url <span class="o">[</span>../angular_casts/test/models/screencast_test.rb:32<span class="o">]</span>:
 </span><span class='line'>Failed assertion, no message given.
 </span><span class='line'>
 </span><span class='line'>3 tests, 3 assertions, 2 failures, 0 errors, 0 skips
-</span><span class='line'>Errors running <span class="nb">test</span>:units! <span class="c">#&lt;RuntimeError: Command failed with status (1): [ruby -I&quot;lib:test&quot; -I&quot;/Users/eberry/.rvm/gems/ruby-1.9.3-p392/gems/rake-10.0.4/lib&quot; &quot;/Users/eberry/.rvm/gems/ruby-1.9.3-p392/gems/rake-10.0.4/lib/rake/rake_test_loader.rb&quot; &quot;test/{models,helpers,unit}/**/*_test.rb&quot; ]&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -398,11 +387,30 @@ $ rake db:migrate RAILS_ENV=test
 
 <h2>Importing the Video Data</h2>
 
-<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is <a href="https://github.com/pauldix/feedzirra">feedzirra</a>. Go ahead and add it to the Gemfile and run <code>bundle install</code>.</p>
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is <a href="https://github.com/pauldix/feedzirra">feedzirra</a>. Let&#8217;s add it to our Gemfile and remove <em>turbolinks</em>, <em>jbuilder</em> and <em>sdoc</em>. We also remove <em>jquery-rails</em> because we will use it via <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a> instead of inside the Asset Pipeline. This will be further explained in part 2.</p>
 
-<pre><code>gem 'feedzirra'
+<figure class='code'><figcaption><span>Gemfile</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">source</span> <span class="s1">&#39;https://rubygems.org&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;rails&#39;</span><span class="p">,</span>        <span class="s1">&#39;4.0.0.rc1&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;sqlite3&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;sass-rails&#39;</span><span class="p">,</span>   <span class="s1">&#39;~&gt; 4.0.0.rc1&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;uglifier&#39;</span><span class="p">,</span>     <span class="s1">&#39;&gt;= 1.3.0&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;coffee-rails&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 4.0.0&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;feedzirra&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
 
-$ bundle install
+
+<p>Now install the gems:</p>
+
+<pre><code>$ bundle install
 </code></pre>
 
 <h3>Create an Import Library</h3>
@@ -487,20 +495,20 @@ $ bundle install
 <p>Now if we were to go into our Rails console, we could trigger this import manually. Give it a shot!</p>
 
 <pre><code>$ rails c
-Loading development environment (Rails 4.0.0.beta1)
+Loading development environment (Rails 4.0.0.rc1)
 
 &gt;&gt; require 'screencast_importer'
 =&gt; true
 
 &gt;&gt; ScreencastImporter.import_railscasts
 .... lots ... of ... feedback ....
-=&gt; 344
+=&gt; 345
 
 &gt;&gt; Screencast.count
-=&gt; 344
+=&gt; 345
 </code></pre>
 
-<h6>At the time of writing this article, there were 344 public Railscasts. This number will increase as time goes on.</h6>
+<h6>At the time of writing this article, there were 345 public Railscasts. This number will increase as time goes on.</h6>
 
 <h3>Trigger Import via Rake</h3>
 
@@ -530,14 +538,14 @@ Loading development environment (Rails 4.0.0.beta1)
 <p>Now that we have our rake task set up, go ahead and run the command:</p>
 
 <pre><code>$ rake screencast_sync:railscasts
-There are now 344 screencasts from Railscasts.com
+There are now 345 screencasts from Railscasts.com
 </code></pre>
 
 <p>It worked! But no time to celebrate.. let&#8217;s move on.</p>
 
 <h2>Making Episodes Accessible via API</h2>
 
-<p>Because we are planning on using AngularJS for our front-end, we only need to expose our data as JSON. This will allow AngularJS to talk to the backend via ajax calls.</p>
+<p>Because we are planning on using Angular for our front-end, we only need to expose our data as JSON. This will allow Angular to talk to the backend via ajax calls.</p>
 
 <p>We are going to only use two calls to the API:</p>
 
@@ -547,12 +555,9 @@ There are now 344 screencasts from Railscasts.com
 </ul>
 
 
-<p>Let&#8217;s start by creating the controller. Run the following generator:</p>
+<p>Because we used the <em>resource</em> generator, we already have our controller and routes.</p>
 
-<pre><code>$ rails-api g controller screencasts index show
-</code></pre>
-
-<p>By running this generator, the controller <code>ScreencastsController</code> was created. The routes file was also updated. Let&#8217;s do some cleanup to the routes and make sure we only are allowing what we want to use. On top of that, let&#8217;s <a href="http://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing">scope</a> our calls to the API with <em>api</em>.</p>
+<p>Let&#8217;s do some cleanup to the routes and make sure we only are allowing what we want to use. On top of that, let&#8217;s <a href="http://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing">scope</a> our calls to the API with <em>api</em>.</p>
 
 <figure class='code'><figcaption><span>config/routes.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -568,6 +573,14 @@ There are now 344 screencasts from Railscasts.com
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>Run the command <code>rake routes</code> to see our changes.</p>
+
+<pre><code>$ rake routes
+Prefix Verb URI Pattern                    Controller#Action
+ GET /api/screencasts(.:format)     screencasts#index
+ GET /api/screencasts/:id(.:format) screencasts#show
+</code></pre>
 
 <p>Now update the controller to render the correct JSON data for the two URL&#8217;s.</p>
 
@@ -600,20 +613,7 @@ There are now 344 screencasts from Railscasts.com
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>One final thing that we need to do is tell Rails to not include the root in the JSON response. What this means is that the JSON response will not have a labelling key (e.g. <code>"screencast" =&gt; { "id": 1, ...</code>). To make this modification, add the following to your application controller:</p>
-
-<figure class='code'><figcaption><span>app/controllers/application_controller.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="ss">ActionController</span><span class="p">:</span><span class="ss">:API</span>
-</span><span class='line'>  <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">include_root_in_json</span> <span class="o">=</span> <span class="kp">false</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
-
-<p>Example:</p>
+<p>Now start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
 
 <figure class='code'><figcaption><span>http://localhost:3000/api/screencasts/1.json</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -625,29 +625,28 @@ There are now 344 screencasts from Railscasts.com
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
 </span><span class='line'>  <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Fast Rails Commands&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="s2">&quot;Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;duration&quot;</span><span class="o">:</span> <span class="s2">&quot;8:06&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;link&quot;</span><span class="o">:</span> <span class="s2">&quot;http://railscasts.com/episodes/412-fast-rails-commands&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;published_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-04-04T07:00:00.000Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Upgrading to Rails 4&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="s2">&quot;With the release of Rails 4.0.0.rc1 it&#39;s time to try it out and report any bugs. Here I walk you through the steps to upgrade a Rails 3.2 application to Rails 4.&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;duration&quot;</span><span class="o">:</span> <span class="s2">&quot;12:44&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;link&quot;</span><span class="o">:</span> <span class="s2">&quot;http://railscasts.com/episodes/415-upgrading-to-rails-4&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;published_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-05-06T07:00:00.000Z&quot;</span><span class="p">,</span>
 </span><span class='line'>  <span class="s2">&quot;source&quot;</span><span class="o">:</span> <span class="s2">&quot;railscasts&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s2">&quot;video_url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4&quot;</span>
+</span><span class='line'>  <span class="s2">&quot;video_url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://media.railscasts.com/assets/episodes/videos/415-upgrading-to-rails-4.mp4&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;created_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-05-21T18:22:29.719Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;updated_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2013-05-21T18:22:29.719Z&quot;</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Testing the API</h3>
+<h2>Testing the API</h2>
 
 <p>Of course we are going to test the API! It actually isn&#8217;t as complicated as it may seem. I am not going to go over much explanation beyond the inline comments.</p>
 
-<p>Because we have scoped our route with &#8220;/api&#8221;, our auto-generated controller test does not work. This is not a bad thing. Delete it! We will not be performing a <em>controller</em> test. We are interested on the <em>API</em> side of things.</p>
-
-<pre><code>$ rm test/controllers/screencasts_controller_test.rb
-</code></pre>
-
-<p>Now create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
+<p>Create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
 
 <figure class='code'><figcaption><span>test/integration/api_screencasts_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -696,27 +695,16 @@ There are now 344 screencasts from Railscasts.com
 
 <pre><code>$ rake test
 ...
-3 tests, 11 assertions, 0 failures, 0 errors, 0 skips
-...
-2 tests, 7 assertions, 0 failures, 0 errors, 0 skips
+5 tests, 18 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 <p>Looks like our test are passing.</p>
-
-<p>If you are using Rails 4, you may be getting a <strong>DEPRECATION WARNING</strong> when running the test. To resolve this, open the file <em>config/initializers/secret_token.rb</em> and make the change:</p>
-
-<figure class='code'><figcaption><span>secret_token.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># change the attribute &#39;secret_token&#39; to &#39;secret_key_base&#39;</span>
-</span><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">secret_key_base</span> <span class="o">=</span> <span class="s1">&#39;....&#39;</span> <span class="c1"># &lt;- your token is here</span>
-</span></code></pre></td></tr></table></div></figure>
-
 
 <hr />
 
 <p>Let&#8217;s stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
 
-<h3>Go to <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+<h4>Go to <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">Part 2</a></h4>
 </div>
 
 
@@ -744,7 +732,7 @@ There are now 344 screencasts from Railscasts.com
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>JavaScript</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>
+    <a class='category' href='/blog/categories/angular/'>Angular</a>, <a class='category' href='/blog/categories/javascript/'>JavaScript</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>
   
 </span>
 

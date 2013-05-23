@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/rails/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-04-30T09:09:27-06:00</updated>
+  <updated>2013-05-22T20:35:35-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,46 +18,55 @@
     <link href="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/"/>
     <updated>2013-04-23T07:35:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2</id>
-    <content type="html"><![CDATA[<h6>This article is still being worked on. I didn't expect to get the response I did and felt that it was OK that I posted it early for the use of the Utah Ruby User's Group. I will update the article within a couple of days.</h6>
-
-<p>Let's pick up where we left off. If you haven't already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
+    <content type="html"><![CDATA[<p>Let's pick up where we left off. If you haven't already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
 
 <p>You can either continue using the code you have created on part 1 or you can catch up by checking out the tagged code:</p>
 
 <pre><code>$ git clone https://github.com/cavneb/angular_casts
 $ cd angular_casts
-$ git checkout 'step-2'
+$ git checkout step-1
 $ bundle install
-$ rake db:migrate
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+$ rake screencast_sync:railscasts
 </code></pre>
 
-<h2>Add AngularJS Libraries</h2>
+<h2>Add Angular Libraries</h2>
 
-<p>There are a couple of different ways we can add AngularJS into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="https://github.com/hiravgandhi/angularjs-rails">angular-rails gem</a>. I found this to be a bit outdated and overkill for what we are trying to do. Not only that, it's good to know how to do this without a gem.</p>
+<p>There are a couple of different ways we can add Angular into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="https://github.com/hiravgandhi/angularjs-rails">angular-rails gem</a>. Even though this is an excellent gem which is well maintained, it's good to know how to do this without a gem.</p>
 
-<p>Go to <a href="http://code.angularjs.org/1.0.6/">http://code.angularjs.org/1.0.6/</a> and download the following files into your vendor/assets/javascripts folder:</p>
+<p>In our app we are going to link our scripts using a <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a>. We can find the CDN for Angular at <a href="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js">https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js</a>. We will also be adding Angular Resource via the CDN as well.</p>
 
-<ul>
-<li><a href="http://code.angularjs.org/1.0.6/angular.js">http://code.angularjs.org/1.0.6/angular.js</a></li>
-<li><a href="http://code.angularjs.org/1.0.6/angular-resource.js">http://code.angularjs.org/1.0.6/angular-resource.js</a></li>
-</ul>
+<p>Update your layout file:</p>
 
+<p>
+``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html>
+<head>
+  <title>Angular Casts</title>
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
+</head>
+<body></p>
 
-<p>Here's a shortcut to do this:</p>
+<p>  &lt;%= yield %></p>
 
-<pre><code>$ wget http://code.angularjs.org/1.0.6/angular.js -P vendor/assets/javascripts
-$ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/javascripts
-</code></pre>
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
+</html>
+```
+</p>
 
 <h3>Setup the Javascript Folders</h3>
 
-<p>We want to keep our code organized. We will place our controllers, filters, services, directives, etc. in the app/assets/javascripts folder. Create the following directories:</p>
+<p>We want to keep our code organized by placing our Angular controllers, filters, services, directives, etc. in the app/assets/javascripts folder. Create the following directories:</p>
 
 <ul>
 <li>app/assets/javascripts/angular/controllers</li>
 <li>app/assets/javascripts/angular/directives</li>
-<li>app/assets/javascripts/angular/filters</li>
-<li>app/assets/javascripts/angular/models</li>
 <li>app/assets/javascripts/angular/services</li>
 </ul>
 
@@ -66,136 +75,133 @@ $ wget http://code.angularjs.org/1.0.6/angular-resource.js -P vendor/assets/java
 
 <pre><code>$ mkdir -p app/assets/javascripts/angular/controllers \
            app/assets/javascripts/angular/directives \
-           app/assets/javascripts/angular/filters \
-           app/assets/javascripts/angular/models \
            app/assets/javascripts/angular/services
 </code></pre>
 
-<p>We will not use all of these folders, but it is good to have them there so when we do end up needing to create additional files, we know where to put them.</p>
+<p>Now let's create the main javascript file which will drive our Angular application.</p>
 
-<h3>Update the Asset Pipeline</h3>
+<p><code>coffeescript app/assets/javascripts/app.js.coffee
+window.App = angular.module('AngularCasts', ['ngResource'])
+</code></p>
 
-<p>Let's do some cleanup of the Asset Pipeline. First, create the main javascript file which will drive our AngularJS application.</p>
+<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>window.App</code>. We also add the dependency of <code>ngResource</code> which provides simple REST client functionality.</p>
 
-<p>```coffeescript</p>
+<p>Next, we need to update our JavaScript manifest to include the our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.</p>
 
-<h1>app/assets/javascripts/angular_casts.js.coffee</h1>
-
-<p>@app = angular.module('AngularCasts', ['ngResource'])
-```</p>
-
-<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>@app</code>. We also add the dependency of <code>ngResource</code> which is our angular-resource.js file.</p>
-
-<p>Now open up <em>app/assets/javascripts/application.js</em> and make the following changes:</p>
-
-<p><code>javascript
-//= require angular
-//= require angular-resource
-//= require angular_casts
+<p><code>javascript app/assets/javascripts/application.js
+//= require app
 //= require_tree ./angular
 </code></p>
 
-<p>The order of these is important due to the latter ones depending on the ones prior to them. Note that we do not have jQuery in here. AngularJS works great without jQuery and by removing it, we are forced to think the <em>Angular</em> way.</p>
+<p>This is quite a change from what exists in the manifest already. We will add jQuery later, but via CDN. You'll see why later in this post.</p>
 
-<p>Let's now clean up our Gemfile. We no longer have any dependencies on <em>jquery</em>, <em>turbolinks</em> or <em>jbuilder</em>. Remove them from the Gemfile.</p>
+<h2>Add the View</h2>
 
-<p>```ruby</p>
-
-<h1>Gemfile</h1>
-
-<p>source 'https://rubygems.org'</p>
-
-<p>gem 'rails', '4.0.0.beta1'
-gem 'sqlite3'
-gem 'feedzirra'</p>
-
-<p>group :assets do
-  gem 'sass-rails',   '~> 4.0.0.beta1'
-  gem 'coffee-rails', '~> 4.0.0.beta1'
-  gem 'uglifier', '>= 1.0.3'
-end
-```</p>
-
-<p>Run <code>bundle install</code> to remove the gems from <code>Gemfile.lock</code>.</p>
-
-<pre><code>$ bundle install
-</code></pre>
-
-<p>Now that we have removed this, we need to update our layout to not include these libraries. Open up <em>app/views/layouts/application.html.erb</em> and update the javascript and stylesheet includes to the following:</p>
-
-<p><code>ruby
-&lt;%= stylesheet_link_tag    "application", media: "all" %&gt;
-&lt;%= javascript_include_tag "application" %&gt;
-</code></p>
-
-<h2>Let's Get It Working!</h2>
-
-<p>We now have everything in place for our AngularJS application except for the view. We are going to use a simple controller named <code>home</code> with a single view, <code>index</code>.</p>
-
-<p>Run the following command:</p>
+<p>Next, we need to create a controller. This will allow us to set up a route to a view.</p>
 
 <pre><code>$ rails g controller home index
 </code></pre>
 
-<p>We now have a controller and view. Let's set this to as our <em>root_path</em> in <code>routes.rb</code>:</p>
+<p>This set up the <em>HomeController</em> and added the action <em>index</em>. Before we modify this view, let's update our layout to acts as an Angular app. This is done by adding the directive <code>ng-app</code> to our <code>&lt;html&gt;</code> tag:</p>
 
-<p>```ruby</p>
+<p>
+<code>html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html&gt;
+&lt;html ng-app&gt;
+...
+</code>
+</p>
 
-<h1>config/routes.rb</h1>
+<p>Now let's update our index view with some simple Angular code:</p>
 
-<p>AngularCasts::Application.routes.draw do
-  get '/episodes' => 'episodes#index', format: 'json'
-  get '/episodes/:id' => 'episodes#show', format: 'json'</p>
+<p>
+``` html app/views/home/index.html.erb</p>
 
-<p>  root to: 'home#index'
+<div>
+  <label>Name:</label>
+  <input type="text" ng-model="yourName" placeholder="Enter a name here">
+  <hr>
+  <h1>Hello {{yourName}}!</h1>
+</div>
+
+
+<p>```
+</p>
+
+<p>Update your routes file to use this view as the root.</p>
+
+<p>``` ruby config/routes.rb
+AngularCasts::Application.routes.draw do
+  scope :api do</p>
+
+<pre><code>get "/screencasts(.:format)" =&gt; "screencasts#index"
+get "/screencasts/:id(.:format)" =&gt; "screencasts#show"
+</code></pre>
+
+<p>  end
+  root to: "home#index"
 end
 ```</p>
 
 <p><em>Note that the line <code>get 'home#index'</code> was removed. This is not needed because the root path directs to it.</em></p>
 
-<p>Let's start our app up and make sure it's working.</p>
+<p>Start up your server and open up <a href="http://localhost:3000">http://localhost:3000</a>. Type in your name into the text field. If the content changes as you type, it worked! You now have a functional Angular application!</p>
 
-<pre><code>$ rails s
+<p><img src="https://dl-web.dropbox.com/get/Public/Assets/angular_casts_1.gif?w=AAAI1JnNBiWomAz4enNeeNU-MX0qPe0dAs0LmdJKJoXoug"></p>
+
+<h6>If you are using Rails 3, you will need to delete the file <em>public/index.html</em></h6>
+
+<h2>Now the fun begins!</h2>
+
+<p>In order for us to tell the page that it should use the <em>App</em> module, we need to add the module name to the <code>ng-app</code> <em>directive</em>. Set the value of the attribute to <em>AngularCasts</em>:</p>
+
+<p>``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html ng-app="AngularCasts">
+<head>
+  <title>Angular Casts</title>
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
+</head>
+<body>
+  <header></p>
+
+<pre><code>Angular Casts
 </code></pre>
 
-<p>Now open <a href="http://localhost:3000">http://localhost:3000</a>. Works? YAY!</p>
+<p>  </header></p>
 
-<h3>Adding Angular to our Views</h3>
+<p>  &lt;%= yield %></p>
 
-<p>For our app to recognize that it is an Angular application, we need to add the ng-app attribute to the html tag on our layout.</p>
-
-<p>```html</p>
-
-<!-- app/views/layouts/application.html.erb -->
-
-
-<p><html ng-app="AngularCasts">
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
+</html>
 ```</p>
 
-<p>Let's create a controller that will be used to list out the episodes. Create a new coffeescript file at <em>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</em></p>
+<p>Now our view knows to use the AngularCasts module.</p>
 
-<p>```coffeescript</p>
+<h6>On lines 9-11 we have added the <code>&lt;header&gt;</code> content. Make sure you have this in your layout as well.</h6>
 
-<h1>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</h1>
+<h2>Create an Angular Controller</h2>
 
-<p>@EpisodesCtrl = @app.controller 'EpisodesCtrl', ["$scope", ($scope) ->
+<p>Let's create a controller that will be used to list out the episodes. Create a new coffeescript file at <em>app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee</em></p>
+
+<p><code>coffeescript app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', ($scope) -&gt;
   $scope.message = "Angular Rocks!"
 ]
-```</p>
+</code></p>
 
-<p>Let's update our controller view as well to display the message.</p>
+<p>On line 1, we create a new Angular controller belonging to <em>App</em> named <em>ScreencastsCtrl</em>. The controller will be referenced in our view as <em>ScreencastsCtrl</em>. For more information on Angular controllers, read <a href="http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller">http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller</a>.</p>
+
+<p>Let's update our view to display the message.</p>
 
 <p>
-```html</p>
+```html app/views/home/index.html.erb</p>
 
-<!-- app/views/home/index.html.erb -->
-
-
-<p><header>
-  AngularCasts
-</header></p>
-
-<div ng-controller="EpisodesCtrl">
+<div ng-controller="ScreencastsCtrl">
   <h1>Message: {{message}}</h1>
 </div>
 
@@ -203,67 +209,14 @@ end
 <p>```
 </p>
 
-<p>Here we have bound the contents of the <em>div</em> to the controller <em>EpisodesCtrl</em>. Refresh the browser and you should see 'Message: Angular Rocks!'</p>
+<p>Here we have bound the contents of the <em>div</em> to the controller <em>ScreencastsCtrl</em>. Refresh the browser and you should see 'Message: Angular Rocks!'.</p>
 
-<h2>List the Episodes</h2>
+<h2>Make it Pretty!</h2>
 
-<p>Now that we have Angular talking to our views, let's integrate our episodes data. Remember that we can access the JSON data by calling <a href="http://localhost:3000/episodes.json">http://localhost:3000/episodes.json</a>.</p>
+<p>Lets add the much needed CSS to our application. Copy the following into <em>app/assets/stylesheets/home.css.scss</em>.</p>
 
-<p>Modify your controller to perform the ajax request and place the results into the <code>$scope</code></p>
-
-<p>```coffeescript</p>
-
-<h1>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</h1>
-
-<p>@EpisodesCtrl = @app.controller 'EpisodesCtrl', ["$scope", "$http", ($scope, $http) ->
-  $scope.episodes = []</p>
-
-<p>  loadEpisodes = -></p>
-
-<pre><code>$http.get("/episodes.json").success((data, status, headers, config) -&gt;
-  angular.forEach data, (value) -&gt;
-    $scope.episodes.push value.episode
-)
-</code></pre>
-
-<p>  loadEpisodes()
-]
-```</p>
-
-<p>*** DESCRIPTION TO FOLLOW</p>
-
-<p>Let's update our view as well to list out the episodes in the scope.</p>
-
-<p>
-```html</p>
-
-<!-- app/views/home/index.html.erb -->
-
-
-<p><header>
-  AngularCasts
-</header></p>
-
-<div ng-controller="EpisodesCtrl">
-  <div id="episode-list-container" >
-    <ul>
-      <li ng-repeat="episode in episodes">
-        <h3>{{episode.title}} <small>({{episode.duration}})</small></h3>
-      </li>
-    </ul>
-  </div>
-</div>
-
-
-<p>```
-</p>
-
-<p>Try it out. If all worked well, you should see a list of episodes. Now lets add the much needed CSS to our application. Copy the following into <em>app/assets/stylesheets/episodes.css.scss</em></p>
-
-<p>```css
-/<em> app/assets/stylesheets/episodes.css.scss </em>/</p>
-
-<p>body {
+<p>``` scss app/assets/stylesheets/home.css.scss
+body {
   font-size: 12px;
   font-family: Helvetica, sans-serif;
   background-color: #ddd;
@@ -284,10 +237,21 @@ end
   padding-left: 15px;
 }</p>
 
-<h1>episode-list-container {</h1>
+<h1>screencast-ctrl {</h1>
 
 <p>  background-color: #fff;
   position: absolute;
+  top: 37px;
+  width: 100%;
+  bottom: 0;
+  overflow: auto;
+}</p>
+
+<h1>screencast-list-container {</h1>
+
+<p>  background-color: #fff;
+  position: absolute;
+  min-height: 700px;
   width: 300px;
   top: 37px;
   left: 0;
@@ -323,7 +287,7 @@ small {
 <p>  }
 }</p>
 
-<h1>episode-view-container {</h1>
+<h1>screencast-view-container {</h1>
 
 <p>  position: absolute;
   border-left: 1px solid #d0d0d0;
@@ -332,7 +296,7 @@ small {
   right: 0;
   bottom: 0;
   background-color: #fff;
-  min-height: 400px;
+  min-height: 700px;
   padding: 5px 25px;</p>
 
 <p>  #player {</p>
@@ -345,87 +309,40 @@ max-width: 800px;
 }
 ```</p>
 
-<p>Refresh the browser again. Ooooh!</p>
+<p>Refresh the browser. Ooooh!</p>
 
-<h2>Show the Selected Episode</h2>
+<h2>Start with the Service</h2>
 
-<p>When we click on the episode on the left, we want to be able to view the episode with more information in the main area. This can be done in a few steps:</p>
+<p>Our Angular controller is going to access the data from our API using <a href="http://docs.angularjs.org/api/ngResource.$resource">ngResource</a>. <em>ngResource</em> enables interation with RESTful server-side data sources.</p>
 
-<h3>Add an event listener to the episode</h3>
+<p>Angular services are singletons that carry out specific tasks common to web apps. Services are commonly used to perform the XHR interaction with the server. To learn about the differences between services and factories, <a href="http://stackoverflow.com/questions/14324451/angular-service-vs-angular-factory">read this</a>. Let's start off by creating a service at <em>screencast.js.coffee</em>:</p>
 
-<p>This is an easy part. Add the ng-click attribute to the <em>h3</em> tag to call the method <em>showEpisode</em>.</p>
-
-<p>
-```html</p>
-
-<h3 ng-click="showEpisode(episode)">{{episode.title}} <small>({{episode.duration}})</small></h3>
-
-
-<p>```
-</p>
-
-<p>As you can see, we added <code>ng-click="showEpisode(episode)"</code> to the <em>h3</em> tag. The function call takes the episode as it's parameter, which is available from the ng-repeat.</p>
-
-<h3>Add the function into the controller</h3>
-
-<p>Let's add the <em>showEpisode</em> function to our controller.</p>
-
-<p>```coffeescript</p>
-
-<h1>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</h1>
-
-<p>@EpisodesCtrl = @app.controller 'EpisodesCtrl', ["$scope", "$http", ($scope, $http) -></p>
-
-<p>  $scope.episodes = []
-  $scope.selectedEpisode = null</p>
-
-<p>  $scope.showEpisode = (episode) -></p>
-
-<pre><code>$scope.selectedEpisode = episode
-</code></pre>
-
-<p>  loadEpisodes = -></p>
-
-<pre><code>$http.get("/episodes.json").success((data, status, headers, config) -&gt;
-  angular.forEach data, (value) -&gt;
-    $scope.episodes.push value.episode
-)
-</code></pre>
-
-<p>  loadEpisodes()
+<p><code>coffeescript app/assets/javascripts/angular/services/screencast.js.coffee
+App.factory 'Screencast', ['$resource', ($resource) -&gt;
+  $resource '/api/screencasts/:id', id: '@id'
 ]
-```</p>
+</code></p>
 
-<p>On line 6, we added the scoped variable <em>selectedEpisode</em> with a default value of <em>null</em>.</p>
+<p>Now tell the controller to use this service:</p>
 
-<p>On lines 8-9, we added the scoped function which is called by the <em>ng-click</em> and sets the <em>selectedEpisode</em> value to the passed in episode.</p>
+<p><code>coffeescript app/assets/javascripts/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) -&gt;
+  $scope.screencasts = Screencast.query()
+]
+</code></p>
 
-<p>Now back on the view, let's add the container for the <em>show</em> view.</p>
+<p>Update the index view with the following:</p>
 
 <p>
-```html</p>
+```html app/views/home/index.html.erb</p>
 
-<!-- app/views/home/index.html.erb -->
-
-
-<p><header>
-  AngularCasts
-</header></p>
-
-<div ng-controller="EpisodesCtrl">
-  <div id="episode-list-container" >
+<div ng-controller="ScreencastsCtrl">
+  <div id="screencast-list-container">
     <ul>
-      <li ng-repeat="episode in episodes">
-        <h3 ng-click="showEpisode(episode)">{{episode.title}} <small>({{episode.duration}})</small></h3>
+      <li ng-repeat="screencast in screencasts">
+        <h3>{{screencast.title}} <small>({{screencast.duration}})</small></h3>
       </li>
     </ul>
-  </div>
-
-  <div id="episode-view-container" ng-show="selectedEpisode">
-    <h2>{{selectedEpisode.title}}</h2>
-    <p>{{selectedEpisode.description}}</p>
-
-    <div id="player"></div>
   </div>
 </div>
 
@@ -433,148 +350,250 @@ max-width: 800px;
 <p>```
 </p>
 
-<p>Here we have added lines 16-21. In our container div, there is the attribute <code>ng-show="selectedEpisode"</code>. This ensures that the div is only visible if the scoped variable <em>selectedEpisode</em> is set. Line 20 will contain our video, but we'll get to that.</p>
+<p>Now refresh the page. If all worked well, you should see a list of screencasts on the left side. When we reloaded the page, a <em>GET</em> request was sent to <em>/api/screencasts</em>, populating the <em>screencasts</em> attribute in our scope. This is the power of Angular ngResource.</p>
 
-<p>Then inside the div, we display the episode information for the selected episode.</p>
+<h2>Now What?</h2>
 
-<p>Try it out by <a href="http://localhost:3000">reloading your browser</a>.</p>
+<p>We are doing great! Now we have a list of screencasts on the side which are clickable. However, we don't do anything when they are clicked. What we want to do is show the screencast in the main section along with some additional screencast information.</p>
 
-<h3>Embed the Video</h3>
+<p>Start off by adding the HTML code which will be used to display the main content. This is done inside the <em>index.html.erb</em> file:</p>
 
-<p>Now that we can see the individual episode information, we can add the video embed code. For this we are going to use <a href="http://flowplayer.org">flowplayer</a>. It is fairly simple to set up.</p>
+<p>
+```html app/views/home/index.html.erb</p>
 
-<p>First we need to add the required <em>css</em> and <em>javascript</em> libraries to our layout. Open up <em>application.html.erb</em> and make the following changes:</p>
+<div ng-controller="ScreencastsCtrl">
+  <div id="screencast-list-container">
+    <ul>
+      <li ng-repeat="screencast in screencasts">
+        <h3>{{screencast.title}} <small>({{screencast.duration}})</small></h3>
+      </li>
+    </ul>
+  </div>
 
-<p>```html</p>
+  <div id="screencast-view-container" ng-show="selectedScreencast">
+    <h2>{{selectedScreencast.title}}</h2>
+    <p>{{selectedScreencast.summary}}</p>
+    <p>
+      Published at {{selectedScreencast.published_at | date: 'mediumDate'}} 
+      - <a ng-href="{{selectedScreencast.link}}">{{selectedScreencast.link}}</a>
+    </p>
+  </div>
+</div>
 
-<!-- app/views/layouts/application.html.erb -->
 
+<p>```
+</p>
 
-<p>&lt;!DOCTYPE html>
-<html ng-app="AngularCasts">
-<head>
-  <title>AngularCasts</title>
-  &lt;%= stylesheet_link_tag "application", "http://releases.flowplayer.org/5.4.0/skin/minimalist.css" %>
-  &lt;%= javascript_include_tag "application",</p>
+<p>On lines 10-17, we have added a div which shows the screencast title and summary. On line 10, we use the <a href="http://docs.angularjs.org/api/ng.directive:ngShow">ng-show</a> directive which only displays the div if <em>selectedScreencast</em> exists.</p>
 
-<pre><code>                         "http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js",
-                         "http://releases.flowplayer.org/5.4.0/flowplayer.min.js" %&gt;
+<p>Go ahead and refresh the page. You should not see any changes. Click on a screencast. Still no changes.</p>
+
+<h3>Click and Show</h3>
+
+<p>In order for us to show the main content with the screencast information, we need to do a few things. The first thing we need to do is add an <a href="http://docs.angularjs.org/api/ng.directive:ngClick">ng-click</a> directive to our screencast list:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast)"&gt;
+    &lt;h3&gt;{{screencast.title}} &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
 </code></pre>
 
-<p>  &lt;%= csrf_meta_tags %>
+<p>  </div>
+...
+```
+</p>
+
+<p>Now when the list item is clicked the function <em>showScreencast</em> will be triggered with the screencast being passed in to it. Now let's update our controller with this function:</p>
+
+<p>```coffeescript app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) ->
+  # Attributes accessible on the view
+  $scope.screencasts        = Screencast.query()
+  $scope.selectedScreencast = null</p>
+
+<p>  # Set the selected screencast to the one which was clicked
+  $scope.showScreencast = (screencast) -></p>
+
+<pre><code>$scope.selectedScreencast = screencast
+</code></pre>
+
+<p>]
+```</p>
+
+<p>Refresh your browser and click on a screencast. As my wife would incorrectly say: <strong>"Waalah!"</strong></p>
+
+<h2>Show the Screencast</h2>
+
+<p>After doing a bit of looking around, I found that <a href="http://flowplayer.org">Flow Player</a> offered the easiest and cleanest way to show videos. Let's add the dependent scripts and css links to our layout:</p>
+
+<p>``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html ng-app="AngularCasts">
+<head>
+  <title>Angular Casts</title>
+  <link href="http://coderberry.me//releases.flowplayer.org/5.4.0/skin/minimalist.css" rel="stylesheet">
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
 </head>
-<body></p>
+<body>
+  <header></p>
 
-<p>&lt;%= yield %></p>
+<pre><code>Angular Casts
+</code></pre>
 
-<p></body>
+<p>  </header></p>
+
+<p>  &lt;%= yield %></p>
+
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  <script src="http://coderberry.me//releases.flowplayer.org/5.4.0/flowplayer.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
 </html>
 ```</p>
 
-<p>Here we added a new stylesheet and two additional javascript files to our include tags. As you can see, jQuery was included. This is a dependency of flowplayer, so we had to add it. But we have made it this far without it!</p>
+<p>Remember how we removed jQuery from our Gemfile and javascript manifest? The reason is because we didn't want it concatenated with the other scripts. FlowPlayer depends on jQuery and so jQuery needs to be available prior to Flow Player being loaded. We also can load it via CDN. Good times for all.</p>
 
-<p>Now we can embed the video from within our controller. This is very simple.</p>
+<h3>Create the FlowPlayer Directive</h3>
 
-<p>```coffeescript</p>
+<p>FlowPlayer requires triggering a function <em>flowplayer()</em> to show the video. We could add this into our controller, but we love to learn. Let's create a directive which listens to the controller and triggers the <em>flowplayer</em> function when <em>showScreencast</em> is called.</p>
 
-<h1>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</h1>
+<p>Create the directive at <em>app/assets/javascripts/angular/directives/flow_player.js.coffee</em></p>
 
-<p>@EpisodesCtrl = @app.controller 'EpisodesCtrl', ["$scope", "$http", ($scope, $http) -></p>
+<p>``` coffeescript app/assets/javascripts/angular/directives/flow_player.js.coffee
+App.directive 'flowPlayer', ->
+  (scope, element, attrs) -></p>
 
-<p>  $scope.episodes = []
-  $scope.selectedEpisode = null</p>
+<pre><code># Trigger when the selectedScreencast function is called
+# with a screencast
+scope.$watch 'selectedScreencast', (screencast) -&gt;
+  if screencast
 
-<p>  $scope.showEpisode = (episode) -></p>
-
-<pre><code>$scope.selectedEpisode = episode
-loadVideo(episode)
+    # See http://flowplayer.org/docs/
+    element.flowplayer
+      playlist: [[mp4: screencast.video_url]]
+      ratio: 9 / 14
 </code></pre>
 
-<p>  loadVideo = (episode) -></p>
+<p>```</p>
 
-<pre><code>$("#player").flowplayer
-  playlist: [[mp4: episode.video_url]]
-  ratio: 9 / 14
+<p>Now add the directive into our view:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-view-container" ng-show="selectedScreencast"></p>
+
+<pre><code>&lt;h2&gt;{{selectedScreencast.title}}&lt;/h2&gt;
+&lt;p&gt;{{selectedScreencast.summary}}&lt;/p&gt;
+&lt;div flow-player="" id="player"&gt;&lt;/div&gt;
+&lt;p&gt;
+  Published at {{selectedScreencast.published_at | date: 'mediumDate'}} 
+  - &lt;a ng-href="{{selectedScreencast.link}}"&gt;{{selectedScreencast.link}}&lt;/a&gt;
+&lt;/p&gt;
 </code></pre>
 
-<p>  loadEpisodes = -></p>
+<p>  </div>
+...
+```
+</p>
 
-<pre><code>$http.get("/episodes.json").success((data, status, headers, config) -&gt;
-  angular.forEach data, (value) -&gt;
-    $scope.episodes.push value.episode
-)
+<p>Refresh your browser and go nuts!</p>
+
+<h2>Extra Goodies</h2>
+
+<p>One final thing that I would like to see is some sort of indicator which lets us know which video is playing on the screencast list. This can be done via CSS and some simple code.</p>
+
+<p>In our CSS file, we have already added some style for an active screencast. Any <em>H3</em> tag on the side with the class of <em>active</em> will show as red. Try it out by adding the class to our view:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast)"&gt;
+    &lt;h3 class="active"&gt;{{screencast.title}} &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
 </code></pre>
 
-<p>  loadEpisodes()
-]
+<p>  </div>
+...
+```
+</p>
+
+<p>Refresh the page. You should now see that every screencast link on the left is red.</p>
+
+<p>For us to make it show for the active screencast only we have to make a few changes to our view and controller. Update the view to use the <a href="http://docs.angularjs.org/api/ng.directive:ngClass">ng-class</a> directive:</p>
+
+<p> 
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast, $index)"&gt;
+    &lt;h3 ng-class="{active: $index == selectedRow}"&gt;{{screencast.title}} 
+      &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>  </div>
+...
+```
+</p>
+
+<p>Note that on line 5 we added the 2nd attribute <em>&amp;index</em>. This is available via the <em>ng-repeat</em> directive and is the index value of the array (integer). We also modified line 6 to use the <em>ng-class</em> directive which only shows "active" if the <em>$index</em> is equal to <em>$scope.selectedRow</em>.</p>
+
+<p>Now update the controller to work with these changes:</p>
+
+<p>``` coffeescript app/assets/javascripts/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) ->
+  # Attributes accessible on the view
+  $scope.selectedScreencast = null
+  $scope.selectedRow        = null</p>
+
+<p>  # Gather the screencasts and set the selected one to the first on success
+  $scope.screencasts = Screencast.query -></p>
+
+<pre><code>$scope.selectedScreencast = $scope.screencasts[0]
+$scope.selectedRow = 0
+</code></pre>
+
+<p>  # Set the selected screencast to the one which was clicked
+  $scope.showScreencast = (screencast, row) -></p>
+
+<pre><code>$scope.selectedScreencast = screencast
+$scope.selectedRow = row
+</code></pre>
+
+<p>]
 ```</p>
 
-<p>On line 10, we added a call to the function <em>loadVideo</em> passing in the episode.</p>
+<p>We have added the new param <em>row</em> to the <em>showScreencast</em> function and set this to <em>$scope.selectedRow</em>. Refresh your browser and see how things have changed.</p>
 
-<p>On lines 12-15, we define a function which performs the javascript in order to load the video into <code>&lt;div id="player"&gt;&lt;/div&gt;</code>. You can see that we pass in the episode's video_url as the mp4 and set the ratio to 9/14.</p>
+<h2>Completed Project</h2>
 
-<p>Let's give it another go. Refresh your browser. You should now have a fully-functional AngularJS application!!!</p>
+<p>View the working app at <a href="http://angular-casts.herokuapp.com/">http://angular-casts.herokuapp.com/</a>.</p>
 
-<h2>Visual Feedback</h2>
+<h2>Final Thoughts</h2>
 
-<p>The final item we will be adding in our application is some visual feedback as to which video we are watching. In other words, we want to highlight the selected video on the left list.</p>
+<p>I know there are no front-end tests for this tutorial. This was intentional. They were too hard. I spent hours upon hours trying to get the tests working with <em>$httpBackend</em> and service testing, etc. I tried <em>karma</em> and <em>testem</em>. Too much time. Too little benefit. If you are better at this stuff than I am please send me an email or pull request or something with the changes you've made to include the tests. I can always add a <em>Part 3</em> which is about nothing other than testing the frontend.</p>
 
-<p>Add the following <em>ng-class</em> attribute to the <em>h3</em> tag:</p>
-
-<p><code>html
-...
-&lt;li ng-repeat="episode in episodes"&gt;
-  &lt;h3 ng-click="showEpisode(episode)" ng-class="isSelected(episode)"&gt; &lt;small&gt;()&lt;/small&gt;&lt;/h3&gt;
-&lt;/li&gt;
-...
-</code></p>
-
-<p>We now are using the function <code>isSelected(episode)</code> as the class name. Let's add this to our controller.</p>
-
-<p>```coffeescript</p>
-
-<h1>app/assets/javascripts/angular/controllers/episodes_ctrl.js.coffee</h1>
-
-<p>@EpisodesCtrl = @app.controller 'EpisodesCtrl', ["$scope", "$http", ($scope, $http) -></p>
-
-<p>  $scope.episodes = []
-  $scope.selectedEpisode = null</p>
-
-<p>  $scope.showEpisode = (episode) -></p>
-
-<pre><code>$scope.selectedEpisode = episode
-loadVideo(episode)
-</code></pre>
-
-<p>  $scope.isSelected = (episode) -></p>
-
-<pre><code>'active' if $scope.selectedEpisode == episode
-</code></pre>
-
-<p>  loadVideo = (episode) -></p>
-
-<pre><code>$("#player").flowplayer
-  playlist: [[mp4: episode.video_url]]
-  ratio: 9 / 14
-</code></pre>
-
-<p>  loadEpisodes = -></p>
-
-<pre><code>$http.get("/episodes.json").success((data, status, headers, config) -&gt;
-  angular.forEach data, (value) -&gt;
-    $scope.episodes.push value.episode
-)
-</code></pre>
-
-<p>  loadEpisodes()
-]
-```</p>
-
-<p>On lines 12-13, we have added the function <em>isSelected</em>. It will return 'active' if the selectedEpisode is the episode that was clicked.</p>
-
-<h2>Final Product</h2>
-
-<p><img src="http://f.cl.ly/items/2r0I1w1L3d1s0N0l2A0v/angular_casts.png"></p>
+<p>Thank you all who have patiently waited for me to finish this post. I learned never to release a post before it has been proofread and run through several times. Next time I'm going to do a screencast.. just like the <a href="http://www.teachmetocode.com">old days</a>.</p>
 ]]></content>
   </entry>
   
@@ -591,44 +610,27 @@ loadVideo(episode)
 </div>
 
 
-<p>AngularJS seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers. At the time of writing this article, AngularJS is the <a href="https://github.com/languages/JavaScript/most_watched">15th most watched project on GitHub</a>.</p>
+<p>Angular seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers. At the time of writing this article, AngularJS is the <a href="https://github.com/languages/JavaScript/most_watched">12th most watched project on GitHub</a>.</p>
 
-<p>A few days back, I presented at our local <a href="http://utruby.org">ruby users group</a> on writing an API-driven Rails app with AngularJS on the front end. Since then, I have received a lot of feedback on how I could have enhanced the app. This article has been re-written to reflect those changes. <em>Special thanks goes to <a href="http://tadthorley.com/">Tad Thorley</a> for providing the <a href="https://github.com/phaedryx/angularcast-example">excellent example application</a> based off of the original.</em></p>
+<p>Here I want to create a useful Rails application using Angular. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
 
-<p>Here I want to create a useful Rails application using AngularJS. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
-
-<h6>The title of the article states that we will be using Rails 4 in our application. We will be, however it is not necessary. There are no parts of this tutorial which use code specific to Rails 4.</h6>
+<h6>Originally I had presented this topic at our local <a href="http://utruby.org">ruby users group</a>. My typical workflow is to write a blog post before presenting and have that post be a reference to my presentation. Since then, I have received a lot of feedback on how I could have enhanced the app. These posts (part 1 and 2) been re-written to reflect those changes. <em>Special thanks goes to <a href="http://tadthorley.com/">Tad Thorley</a> for providing the <a href="https://github.com/phaedryx/angularcast-example">excellent example application</a> based off of the original. Also thanks goes out to those who have commented on these posts.</em></h6>
 
 <div style="clear: both;"></div>
 
 
 <h2>Creating the Rails Application</h2>
 
-<p>I had a hard time deciding when I began this project on whether to use a full Rails application or a very lightweight ruby web stack like <a href="http://sinatrarb.com">Sinatra</a>. In a <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a> by Ryan Bates, he describes an excellent middle-ground solution called <a href="https://github.com/rails-api/rails-api">Rails-Api</a>. By using the rails-api gem, we can make our Rails app much more lightweight and consequently faster than a normal Rails application.</p>
+<p>I had a hard time deciding when I began this project on whether to use a full Rails application or a very lightweight ruby web stack like <a href="http://sinatrarb.com">Sinatra</a>. I also experimented with a middle-ground solution called <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>). In the end, I used standard Rails (version 4.0.0.rc1). This gave me the flexibility I want; and for the scope of this tutorial I didn't want to distract from learning how to use Angular in an Rails application.</p>
 
-<p>Before anything, we need to install the <em>rails-api</em> gem in order for us to create our app.</p>
+<p>Before anything, we need to create a new Rails application called <em>Angular Casts</em></p>
 
-<pre><code>$ gem install rails-api
+<pre><code>$ rails new angular_casts
+...
+$ cd angular_casts
 </code></pre>
 
-<p>Once that is installed, lets create a new Rails application called <em>Angular Casts</em></p>
-
-<pre><code>$ rails-api new angular_casts
-</code></pre>
-
-<p>For those familiar with Rails, you will notice that a lot of the auto-generated code has been removed. No helpers, views or even the asset pipeline are there. Being someone who loves CoffeeScript, I want to add the asset pipeline back into our app. With the rails-api gem, the asset pipeline support hasn't been removed, just hidden. To re-enable this to use CoffeeScript, you will need to re-create the pipeline directory <em>app/assets/javascripts</em>:</p>
-
-<pre><code>$ mkdir -p app/assets/javascripts
-</code></pre>
-
-<p>and then create a <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">manifest file</a> called <em>application.js</em>:</p>
-
-<p><code>javascript app/assets/javascripts/application.js
-//= require app
-//= require_tree .
-</code></p>
-
-<h2>Create the Model</h2>
+<h2>Creating the Model and Controller</h2>
 
 <p>Our application will be pretty simple. We are only going to worry about storing screencast information in our database. Rails by default comes with a very lightweight database server called SQLite. If you aren't familiar with this, you can visit <a href="http://guides.rubyonrails.org/getting_started.html#configuring-a-database">http://guides.rubyonrails.org/getting_started.html#configuring-a-database</a> to learn more.</p>
 
@@ -644,20 +646,26 @@ loadVideo(episode)
 </ul>
 
 
-<p>Let's create a model based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
+<p>Let's create a model and controller based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
 
-<pre><code>$ rails-api g model screencast title summary:text duration link published_at:datetime source video_url --timestamps=false
+<pre><code>$ rails g resource screencast title summary:text duration link published_at:datetime source video_url
 </code></pre>
 
-<p>Note that in our generate command, we skipped timestamps. By having the published_at date and time, we don't need to store the additional information <em>unless you really really wanted to</em>.</p>
+<p>By running the <em>resource</em> generator, we now have a model and a controller. The controller will provide our REST API. We also can see that the <em>screencasts</em> resources have been added to our routes:</p>
+
+<p><code>ruby config/routes.rb
+AngularCasts::Application.routes.draw do
+  resources :screencasts
+  ...
+end
+</code></p>
 
 <p>Run the migration tasks for both development and test environments:</p>
 
-<pre><code>$ rake db:migrate
-$ rake db:migrate RAILS_ENV=test
+<pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
 </code></pre>
 
-<h3>Testing the Model</h3>
+<h2>Testing the Model</h2>
 
 <h6>Testing is not the primary topic of these blog posts, so less time and explanation will be given to them. If you want to learn more about testing, I recommend <a href="http://railscasts.com/episodes/275-how-i-test">http://railscasts.com/episodes/275-how-i-test</a>.</h6>
 
@@ -670,15 +678,15 @@ $ rake db:migrate RAILS_ENV=test
 
 <p>If all worked well, you should see something like <strong>0 tests, 0 assertions, 0 failures, 0 errors, 0 skips</strong>. This means that the test suite ran, but it didn't find any tests to run.</p>
 
-<p>There are a few things we will want to test. Let's list them out:</p>
+<p>There are a couple of things we will want to test:</p>
 
-<ol>
+<ul>
 <li>Make sure that all the required data exists for each screencast.</li>
 <li>Make sure that we do not have two of the same screencast (duplicates).</li>
-</ol>
+</ul>
 
 
-<p>Now that we have the list, we can write our tests. Let's first update our fixtures file with some useable data:</p>
+<p>Before we write our tests, let's update our fixtures file with some testable data:</p>
 
 <p>``` yaml test/fixtures/screencasts.yml</p>
 
@@ -768,24 +776,23 @@ end
 
 <p>``` bash
 $ rake test
-Run options: --seed 16385</p>
+Run options: --seed 29768</p>
 
 <h1>Running tests:</h1>
 
 <p>F.F</p>
 
-<p>Finished tests in 0.040478s, 74.1143 tests/s, 74.1143 assertions/s.</p>
+<p>Finished tests in 0.048601s, 61.7271 tests/s, 61.7271 assertions/s.</p>
 
 <p>  1) Failure:
-ScreencastTest#test_should_be_invalid_if_missing_required_data [/Users/eberry/Desktop/angular_casts/test/models/screencast_test.rb:18]:
+ScreencastTest#test_should_be_invalid_if_missing_required_data [../angular_casts/test/models/screencast_test.rb:18]:
 Failed assertion, no message given.</p>
 
 <p>  2) Failure:
-ScreencastTest#test_should_only_allow_one_screencast_with_the_same_video_url [/Users/eberry/Desktop/angular_casts/test/models/screencast_test.rb:32]:
+ScreencastTest#test_should_only_allow_one_screencast_with_the_same_video_url [../angular_casts/test/models/screencast_test.rb:32]:
 Failed assertion, no message given.</p>
 
 <p>3 tests, 3 assertions, 2 failures, 0 errors, 0 skips
-Errors running test:units! #&lt;RuntimeError: Command failed with status (1): [ruby -I"lib:test" -I"/Users/eberry/.rvm/gems/ruby-1.9.3-p392/gems/rake-10.0.4/lib" "/Users/eberry/.rvm/gems/ruby-1.9.3-p392/gems/rake-10.0.4/lib/rake/rake_test_loader.rb" "test/{models,helpers,unit}/<em>*/</em>_test.rb" ]>
 ```</p>
 
 <p>You can see we have have 3 tests with 3 assertions and 2 failures. The reason we didn't get 3 failures is because the second test, "should be valid if required data exists", will always pass until we set up some restrictions on the model.</p>
@@ -803,11 +810,22 @@ end
 
 <h2>Importing the Video Data</h2>
 
-<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is <a href="https://github.com/pauldix/feedzirra">feedzirra</a>. Go ahead and add it to the Gemfile and run <code>bundle install</code>.</p>
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is <a href="https://github.com/pauldix/feedzirra">feedzirra</a>. Let's add it to our Gemfile and remove <em>turbolinks</em>, <em>jbuilder</em> and <em>sdoc</em>. We also remove <em>jquery-rails</em> because we will use it via <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a> instead of inside the Asset Pipeline. This will be further explained in part 2.</p>
 
-<pre><code>gem 'feedzirra'
+<p>``` ruby Gemfile
+source 'https://rubygems.org'</p>
 
-$ bundle install
+<p>gem 'rails',        '4.0.0.rc1'
+gem 'sqlite3'
+gem 'sass-rails',   '~> 4.0.0.rc1'
+gem 'uglifier',     '>= 1.3.0'
+gem 'coffee-rails', '~> 4.0.0'
+gem 'feedzirra'
+```</p>
+
+<p>Now install the gems:</p>
+
+<pre><code>$ bundle install
 </code></pre>
 
 <h3>Create an Import Library</h3>
@@ -860,20 +878,20 @@ end
 <p>Now if we were to go into our Rails console, we could trigger this import manually. Give it a shot!</p>
 
 <pre><code>$ rails c
-Loading development environment (Rails 4.0.0.beta1)
+Loading development environment (Rails 4.0.0.rc1)
 
 &gt;&gt; require 'screencast_importer'
 =&gt; true
 
 &gt;&gt; ScreencastImporter.import_railscasts
 .... lots ... of ... feedback ....
-=&gt; 344
+=&gt; 345
 
 &gt;&gt; Screencast.count
-=&gt; 344
+=&gt; 345
 </code></pre>
 
-<h6>At the time of writing this article, there were 344 public Railscasts. This number will increase as time goes on.</h6>
+<h6>At the time of writing this article, there were 345 public Railscasts. This number will increase as time goes on.</h6>
 
 <h3>Trigger Import via Rake</h3>
 
@@ -897,14 +915,14 @@ end
 <p>Now that we have our rake task set up, go ahead and run the command:</p>
 
 <pre><code>$ rake screencast_sync:railscasts
-There are now 344 screencasts from Railscasts.com
+There are now 345 screencasts from Railscasts.com
 </code></pre>
 
 <p>It worked! But no time to celebrate.. let's move on.</p>
 
 <h2>Making Episodes Accessible via API</h2>
 
-<p>Because we are planning on using AngularJS for our front-end, we only need to expose our data as JSON. This will allow AngularJS to talk to the backend via ajax calls.</p>
+<p>Because we are planning on using Angular for our front-end, we only need to expose our data as JSON. This will allow Angular to talk to the backend via ajax calls.</p>
 
 <p>We are going to only use two calls to the API:</p>
 
@@ -914,12 +932,9 @@ There are now 344 screencasts from Railscasts.com
 </ul>
 
 
-<p>Let's start by creating the controller. Run the following generator:</p>
+<p>Because we used the <em>resource</em> generator, we already have our controller and routes.</p>
 
-<pre><code>$ rails-api g controller screencasts index show
-</code></pre>
-
-<p>By running this generator, the controller <code>ScreencastsController</code> was created. The routes file was also updated. Let's do some cleanup to the routes and make sure we only are allowing what we want to use. On top of that, let's <a href="http://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing">scope</a> our calls to the API with <em>api</em>.</p>
+<p>Let's do some cleanup to the routes and make sure we only are allowing what we want to use. On top of that, let's <a href="http://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing">scope</a> our calls to the API with <em>api</em>.</p>
 
 <p>``` ruby config/routes.rb
 AngularCasts::Application.routes.draw do
@@ -932,6 +947,14 @@ get "/screencasts/:id(.:format)" =&gt; "screencasts#show"
 <p>  end
 end
 ```</p>
+
+<p>Run the command <code>rake routes</code> to see our changes.</p>
+
+<pre><code>$ rake routes
+Prefix Verb URI Pattern                    Controller#Action
+ GET /api/screencasts(.:format)     screencasts#index
+ GET /api/screencasts/:id(.:format) screencasts#show
+</code></pre>
 
 <p>Now update the controller to render the correct JSON data for the two URL's.</p>
 
@@ -957,41 +980,28 @@ class ScreencastsController &lt; ApplicationController
 end
 ```</p>
 
-<p>One final thing that we need to do is tell Rails to not include the root in the JSON response. What this means is that the JSON response will not have a labelling key (e.g. <code>"screencast" =&gt; { "id": 1, ...</code>). To make this modification, add the following to your application controller:</p>
-
-<p><code>ruby app/controllers/application_controller.rb
-class ApplicationController &lt; ActionController::API
-  ActiveRecord::Base.include_root_in_json = false
-end
-</code></p>
-
-<p>Cool. If you are feeling brave, start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
-
-<p>Example:</p>
+<p>Now start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
 
 <p><code>javascript http://localhost:3000/api/screencasts/1.json
 {
   "id": 1,
-  "title": "Fast Rails Commands",
-  "summary": "Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands.",
-  "duration": "8:06",
-  "link": "http://railscasts.com/episodes/412-fast-rails-commands",
-  "published_at": "2013-04-04T07:00:00.000Z",
+  "title": "Upgrading to Rails 4",
+  "summary": "With the release of Rails 4.0.0.rc1 it's time to try it out and report any bugs. Here I walk you through the steps to upgrade a Rails 3.2 application to Rails 4.",
+  "duration": "12:44",
+  "link": "http://railscasts.com/episodes/415-upgrading-to-rails-4",
+  "published_at": "2013-05-06T07:00:00.000Z",
   "source": "railscasts",
-  "video_url": "http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4"
+  "video_url": "http://media.railscasts.com/assets/episodes/videos/415-upgrading-to-rails-4.mp4",
+  "created_at": "2013-05-21T18:22:29.719Z",
+  "updated_at": "2013-05-21T18:22:29.719Z"
 }
 </code></p>
 
-<h3>Testing the API</h3>
+<h2>Testing the API</h2>
 
 <p>Of course we are going to test the API! It actually isn't as complicated as it may seem. I am not going to go over much explanation beyond the inline comments.</p>
 
-<p>Because we have scoped our route with "/api", our auto-generated controller test does not work. This is not a bad thing. Delete it! We will not be performing a <em>controller</em> test. We are interested on the <em>API</em> side of things.</p>
-
-<pre><code>$ rm test/controllers/screencasts_controller_test.rb
-</code></pre>
-
-<p>Now create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
+<p>Create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
 
 <p>``` ruby test/integration/api_screencasts_test.rb
 require 'test_helper'</p>
@@ -1026,27 +1036,16 @@ end
 
 <pre><code>$ rake test
 ...
-3 tests, 11 assertions, 0 failures, 0 errors, 0 skips
-...
-2 tests, 7 assertions, 0 failures, 0 errors, 0 skips
+5 tests, 18 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 <p>Looks like our test are passing.</p>
-
-<p>If you are using Rails 4, you may be getting a <strong>DEPRECATION WARNING</strong> when running the test. To resolve this, open the file <em>config/initializers/secret_token.rb</em> and make the change:</p>
-
-<p>``` ruby secret_token.rb</p>
-
-<h1>change the attribute 'secret_token' to 'secret_key_base'</h1>
-
-<p>AngularCasts::Application.config.secret_key_base = '....' # &lt;- your token is here
-```</p>
 
 <hr />
 
 <p>Let's stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
 
-<h3>Go to <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">Part 2</a></h3>
+<h4>Go to <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">Part 2</a></h4>
 ]]></content>
   </entry>
   
