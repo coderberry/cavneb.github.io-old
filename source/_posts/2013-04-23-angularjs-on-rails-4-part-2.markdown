@@ -125,7 +125,7 @@ end
 
 Start up your server and open up [http://localhost:3000](http://localhost:3000). Type in your name into the text field. If the content changes as you type, it worked! You now have a functional Angular application!
 
-{% img https://dl-web.dropbox.com/get/Public/Assets/angular_casts_1.gif?w=AAAI1JnNBiWomAz4enNeeNU-MX0qPe0dAs0LmdJKJoXoug %}
+{% img /images/posts/angular_casts_1.gif %}
 
 ###### If you are using Rails 3, you will need to delete the file *public/index.html*
 
