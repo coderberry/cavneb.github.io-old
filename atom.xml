@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-05-23T11:01:37-06:00</updated>
+  <updated>2013-05-23T20:00:16-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -101,7 +101,7 @@ $ rake screencast_sync:railscasts
 
 <p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>window.App</code>. We also add the dependency of <code>ngResource</code> which provides simple REST client functionality.</p>
 
-<p>Next, we need to update our JavaScript manifest to include the our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.</p>
+<p>Next, we need to update our JavaScript manifest to include our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.</p>
 
 <figure class='code'><figcaption><span>app/assets/javascripts/application.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
