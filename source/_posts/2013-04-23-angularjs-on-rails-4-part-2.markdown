@@ -71,7 +71,7 @@ window.App = angular.module('AngularCasts', ['ngResource'])
 
 In this file we create a new module called *AngularCasts* and assign it to `window.App`. We also add the dependency of `ngResource` which provides simple REST client functionality.
 
-Next, we need to update our JavaScript manifest to include the our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.
+Next, we need to update our JavaScript manifest to include our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.
 
 ``` javascript app/assets/javascripts/application.js
 //= require app
