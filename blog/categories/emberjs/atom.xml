@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: EmberJS | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-06-20T20:25:56-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Flash Messages with EmberJS]]></title>
+    <link href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/"/>
+    <updated>2013-06-20T15:12:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs</id>
+    <content type="html"><![CDATA[<div style="width: 250px;
+     height: 338px;
+     float: left;
+     margin-right: 20px;
+     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
+</div>
+
+
+<p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn't really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
+
+<p>On searching the web for 'ember flash', I found a nice little library at <a href="https://github.com/cheapRoc/ember-flash">https://github.com/cheapRoc/ember-flash</a> by <strong>cheapRoc</strong>. After some minor tweaking and customization, I was able to get it working in my app.</p>
+
+<p>In this post, I want to share how easy it is to integrate and offer a little explanation as to how it works.</p>
+
+<p>Instead of creating four different files (controller, message, queue and view), I found that placing all of the same file made sense. I created the file <em>flash.js</em>:</p>
+
+<p>```javascript flash.js
+App.FlashMessage = Ember.Object.extend({
+  type: "notice",
+  message: null,
+  isNotice: (function() {</p>
+
+<pre><code>return this.get("type") === "notice";
+</code></pre>
+
+<p>  }).property("type").cacheable(),
+  isWarning: (function() {</p>
+
+<pre><code>return this.get("type") === "warning";
+</code></pre>
+
+<p>  }).property("type").cacheable(),
+  isError: (function() {</p>
+
+<pre><code>return this.get("type") === "error";
+</code></pre>
+
+<p>  }).property("type").cacheable()
+});</p>
+
+<p>App.FlashView = Ember.View.extend({
+  contentBinding: "App.FlashController.content",
+  classNameBindings: ["isNotice", "isWarning", "isError"],
+  isNoticeBinding: "content.isNotice",
+  isWarningBinding: "content.isWarning",
+  isErrorBinding: "content.isError",</p>
+
+<p>  didInsertElement: function() {</p>
+
+<pre><code>this.$("#message").hide();
+return App.FlashController.set("view", this);
+</code></pre>
+
+<p>  },</p>
+
+<p>  show: function(callback) {</p>
+
+<pre><code>return this.$("#message").css({
+  top: "-40px"
+}).animate({
+  top: "+=40",
+  opacity: "toggle"
+}, 500, callback);
+</code></pre>
+
+<p>  },</p>
+
+<p>  hide: function(callback) {</p>
+
+<pre><code>return this.$("#message").css({
+  top: "0px"
+}).animate({
+  top: "-39px",
+  opacity: "toggle"
+}, 500, callback);
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>App.FlashController = Ember.Object.create({
+  content: null,
+  clearContent: function(content, view) {</p>
+
+<pre><code>return view.hide(function() {
+  return App.FlashQueue.removeObject(content);
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>App.FlashController.addObserver('content', function() {
+  if (this.get("content")) {</p>
+
+<pre><code>if (this.get("view")) {
+  this.get("view").show();
+  return setTimeout(this.clearContent, 4000, this.get("content"), this.get("view"));
+}
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>return App.FlashQueue.contentChanged();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>App.FlashQueue = Ember.ArrayProxy.create({
+  content: [],
+  contentChanged: function() {</p>
+
+<pre><code>var current;
+current = App.FlashController.get("content");
+if (current !== this.objectAt(0)) {
+  return App.FlashController.set("content", this.objectAt(0));
+}
+</code></pre>
+
+<p>  },
+  pushFlash: function(type, message) {</p>
+
+<pre><code>return this.pushObject(App.FlashMessage.create({
+  message: message,
+  type: type
+}));
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>App.FlashQueue.addObserver('length', function() {
+  return this.contentChanged();
+});
+```</p>
+
+<h2>How does it work?</h2>
+
+<p>A <strong>FlashMessage</strong> is an Ember object <em>(lines 1-13)</em> which contains the message text and type of message (notice, warning, error). These messages are added into the <strong>FlashQueue</strong>, which is an array proxy, via the <em>pushFlash</em> function <em>(lines 75-59)</em>. There is an observer <em>(lines 83-85)</em> which triggers the function <em>contentChanged</em> whenever a message is added to the queue. When the <em>contentChanged</em> function is called, it places the flash message into the <strong>FlashController</strong>'s content <em>(lines 68-74)</em>. There is an observer watching the content of the controller <em>(lines 55-64)</em> which displays the <strong>FlashView</strong> for a short period of time, then hides it <em>(lines 58-59)</em>. Once hidden, <em>clearContent</em> is called which hides the view and removes the message from the queue <em>(lines 46-53)</em>.</p>
+
+<h2>CSS and Animation</h2>
+
+<p>On lines 27-43 above, there are animations set up for when the view is to be shown and hidden. These can be modified to anything. What happens in this code is the view will slide down and fade into view. The reverse happens when it is hidden.</p>
+
+<p>Here is the CSS that I am using:</p>
+
+<p>```css</p>
+
+<h1>flash-view {</h1>
+
+<p>  position: fixed;
+  top: 100px;
+  width: 100%;
+  z-index: 20;
+  overflow: hidden;
+}</p>
+
+<h1>flash-view #message {</h1>
+
+<p>  color: #fff;
+  font-size: 16px;
+  line-height: 1.2em;
+  text-align: center;
+  padding: 20px 0;
+}</p>
+
+<h1>flash-view.is-notice #message {</h1>
+
+<p>  background-color: #6c3;
+}</p>
+
+<h1>flash-view.is-alert #message {</h1>
+
+<p>  background-color: #f14247;
+}</p>
+
+<h1>flash-view.is-error #message {</h1>
+
+<p>  background-color: #f14247;
+}
+```</p>
+
+<h2>Usage</h2>
+
+<p>First, you must include the JavaScript and CSS above in your app.</p>
+
+<p>Second, add the view into your template (e.g. application.handlebars)</p>
+
+<p>
+``` javascript application.handlebars
+{{#view App.FlashView id="flash-view"}}
+  <div id="message"></p>
+
+<pre><code>{{view.content.message}}
+</code></pre>
+
+<p>  </div>
+{{/view}}</p>
+
+<h1>Application</h1>
+
+
+<p>{{outlet}}
+```
+</p>
+
+<p>Finally, trigger messages to be shown with the <em>pushFlash</em> function:</p>
+
+<pre><code>App.FlashQueue.pushFlash('notice', 'This actually works!!!');
+</code></pre>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/olurim/5/embed?live">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+]]></content>
+  </entry>
+  
+</feed>

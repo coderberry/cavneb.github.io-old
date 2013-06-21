@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Let&#8217;s pick up where we left off. If you haven&#8217;t already, make sure you go through Part 1 to create your base Rails app with the API setup &hellip;">
+  <meta name="description" content="<div style="width: 250px; height: 338px; float: left; margin-right: 20px; background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;"> In &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,322 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-20T15:12:00-06:00" pubdate data-updated="true">Jun 20<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div style="width: 250px;
+     height: 338px;
+     float: left;
+     margin-right: 20px;
+     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
+</div>
+
+
+<p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn&#8217;t really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
+
+<p>On searching the web for &#8216;ember flash&#8217;, I found a nice little library at <a href="https://github.com/cheapRoc/ember-flash">https://github.com/cheapRoc/ember-flash</a> by <strong>cheapRoc</strong>. After some minor tweaking and customization, I was able to get it working in my app.</p>
+
+<p>In this post, I want to share how easy it is to integrate and offer a little explanation as to how it works.</p>
+
+<p>Instead of creating four different files (controller, message, queue and view), I found that placing all of the same file made sense. I created the file <em>flash.js</em>:</p>
+
+<figure class='code'><figcaption><span>flash.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashMessage</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;notice&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">message</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">isNotice</span><span class="o">:</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">===</span> <span class="s2">&quot;notice&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}).</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">).</span><span class="nx">cacheable</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">isWarning</span><span class="o">:</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">===</span> <span class="s2">&quot;warning&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}).</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">).</span><span class="nx">cacheable</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">isError</span><span class="o">:</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">===</span> <span class="s2">&quot;error&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}).</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">).</span><span class="nx">cacheable</span><span class="p">()</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashView</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">contentBinding</span><span class="o">:</span> <span class="s2">&quot;App.FlashController.content&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">classNameBindings</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;isNotice&quot;</span><span class="p">,</span> <span class="s2">&quot;isWarning&quot;</span><span class="p">,</span> <span class="s2">&quot;isError&quot;</span><span class="p">],</span>
+</span><span class='line'>  <span class="nx">isNoticeBinding</span><span class="o">:</span> <span class="s2">&quot;content.isNotice&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">isWarningBinding</span><span class="o">:</span> <span class="s2">&quot;content.isWarning&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">isErrorBinding</span><span class="o">:</span> <span class="s2">&quot;content.isError&quot;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#message&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashController</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">show</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#message&quot;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">top</span><span class="o">:</span> <span class="s2">&quot;-40px&quot;</span>
+</span><span class='line'>    <span class="p">}).</span><span class="nx">animate</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">top</span><span class="o">:</span> <span class="s2">&quot;+=40&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">opacity</span><span class="o">:</span> <span class="s2">&quot;toggle&quot;</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">500</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">hide</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#message&quot;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">top</span><span class="o">:</span> <span class="s2">&quot;0px&quot;</span>
+</span><span class='line'>    <span class="p">}).</span><span class="nx">animate</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">top</span><span class="o">:</span> <span class="s2">&quot;-39px&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">opacity</span><span class="o">:</span> <span class="s2">&quot;toggle&quot;</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">500</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">content</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">clearContent</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">content</span><span class="p">,</span> <span class="nx">view</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">view</span><span class="p">.</span><span class="nx">hide</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashQueue</span><span class="p">.</span><span class="nx">removeObject</span><span class="p">(</span><span class="nx">content</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashController</span><span class="p">.</span><span class="nx">addObserver</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">).</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">clearContent</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">),</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashQueue</span><span class="p">.</span><span class="nx">contentChanged</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashQueue</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ArrayProxy</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">content</span><span class="o">:</span> <span class="p">[],</span>
+</span><span class='line'>  <span class="nx">contentChanged</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">current</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">current</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashController</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">current</span> <span class="o">!==</span> <span class="k">this</span><span class="p">.</span><span class="nx">objectAt</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashController</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">objectAt</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">pushFlash</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">pushObject</span><span class="p">(</span><span class="nx">App</span><span class="p">.</span><span class="nx">FlashMessage</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">message</span><span class="o">:</span> <span class="nx">message</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="nx">type</span>
+</span><span class='line'>    <span class="p">}));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">FlashQueue</span><span class="p">.</span><span class="nx">addObserver</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">contentChanged</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>How does it work?</h2>
+
+<p>A <strong>FlashMessage</strong> is an Ember object <em>(lines 1-13)</em> which contains the message text and type of message (notice, warning, error). These messages are added into the <strong>FlashQueue</strong>, which is an array proxy, via the <em>pushFlash</em> function <em>(lines 75-59)</em>. There is an observer <em>(lines 83-85)</em> which triggers the function <em>contentChanged</em> whenever a message is added to the queue. When the <em>contentChanged</em> function is called, it places the flash message into the <strong>FlashController</strong>&#8217;s content <em>(lines 68-74)</em>. There is an observer watching the content of the controller <em>(lines 55-64)</em> which displays the <strong>FlashView</strong> for a short period of time, then hides it <em>(lines 58-59)</em>. Once hidden, <em>clearContent</em> is called which hides the view and removes the message from the queue <em>(lines 46-53)</em>.</p>
+
+<h2>CSS and Animation</h2>
+
+<p>On lines 27-43 above, there are animations set up for when the view is to be shown and hidden. These can be modified to anything. What happens in this code is the view will slide down and fade into view. The reverse happens when it is hidden.</p>
+
+<p>Here is the CSS that I am using:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nf">#flash-view</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">position</span><span class="o">:</span> <span class="k">fixed</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">top</span><span class="o">:</span> <span class="m">100px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">width</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">z-index</span><span class="o">:</span> <span class="m">20</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">overflow</span><span class="o">:</span> <span class="k">hidden</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nf">#flash-view</span> <span class="nf">#message</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="m">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">font-size</span><span class="o">:</span> <span class="m">16px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">line-height</span><span class="o">:</span> <span class="m">1.2em</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">20px</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nf">#flash-view</span><span class="nc">.is-notice</span> <span class="nf">#message</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#6c3</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nf">#flash-view</span><span class="nc">.is-alert</span> <span class="nf">#message</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#f14247</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nf">#flash-view</span><span class="nc">.is-error</span> <span class="nf">#message</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="m">#f14247</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Usage</h2>
+
+<p>First, you must include the JavaScript and CSS above in your app.</p>
+
+<p>Second, add the view into your template (e.g. application.handlebars)</p>
+
+<figure class='code'><figcaption><span>application.handlebars</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{{</span><span class="err">#</span><span class="nx">view</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FlashView</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;flash-view&quot;</span><span class="p">}}</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;message&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">{{</span><span class="nx">view</span><span class="p">.</span><span class="nx">content</span><span class="p">.</span><span class="nx">message</span><span class="p">}}</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'><span class="p">{{</span><span class="err">/view}}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Application</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'><span class="p">{{</span><span class="nx">outlet</span><span class="p">}}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, trigger messages to be shown with the <em>pushFlash</em> function:</p>
+
+<pre><code>App.FlashQueue.pushFlash('notice', 'This actually works!!!');
+</code></pre>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/olurim/5/embed?live">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1525,68 +1841,6 @@ Prefix Verb URI Pattern                    Controller#Action
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-02-20T08:30:00-07:00" pubdate data-updated="true">Feb 20<span>th</span>, 2013</time>
-        
-         | <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>RubyMine has become <em>awesomer</em> and <em>awesomer</em> over the years and is now my primary development tool for Rails development. One thing I&#8217;ve found frustrating however is that there is very little documentation on the best memory settings for your computer.</p>
-
-<p>I&#8217;d like to get a thread going here with people identifying their computer, CPU, memory and config settings for RubyMine.</p>
-
-<p>The config file can be located in the <code>bin</code> folder of your application. On my mac, the file is <code>/Applications/RubyMine/bin/idea.vmoptions</code>. If it doesn&#8217;t exist you may need to create it.</p>
-
-<p>So here are my computer specs and vmoptions:</p>
-
-<p>MacBook Pro Retina 2.6 GHz Intel Core i7 with 16 GB memory</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>-Xms128m
-</span><span class='line'>-Xmx2048m
-</span><span class='line'>-XX:MaxPermSize=500m
-</span><span class='line'>-XX:ReservedCodeCacheSize=128m
-</span><span class='line'>-XX:+UseCodeCacheFlushing
-</span><span class='line'>-XX:+UseCompressedOops</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Please feel free to post yours in the comments below. I believe this will help others optimize their RubyMine experience.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1602,6 +1856,10 @@ Prefix Verb URI Pattern                    Controller#Action
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages with EmberJS</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">AngularJS on Rails 4 - Part 2</a>
       </li>
     
@@ -1611,6 +1869,10 @@ Prefix Verb URI Pattern                    Controller#Action
     
       <li class="post">
         <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What is the best memory config for RubyMine?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS with Yeoman</a>
       </li>
     
   </ul>
