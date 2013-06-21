@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-06-20T20:25:56-06:00</updated>
+  <updated>2013-06-20T21:06:57-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,13 +18,7 @@
     <link href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/"/>
     <updated>2013-06-20T15:12:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs</id>
-    <content type="html"><![CDATA[<div style="width: 250px;
-     height: 338px;
-     float: left;
-     margin-right: 20px;
-     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
-</div>
-
+    <content type="html"><![CDATA[<p><img width="250" height="338" src="http://coderberry.me/images/flash-to-flash.png" style="border: 0px; float: left; margin-right: 20px; -webkit-border-radius: 0px; -ms-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px; -webkit-box-shadow: 0px; -moz-box-shadow: 0px; box-shadow: 0px;" /></p>
 
 <p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn't really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
 

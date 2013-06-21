@@ -9,7 +9,9 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Something I had to dig around for today was how to perform a sum on a table using Criteria Builder. It seems that it is treated a bit different than &hellip;">
+  <meta name="description" content="So let&#8217;s say you want to utilize the standard grails tag lib
+of formatNumber within your domain class, controller or
+service. How would you go &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,17 +20,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://coderberry.me/blog/page/8">
+  <link rel="canonical" href="http://coderberry.me/blog/page/8/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic' rel='stylesheet' type='text/css'>
 
   
   <script type="text/javascript">
@@ -48,29 +49,10 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">coderberry</a></h1>
-  
+  <h1><a href="/">coderberry.me</a></h1>
 </hgroup>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:coderberry.me" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
   <div id="main">
     <div id="content">
       <div class="blog-index">
@@ -81,11 +63,166 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2010/10/07/using-tag-lib-within-controllers-and-services/">Using Tag Lib Within Controllers and Services</a></h1>
+    
+  </header>
+
+
+  
+    <p class="meta">
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-10-07T00:00:00-06:00" pubdate data-updated="true">Oct 7<span>th</span>, 2010</time>
+      
+       | <a href="/blog/2010/10/07/using-tag-lib-within-controllers-and-services/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/grails/'>Grails</a>, <a class='category' href='/blog/categories/groovy/'>Groovy</a>, <a class='category' href='/blog/categories/taglib/'>TagLib</a>
+  
+</span>
+
+
+  <div class="entry-content"><p>So let&#8217;s say you want to utilize the standard grails tag lib
+of formatNumber within your domain class, controller or
+service. How would you go about doing it? With the help of a
+blog post by <a href="http://lucastex.com.br/2010/02/03/como-acessar-uma-taglib-de-dentro-de-um-service/">Lucas Teixeira</a>, I was able to get it working without
+an issue. Here is the code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Book</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">def</span> <span class="n">grailsApplication</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">String</span> <span class="n">title</span>
+</span><span class='line'>  <span class="n">Float</span> <span class="n">cost</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">title</span><span class="o">(</span><span class="nl">blank:</span> <span class="kc">false</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">cost</span><span class="o">(</span><span class="nl">blank:</span> <span class="kc">false</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">def</span> <span class="n">String</span> <span class="nf">toDisplayString</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">g</span> <span class="o">=</span> <span class="n">grailsApplication</span><span class="o">.</span><span class="na">mainContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span>
+</span><span class='line'>      <span class="err">&#39;</span><span class="n">org</span><span class="o">.</span><span class="na">codehaus</span><span class="o">.</span><span class="na">groovy</span><span class="o">.</span><span class="na">grails</span><span class="o">.</span><span class="na">plugins</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">taglib</span><span class="o">.</span><span class="na">ApplicationTagLib</span><span class="err">&#39;</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;${title} costs ${g.formatNumber(</span>
+</span><span class='line'><span class="s">      [number: cost, type: &quot;</span><span class="n">currency</span><span class="s">&quot;, currencyCode: &quot;</span><span class="n">USD</span><span class="s">&quot;]</span>
+</span><span class='line'><span class="s">    )}&quot;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&#8217;s also simple to utilize your own tag libs as well. Here&#8217;s a tag lib that I created to help with XML formatting:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">CommonTagLib</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">namespace</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">berry</span><span class="err">&#39;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="n">formatXML</span> <span class="o">=</span> <span class="o">{</span> <span class="n">attrs</span><span class="o">,</span> <span class="n">body</span> <span class="o">-&gt;</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">rawXML</span> <span class="o">=</span> <span class="n">body</span><span class="o">().</span><span class="na">toString</span><span class="o">()</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">slurpedXML</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XmlSlurper</span><span class="o">().</span><span class="na">parseText</span><span class="o">(</span><span class="n">rawXML</span><span class="o">)</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringWriter</span><span class="o">()</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">XmlNodePrinter</span><span class="o">(</span><span class="k">new</span> <span class="n">PrintWriter</span><span class="o">(</span><span class="n">writer</span><span class="o">)).</span><span class="na">print</span><span class="o">(</span><span class="n">slurpedXML</span><span class="o">)</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">formattedResponse</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="na">toString</span><span class="o">()</span>
+</span><span class='line'>            <span class="n">out</span> <span class="o">&lt;&lt;</span> <span class="n">formattedResponse</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">log</span><span class="o">.</span><span class="na">info</span> <span class="s">&quot;Unable to parse XML: ${e.message}&quot;</span>
+</span><span class='line'>            <span class="n">out</span> <span class="o">&lt;&lt;</span> <span class="n">rawXML</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So to call this tag lib in the domain class, controller or service, I just need to do the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">def</span> <span class="n">berry</span> <span class="o">=</span> <span class="n">grailsApplication</span><span class="o">.</span><span class="na">mainContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="err">&#39;</span><span class="n">CommonTagLib</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'><span class="k">return</span> <span class="n">berry</span><span class="o">.</span><span class="na">formatXML</span><span class="o">(</span><span class="s">&quot;....&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Just make sure that you include the &#8216;def grailsApplication&#8217; in the beginning.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2010/10/06/using-criteria-builder-with-projections/">Using Criteria Builder With Projections</a></h1>
     
-    
-      <p class="meta">
-        
+  </header>
+
+
+  
+    <p class="meta">
+      
 
 
 
@@ -98,12 +235,18 @@
 
 
 <time datetime="2010-10-06T00:00:00-06:00" pubdate data-updated="true">Oct 6<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/10/06/using-criteria-builder-with-projections/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
+      
+       | <a href="/blog/2010/10/06/using-criteria-builder-with-projections/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/gorm/'>Gorm</a>, <a class='category' href='/blog/categories/grails/'>Grails</a>, <a class='category' href='/blog/categories/groovy/'>Groovy</a>
+  
+</span>
 
 
   <div class="entry-content"><p>Something I had to dig around for today was how to perform a sum on a table using Criteria Builder. It seems that it is treated a bit different than a normal query would be. Here is an example of what I tried and failed at:</p>
@@ -173,9 +316,12 @@
     
       <h1 class="entry-title"><a href="/blog/2010/05/27/multi-line-rails-logger-trick/">Multi-Line Rails Logger Trick</a></h1>
     
-    
-      <p class="meta">
-        
+  </header>
+
+
+  
+    <p class="meta">
+      
 
 
 
@@ -188,12 +334,18 @@
 
 
 <time datetime="2010-05-27T00:00:00-06:00" pubdate data-updated="true">May 27<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/05/27/multi-line-rails-logger-trick/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
+      
+       | <a href="/blog/2010/05/27/multi-line-rails-logger-trick/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>Ruby</a>
+  
+</span>
 
 
   <div class="entry-content"><p>One thing that I like to do with my logger output is allow for multi-line output. It makes it much easier to read and keeps my code cleaner.</p>
@@ -226,218 +378,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/">Using Multiple SMTP Accounts With Rails &amp; ActionMailer</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-30T00:00:00-06:00" pubdate data-updated="true">Mar 30<span>th</span>, 2009</time>
-        
-         | <a href="/blog/2009/03/30/using-multiple-smtp-accounts-with-rails-and-actionmailer/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Recently I ran into a problem where I needed to be able to send emails via two different SMTP accounts within the same Rails application. I scoured the net trying to find a method to do this, but I couldn&#8217;t find one. So I pulled out my hack-hat and got started.</p>
-
-<p>If there are any better ways to do this, I would love to hear about it.</p>
-
-<p>I first created a new YAML file in my config folder called <code>action_mailer.yml</code>. In this file, I specified three different nodes with the actionmailer settings.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">development</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">test</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">production</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">website1</span><span class="p-Indicator">:</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">domain</span><span class="p-Indicator">:</span> <span class="s">&quot;gary@superfriends.com&quot;</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">user_name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">gary</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">password</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">superduper</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">address</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">smtp.gmail.com</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">port</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">587</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">authentication</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">:plain</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">website2</span><span class="p-Indicator">:</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">mysupercooldomain.com</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">user_name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ABCDEF</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">password</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">blahblah</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">address</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">mail.authsmtp.com</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">port</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">25</span>
-</span><span class='line'>    <span class="l-Scalar-Plain">authentication</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">:plain</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Afterwards, I created two mailer models that represent each of the different mailers I will use.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/mailer1.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Website1</span> <span class="o">&lt;</span> <span class="ss">ActionMailer</span><span class="p">:</span><span class="ss">:Base</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">load_settings</span>
-</span><span class='line'>    <span class="n">options</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="no">RAILS_ROOT</span><span class="si">}</span><span class="s2">/config/action_mailer.yml&quot;</span><span class="p">)</span><span class="o">[</span><span class="no">RAILS_ENV</span><span class="o">][</span><span class="s2">&quot;website1&quot;</span><span class="o">]</span>
-</span><span class='line'>    <span class="vc">@@smtp_settings</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>      <span class="ss">:address</span>              <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;address&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:port</span>                 <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;port&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:domain</span>               <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;domain&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:authentication</span>       <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;authentication&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:user_name</span>            <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;user_name&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:password</span>             <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;password&quot;</span><span class="o">]</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">welcome_email</span><span class="p">(</span><span class="n">recipient</span><span class="p">,</span> <span class="n">sent_at</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">load_settings</span>
-</span><span class='line'>    <span class="vi">@subject</span> <span class="o">=</span> <span class="s1">&#39;Thank you for visiting website 1&#39;</span>
-</span><span class='line'>    <span class="vi">@recipients</span> <span class="o">=</span> <span class="no">RAILS_ENV</span> <span class="o">==</span> <span class="s2">&quot;production&quot;</span> <span class="p">?</span> <span class="n">recipient</span> <span class="p">:</span> <span class="s2">&quot;cavneb@gmail.com&quot;</span>
-</span><span class='line'>    <span class="vi">@from</span> <span class="o">=</span> <span class="s1">&#39;gary@superfriends.com&#39;</span>
-</span><span class='line'>    <span class="vi">@sent_on</span> <span class="o">=</span> <span class="n">sent_at</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/mailer2.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Website2</span> <span class="o">&lt;</span> <span class="ss">ActionMailer</span><span class="p">:</span><span class="ss">:Base</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">load_settings</span>
-</span><span class='line'>    <span class="n">options</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="no">RAILS_ROOT</span><span class="si">}</span><span class="s2">/config/action_mailer.yml&quot;</span><span class="p">)</span><span class="o">[</span><span class="no">RAILS_ENV</span><span class="o">][</span><span class="s2">&quot;website2&quot;</span><span class="o">]</span>
-</span><span class='line'>    <span class="vc">@@smtp_settings</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>      <span class="ss">:address</span>              <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;address&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:port</span>                 <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;port&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:domain</span>               <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;domain&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:authentication</span>       <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;authentication&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:user_name</span>            <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;user_name&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">:password</span>             <span class="o">=&gt;</span> <span class="n">options</span><span class="o">[</span><span class="s2">&quot;password&quot;</span><span class="o">]</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">welcome_email</span><span class="p">(</span><span class="n">recipient</span><span class="p">,</span> <span class="n">sent_at</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">load_settings</span>
-</span><span class='line'>    <span class="vi">@subject</span> <span class="o">=</span> <span class="s1">&#39;Thank you for visiting website 2&#39;</span>
-</span><span class='line'>    <span class="vi">@recipients</span> <span class="o">=</span> <span class="no">RAILS_ENV</span> <span class="o">==</span> <span class="s2">&quot;production&quot;</span> <span class="p">?</span> <span class="n">recipient</span> <span class="p">:</span> <span class="s2">&quot;cavneb@gmail.com&quot;</span>
-</span><span class='line'>    <span class="vi">@from</span> <span class="o">=</span> <span class="s1">&#39;info@mysupercooldomain.com&#39;</span>
-</span><span class='line'>    <span class="vi">@sent_on</span> <span class="o">=</span> <span class="n">sent_at</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So now when I send an email, I can first determine which mailer to use and then send the email.</p>
-
-<p>For example, your controller might have code that looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># Found in code of controller</span>
-</span><span class='line'><span class="k">if</span> <span class="n">session</span><span class="o">[</span><span class="ss">:template_name</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;website1&quot;</span>
-</span><span class='line'>  <span class="no">Website1</span><span class="o">.</span><span class="n">deliver_welcome_email</span><span class="p">(</span><span class="s2">&quot;cavneb@gmail.com&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>  <span class="no">Website2</span><span class="o">.</span><span class="n">deliver_welcome_email</span><span class="p">(</span><span class="s2">&quot;cavneb@gmail.com&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I realize this is probably the hard way, but hey, it&#8217;s a start. Please post any plugins or alternatives to doing this if you know of any.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/9/">&larr; Older</a>
@@ -449,6 +389,14 @@
   </div>
 </div>
 <aside class="sidebar">
+  
+    <form action="http://google.com/search" method="get">
+      <fieldset role="search">
+        <input type="hidden" name="q" value="site:coderberry.me" />
+        <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+      </fieldset>
+    </form>
+  
   
     <section>
   <h1>Recent Posts</h1>
@@ -486,7 +434,7 @@
   <a href="https://github.com/cavneb">@cavneb</a> on GitHub
   
   <script type="text/javascript">
-    $(document).ready(function(){
+    $.domReady(function(){
         if (!window.jXHR){
             var jxhr = document.createElement('script');
             jxhr.type = 'text/javascript';
@@ -541,7 +489,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
+  js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -563,6 +511,9 @@
 
 
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/javascripts/aharris.js"></script>
 
 </body>
 </html>

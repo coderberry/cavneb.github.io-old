@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-06-20T20:25:56-06:00</updated>
+  <updated>2013-06-20T21:06:57-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,13 +17,7 @@
     <link href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/"/>
     <updated>2013-06-20T15:12:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs</id>
-    <content type="html"><![CDATA[<div style="width: 250px;
-     height: 338px;
-     float: left;
-     margin-right: 20px;
-     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
-</div>
-
+    <content type="html"><![CDATA[<p><img width="250" height="338" src="http://coderberry.me/images/flash-to-flash.png" style="border: 0px; float: left; margin-right: 20px; -webkit-border-radius: 0px; -ms-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px; -webkit-box-shadow: 0px; -moz-box-shadow: 0px; box-shadow: 0px;" /></p>
 
 <p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn&#8217;t really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
 
@@ -4027,6 +4020,15 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   </entry>
   
   <entry>
+    <title type="html"><![CDATA[This is post]]></title>
+    <link href="http://coderberry.me/blog/2011/06/01/this-is-a-test/"/>
+    <updated>2011-06-01T14:44:00-06:00</updated>
+    <id>http://coderberry.me/blog/2011/06/01/this-is-a-test</id>
+    <content type="html"><![CDATA[<p>Booyah!</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[How to fix the iconv require error in Ruby 1.9 and RVM]]></title>
     <link href="http://coderberry.me/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/"/>
     <updated>2011-05-17T00:00:00-06:00</updated>
@@ -4656,53 +4658,6 @@ found that I needed to use it again today so I posted it.</p>
 <p>This now will work in both DEVELOPMENT and PRODUCTION enviroments.</p>
 
 <p><a href="http://github.com/cavneb/FileUploader">http://github.com/cavneb/FileUploader</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Passing Data From View to Layout via pageProperty]]></title>
-    <link href="http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/"/>
-    <updated>2010-10-08T00:00:00-06:00</updated>
-    <id>http://coderberry.me/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty</id>
-    <content type="html"><![CDATA[<p>I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub-header. For this to be used, I needed to be able to pass those two strings from the view to the layout.</p>
-
-<p>Here&#8217;s what my view looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;html&gt;</span>
-</span><span class='line'><span class="nt">&lt;head&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;layout&quot;</span> <span class="na">content=</span><span class="s">&quot;admintasia&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;This is a test&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageSubHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;blah blah blah&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'><span class="nt">&lt;/head&gt;</span>
-</span><span class='line'><span class="nt">&lt;body&gt;</span>
-</span><span class='line'>...
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And here&#8217;s what my layout looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h2&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageHeader&quot;</span>
-</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;MISSING PAGE HEADER&quot;</span> <span class="nt">/&gt;&lt;/h2&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;h4&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageSubHeader&quot;</span>
-</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;&lt;/h4&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I hope this helps out!</p>
 ]]></content>
   </entry>
   

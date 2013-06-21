@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="<div style="width: 250px; height: 338px; float: left; margin-right: 20px; background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;"> In &hellip;">
+  <meta name="description" content="In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,17 +18,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs">
+  <link rel="canonical" href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic' rel='stylesheet' type='text/css'>
 
   
   <script type="text/javascript">
@@ -48,29 +47,10 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">coderberry</a></h1>
-  
+  <h1><a href="/">coderberry.me</a></h1>
 </hgroup>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:coderberry.me" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
   <div id="main">
     <div id="content">
       <div>
@@ -80,36 +60,19 @@
     
       <h1 class="entry-title">Using Flash Messages With EmberJS</h1>
     
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-06-20T15:12:00-06:00" pubdate data-updated="true">Jun 20<span>th</span>, 2013</time>
-        
-         | <a href="#disqus_thread">Comments</a>
-        
-      </p>
-    
   </header>
 
 
-<div class="entry-content"><div style="width: 250px;
-     height: 338px;
-     float: left;
-     margin-right: 20px;
-     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
-</div>
 
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>
+  
+</span>
+
+
+<div class="entry-content"><p><img width="250" height="338" src="/images/flash-to-flash.png" style="border: 0px; float: left; margin-right: 20px; -webkit-border-radius: 0px; -ms-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px; -webkit-box-shadow: 0px; -moz-box-shadow: 0px; box-shadow: 0px;" /></p>
 
 <p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn&#8217;t really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
 
@@ -405,15 +368,6 @@
 
 
 <time datetime="2013-06-20T15:12:00-06:00" pubdate data-updated="true">Jun 20<span>th</span>, 2013</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>
-  
-</span>
-
-
     </p>
     
       <div class="sharing">
@@ -482,7 +436,7 @@
   <a href="https://github.com/cavneb">@cavneb</a> on GitHub
   
   <script type="text/javascript">
-    $(document).ready(function(){
+    $.domReady(function(){
         if (!window.jXHR){
             var jxhr = document.createElement('script');
             jxhr.type = 'text/javascript';
@@ -541,7 +495,7 @@
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
+  js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -563,6 +517,9 @@
 
 
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/javascripts/aharris.js"></script>
 
 </body>
 </html>

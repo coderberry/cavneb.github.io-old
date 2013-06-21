@@ -9,26 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="I have three domain classes: Lead, Submission and BuyerLog: 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-class Lead { static hasMany = [ &hellip;">
+  <meta name="description" content="This post was copied from exceptions.wordpress.com with minor updates. So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -37,17 +18,16 @@ class Lead { static hasMany = [ &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://coderberry.me/blog/page/6">
+  <link rel="canonical" href="http://coderberry.me/blog/page/6/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic' rel='stylesheet' type='text/css'>
 
   
   <script type="text/javascript">
@@ -67,29 +47,10 @@ class Lead { static hasMany = [ &hellip;">
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">coderberry</a></h1>
-  
+  <h1><a href="/">coderberry.me</a></h1>
 </hgroup>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:coderberry.me" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
   <div id="main">
     <div id="content">
       <div class="blog-index">
@@ -100,11 +61,117 @@ class Lead { static hasMany = [ &hellip;">
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/">How to Fix the Iconv Require Error in Ruby 1.9 and RVM</a></h1>
+    
+  </header>
+
+
+  
+    <p class="meta">
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-17T00:00:00-06:00" pubdate data-updated="true">May 17<span>th</span>, 2011</time>
+      
+       | <a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>Ruby</a>
+  
+</span>
+
+
+  <div class="entry-content"><p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
+
+<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>'require': no such file to load – iconv (LoadError)</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>To fix the issue, perform the following steps:</strong></p>
+
+<ol>
+<li>Install readline using rvm: rvm install readline rvm package install readline</li>
+<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
+<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm remove 1.9.2</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>The final step is to re-install the version of ruby:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Now to test that it worked:</strong></p>
+
+<ol>
+<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
+<li>Check you are on the right version of ruby:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
+</span><span class='line'>ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Start a new irb session</li>
+<li>Now you should be able to require &#8216;iconv&#8217; and get a &#8216;true&#8217; result</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby-1.9.2-p180 :001 &gt; require 'iconv'
+</span><span class='line'>=&gt; true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you should be good to go!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/">Multi-Associative GORM Criteria With Projections</a></h1>
     
-    
-      <p class="meta">
-        
+  </header>
+
+
+  
+    <p class="meta">
+      
 
 
 
@@ -117,12 +184,18 @@ class Lead { static hasMany = [ &hellip;">
 
 
 <time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
-        
-         | <a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
+      
+       | <a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/gorm/'>GORM</a>, <a class='category' href='/blog/categories/grails/'>Grails</a>
+  
+</span>
 
 
   <div class="entry-content"><p>I have three domain classes: Lead, Submission and BuyerLog:</p>
@@ -269,9 +342,12 @@ class Lead { static hasMany = [ &hellip;">
     
       <h1 class="entry-title"><a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/">Paginator for Those Suffering From PostgreSQL Count(*) Speed Issues</a></h1>
     
-    
-      <p class="meta">
-        
+  </header>
+
+
+  
+    <p class="meta">
+      
 
 
 
@@ -284,12 +360,18 @@ class Lead { static hasMany = [ &hellip;">
 
 
 <time datetime="2010-11-24T00:00:00-07:00" pubdate data-updated="true">Nov 24<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
+      
+       | <a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/#disqus_thread">Comments</a>
+      
+    </p>
+  
+  
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/grails/'>Grails</a>, <a class='category' href='/blog/categories/postgres/'>Postgres</a>
+  
+</span>
 
 
   <div class="entry-content"><p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into is that as our database grows (1mil+
@@ -450,113 +532,6 @@ records), there is a major slowdown on page loads due to a <a href="http://sql-i
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/">Roll Your Own Ajax-Based Captcha in Grails</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-28T00:00:00-06:00" pubdate data-updated="true">Oct 28<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Recently, I was asked to come up with a better solution to our
-captcha needs. We have been using <a href="http://www.google.com/recaptcha">ReCaptcha</a>, which is great
-but difficult to read at times, and has caused frustrated
-customers and lost sales. I found a great solution at
-<a href="http://www.jkdesign.org/captcha">http://www.jkdesign.org/captcha</a> which displays a number of
-graphics and let&#8217;s the user choose the right one to prove they
-are human. Here is a screenshot of my implementation:</p>
-
-<p><img src="/images/posts/Using-Criteria-Builder-with-Projections-1.png"></p>
-
-<p>To make this work within Grails, I had to make several tweaks. The following files are required:</p>
-
-<ul>
-<li><a href="http://jqueryui.com/">JQuery 1.2+</a> (I am using version - 1.4.2)</li>
-<li><a href="http://jqueryui.com/">JQuery UI</a> (I am using version - 1.8.2)</li>
-<li><a href="http://gist.github.com/651605">jquery.simpleCaptcha-0.2.js</a></li>
-<li><a href="/files/captchaImages.zip">Captcha Images</a> placed in images/captchaImages</li>
-<li><a href="http://gist.github.com/651613">BCrypt.java</a> by Damien Miller</li>
-<li>CaptchaController.groovy (below)</li>
-</ul>
-
-
-<p>Create a new controller called Captcha. This can really be named anything, but if you do rename it, it will have to be updated in the jquery.simpleCaptcha-0.2.js file or passed in as an option via the javascript.</p>
-
-<div><script src='https://gist.github.com/1291660.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
-
-
-<p>What this controller does is return a JSON object with the data needed to generate the captcha. The JSON appears like so:</p>
-
-<div><script src='https://gist.github.com/1291662.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
-
-
-<p>Now we just need to implement this in our GSP file and controller. Suppose we have a page like shown above with a pickup code and the last 4 digits of the persons phone number. With adding our captcha div and required javascript, our GSP would look like this:</p>
-
-<div><script src='https://gist.github.com/1291664.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
-
-
-<p>Finally, we need to perform the validation on the controller side. The modified authentication action would look like the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">def</span> <span class="n">pickup</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Determine if the captcha is picked correctly</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">captchaSelection</span> <span class="o">!=</span> <span class="n">session</span><span class="o">.</span><span class="na">selectedCaptchaText</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// They selected the correct Captcha image. Continue with Authentication</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;You did not click the correct image below. Please Try Again.&quot;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So there ya go. It&#8217;s actually pretty easy and customers seem to like choosing an image much more than typing a word that is difficult to read.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/7/">&larr; Older</a>
@@ -568,6 +543,14 @@ are human. Here is a screenshot of my implementation:</p>
   </div>
 </div>
 <aside class="sidebar">
+  
+    <form action="http://google.com/search" method="get">
+      <fieldset role="search">
+        <input type="hidden" name="q" value="site:coderberry.me" />
+        <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+      </fieldset>
+    </form>
+  
   
     <section>
   <h1>Recent Posts</h1>
@@ -605,7 +588,7 @@ are human. Here is a screenshot of my implementation:</p>
   <a href="https://github.com/cavneb">@cavneb</a> on GitHub
   
   <script type="text/javascript">
-    $(document).ready(function(){
+    $.domReady(function(){
         if (!window.jXHR){
             var jxhr = document.createElement('script');
             jxhr.type = 'text/javascript';
@@ -660,7 +643,7 @@ are human. Here is a screenshot of my implementation:</p>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
+  js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
@@ -682,6 +665,9 @@ are human. Here is a screenshot of my implementation:</p>
 
 
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/javascripts/aharris.js"></script>
 
 </body>
 </html>
