@@ -7,12 +7,7 @@ categories:
 - EmberJS
 ---
 
-<div style="width: 250px;
-     height: 338px;
-     float: left;
-     margin-right: 20px;
-     background: transparent url(/images/flash-to-flash.png) 0 0 no-repeat;">
-</div>
+<img width="250" height="338" src="/images/flash-to-flash.png" style="border: 0px; float: left; margin-right: 20px; -webkit-border-radius: 0px; -ms-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px; -webkit-box-shadow: 0px; -moz-box-shadow: 0px; box-shadow: 0px;" />
 
 In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn't really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.
 
