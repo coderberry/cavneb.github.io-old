@@ -1,0 +1,317 @@
+meta-width = 120px
+
+article
+  background #fff
+  color color-font
+  margin-bottom 50px
+  box-shadow 0 0 16px rgba(0,0,0,0.3)
+  text-align justify
+  position relative
+  border-radius 3px
+  overflow hidden
+  header
+    font-family font-title
+    padding 15px 20px
+    position relative
+    .title
+      font-weight normal
+      line-height 1.1
+      a
+        color color-font
+        &.link
+          &:after
+            content '\f08e'
+            color color-meta
+            font 12px font-icon
+            padding-left 10px
+            vertical-align super
+
+    time
+      color color-meta
+      position absolute
+      top 15px
+      left 0 - meta-width - 20px
+      z-index 1
+      user-select none
+      .day
+        font-size 2em
+
+      .month
+        &:before
+          content " / "
+
+  .entry-content
+    line-height 1.6
+    padding 15px 20px 15px
+    margin-top -15px
+    p, blockquote, ul, ol, dl, table, iframe, h1, h2, .video-container, .sharing
+      margin-top 15px
+
+    ul, ol, dl
+      margin-left 20px
+      ul, ol, dl
+        margin-top 0
+
+    strong
+      font-weight bold
+
+    em
+      font-style italic
+
+    a
+      &:hover
+        text-decoration underline
+
+    h1, h2, h3, h4, h5, h6
+      font-family font-title
+      font-weight normal
+      line-height 1.1
+
+    h1, h2
+      border-top 1px solid lighten(color-border, 10%)
+      padding-top 15px
+
+    h3, h4, h5, h6
+      margin-top 25px
+
+    img, video
+      max-width 100%
+      height auto
+
+    code, pre
+      font-family font-mono
+
+    code
+      background #eee
+      color #666
+      padding 0 5px
+      margin 0 2px
+      font-size 0.9em
+      border 1px solid lighten(color-border, 10%)
+      border-radius 3px
+
+    pre
+      background #eee
+      border 1px solid lighten(color-border, 10%)
+      margin-top 15px
+      overflow auto
+      padding 7px 15px
+      border-radius 2px
+      code
+        background none
+        padding 0
+        margin 0
+        border none
+        border-radius 0
+
+    blockquote
+      border-top 1px solid lighten(color-border, 10%)
+      border-bottom 1px solid lighten(color-border, 10%)
+      color #666
+      font-style italic
+      font-size 1.2em
+      font-family font-serif
+      padding 10px 25px 25px
+      position relative
+      text-align center
+      &:before, &:after
+        position absolute
+        color color-border
+        line-height 1
+        font-size 50px
+
+      &:before
+        content "“"
+        top 3px
+        left 0
+
+      &:after
+        content "„"
+        bottom 8px
+        right 0
+
+      footer
+        font-size 0.8em
+        color color-meta
+        line-height 1.1
+        margin-top 20px
+        cite
+          &:before
+            content "—"
+            color #ccc
+            padding 0 0.5em
+
+        a
+          color color-meta
+          text-decoration underline
+          &:hover
+            color color-font
+
+    .pullquote
+      float right
+      border none
+      padding 0
+      margin 1em 0 0.5em 1.5em
+      text-align left
+      width 45%
+      font-size 1.5em
+      &:before, &:after
+        display none
+
+    iframe
+      border none
+
+    .caption
+      color color-meta
+      display block
+      font-size 0.9em
+      margin-top 5px
+      &:before
+        font-family font-icon
+        content "\f040"
+        padding-right 10px
+
+    .video-container
+      position relative
+      padding-bottom 56.25%
+      padding-top 30px
+      height 0
+      overflow hidden
+      iframe
+        margin-top 0
+
+      iframe, object, embed
+        position absolute
+        top 0
+        left 0
+        width 100%
+        height 100%
+
+    .sharing
+      border-top 1px solid lighten(color-border, 10%)
+      padding-top 15px
+      iframe
+        margin-top 0
+
+.post
+  &:before
+    content ""
+    position absolute
+    top 0
+    left 0
+    width meta-width
+    height 100%
+    background linear-gradient(left, #ddd, #fff)
+
+  header, .entry-content
+    border-left 1px solid color-border
+    margin-left meta-width + 20*2px
+
+  .entry-content
+    position relative
+    &:before
+      content ""
+      position absolute
+      top 15px
+      left -5px
+      width 7px
+      height 7px
+      border 1px solid color-border
+      background #fff
+      transform rotate(45deg)
+
+    .meta
+      color color-meta
+      font-size 0.9em
+      position absolute
+      top 10px
+      left 0 - meta-width - 20px
+      width meta-width
+      z-index 1
+      a
+        color color-meta
+        display block
+        line-height 1.6em
+        &:hover
+          color darken(color-meta, 20%)
+          text-decoration none
+        &:before
+          font-family font-icon
+
+      .cats, .tags, .comment
+        margin-top 20px
+
+      .cats
+        a
+          &:before
+            content "\f07b"
+            padding-right 10px
+
+      .tags
+        a
+          &:before
+            content "\f02b"
+            padding-right 10px
+
+      .comment
+        &:before
+          content "\f075"
+          padding-right 8px
+
+  .gallery
+    overflow hidden
+    position relative
+    &:hover
+      .control
+        opacity 1
+
+    img
+      min-width 100%
+      max-width 100%
+      height auto
+      position absolute
+      top 0
+      left 0
+      opacity 0
+
+    .control
+      opacity 0
+      transition 0.3s
+
+    .prev, .next
+      position absolute
+      top 0
+      width 50%
+      height 100%
+      cursor pointer
+      &:before
+        position absolute
+        font 24px/1 font-icon
+        text-align center
+        width 24px
+        text-shadow 0 0 15px rgba(0,0,0,0.5)
+        color #fff
+        margin-top -12px
+        top 50%
+
+    .prev
+      left 0
+      &:before
+        content '\f053'
+        left 10px
+
+    .next
+      right 0
+      &:before
+        content '\f054'
+        right 10px
+
+.page
+  &:before
+    content ""
+    position absolute
+    top 0
+    left 0
+    width 100%
+    height 60px
+    background linear-gradient(top, #ddd, #fff)
