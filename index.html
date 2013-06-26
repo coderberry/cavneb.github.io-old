@@ -1593,7 +1593,7 @@ $ cd angular_casts
 </span><span class='line'>    <span class="n">feed</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">entry</span><span class="o">|</span>
 </span><span class='line'>
 </span><span class='line'>      <span class="c1"># Strip out the episode number from the title</span>
-</span><span class='line'>      <span class="n">title</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/^#\d{1,}\s/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">title</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/^#\d+\s/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 </span><span class='line'>
 </span><span class='line'>      <span class="c1"># Find or create the screencast data into our database</span>
 </span><span class='line'>      <span class="no">Screencast</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">video_url</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">video_url</span><span class="p">)</span><span class="o">.</span><span class="n">first_or_create</span><span class="p">(</span>

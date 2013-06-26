@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Angular | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/angular/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-06-20T21:25:46-06:00</updated>
+  <updated>2013-06-26T08:00:26-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -852,7 +852,7 @@ feed = Feedzirra::Feed.fetch_and_parse("http://feeds.feedburner.com/railscasts")
 feed.entries.each do |entry|
 
   # Strip out the episode number from the title
-  title = entry.title.gsub(/^#\d{1,}\s/, '')
+  title = entry.title.gsub(/^#\d+\s/, '')
 
   # Find or create the screencast data into our database
   Screencast.where(video_url: entry.video_url).first_or_create(
