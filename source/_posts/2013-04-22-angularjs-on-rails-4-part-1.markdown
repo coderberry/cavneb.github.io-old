@@ -232,7 +232,7 @@ class ScreencastImporter
     feed.entries.each do |entry|
 
       # Strip out the episode number from the title
-      title = entry.title.gsub(/^#\d{1,}\s/, '')
+      title = entry.title.gsub(/^#\d+\s/, '')
 
       # Find or create the screencast data into our database
       Screencast.where(video_url: entry.video_url).first_or_create(
