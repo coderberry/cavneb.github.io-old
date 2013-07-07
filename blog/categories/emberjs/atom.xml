@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-07T12:36:55-06:00</updated>
+  <updated>2013-07-07T12:45:58-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,7 +18,9 @@
     <link href="http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace/"/>
     <updated>2013-07-07T10:28:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace</id>
-    <content type="html"><![CDATA[<p>There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the <a href="http://emberjs.com/api/">Ember API docs</a> and a few are taken from the <a href="https://github.com/discourse/discourse">Discourse source code</a>.</p>
+    <content type="html"><![CDATA[<p><img src="/images/posts/frustrated_programmer.jpg"></p>
+
+<p>Have you been frustrated at all with Ember because of a lack of common functionality? Well, if you are you are probably like how I was and forgot to read the manual. There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the <a href="http://emberjs.com/api/">Ember API docs</a> and a few are taken from the <a href="https://github.com/discourse/discourse">Discourse source code</a>.</p>
 
 <h2>Ember.assert(desc, test)</h2>
 
