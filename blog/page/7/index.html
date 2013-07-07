@@ -9,9 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Recently, I was asked to come up with a better solution to our
-captcha needs. We have been using ReCaptcha, which is great
-but difficult to read at &hellip;">
+  <meta name="description" content="Our company has been using PostgreSQL for a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +75,194 @@ but difficult to read at &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/">Paginator for Those Suffering From PostgreSQL Count(*) Speed Issues</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-24T00:00:00-07:00" pubdate data-updated="true">Nov 24<span>th</span>, 2010</time>
+        
+         | <a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into is that as our database grows (1mil+
+records), there is a major slowdown on page loads due to a <a href="http://sql-info.de/postgresql/postgres-gotchas.html#1_7">PostgreSQL bug</a>.</p>
+
+<p>To resolve this, I had to re-create a new paginator that didn&#8217;t rely on the count(*) sql call. I changed it to work similar to how Google performs their queries relying solely on the offset and max to determine which pagination buttons to show.</p>
+
+<p>Here&#8217;s my final taglib:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.servlet.support.RequestContextUtils</span> <span class="n">as</span> <span class="n">RCU</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">PagerTagLib</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">   * Creates next/previous links to support pagination for the current controller</span>
+</span><span class='line'><span class="cm">   * This is developed to avoid problems with the PostgreSQL count(*) bug.</span>
+</span><span class='line'><span class="cm">   * http://sql-info.de/postgresql/postgres-gotchas.html#1_7</span>
+</span><span class='line'><span class="cm">   * </span>
+</span><span class='line'><span class="cm">   * &lt;g:pager total=&quot;${accountListInstance.size()}&quot; params=&quot;${params}&quot; /&gt;</span>
+</span><span class='line'><span class="cm">   */</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">pager</span> <span class="o">=</span> <span class="o">{</span> <span class="n">attrs</span> <span class="o">-&gt;</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">out</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">total</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">throwTagError</span><span class="o">(</span><span class="s">&quot;Tag [pager] is missing required attribute [total] which is the total showing for the current page&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">messageSource</span> <span class="o">=</span> <span class="n">grailsAttributes</span><span class="o">.</span><span class="na">messageSource</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">locale</span> <span class="o">=</span> <span class="n">RCU</span><span class="o">.</span><span class="na">getLocale</span><span class="o">(</span><span class="n">request</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="n">total</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">total</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="o">))</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">max</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">offset</span><span class="o">)</span> <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">max</span><span class="o">)</span> <span class="n">max</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">10</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">linkParams</span> <span class="o">=</span> <span class="o">[:]</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">putAll</span><span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
+</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">max</span> <span class="o">=</span> <span class="n">max</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">sort</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">sort</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">sort</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">order</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">order</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">order</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">linkTagAttrs</span> <span class="o">=</span> <span class="o">[</span><span class="nl">action:</span><span class="n">action</span><span class="o">]</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">controller</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">controller</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">id</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">id</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">params</span> <span class="o">=</span> <span class="n">linkParams</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// determine paging variables</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">isFirstStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">isLastStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">total</span> <span class="o">&lt;</span> <span class="n">max</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// display previous link when not on firststep</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isFirstStep</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">prevLink</span><span class="err">&#39;</span>
+</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
+</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Previous</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// display next link when not on laststep</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isLastStep</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">nextLink</span><span class="err">&#39;</span>
+</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">max</span>
+</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Next</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -407,82 +593,6 @@ found that I needed to use it again today so I posted it.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/">Passing Data From View to Layout via pageProperty</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-08T00:00:00-06:00" pubdate data-updated="true">Oct 8<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub-header. For this to be used, I needed to be able to pass those two strings from the view to the layout.</p>
-
-<p>Here&#8217;s what my view looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;html&gt;</span>
-</span><span class='line'><span class="nt">&lt;head&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;layout&quot;</span> <span class="na">content=</span><span class="s">&quot;admintasia&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;This is a test&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageSubHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;blah blah blah&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'><span class="nt">&lt;/head&gt;</span>
-</span><span class='line'><span class="nt">&lt;body&gt;</span>
-</span><span class='line'>...
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And here&#8217;s what my layout looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h2&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageHeader&quot;</span>
-</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;MISSING PAGE HEADER&quot;</span> <span class="nt">/&gt;&lt;/h2&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;h4&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageSubHeader&quot;</span>
-</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;&lt;/h4&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I hope this helps out!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/8/">&larr; Older</a>
@@ -511,6 +621,10 @@ found that I needed to use it again today so I posted it.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
       </li>
     
@@ -524,10 +638,6 @@ found that I needed to use it again today so I posted it.</p>
     
       <li class="post">
         <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS With Yeoman</a>
       </li>
     
   </ul>

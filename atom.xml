@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-06-26T08:14:54-06:00</updated>
+  <updated>2013-07-07T12:36:55-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -12,6 +12,373 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Useful Functions in the Ember Namespace]]></title>
+    <link href="http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace/"/>
+    <updated>2013-07-07T10:28:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace</id>
+    <content type="html"><![CDATA[<p>There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the <a href="http://emberjs.com/api/">Ember API docs</a> and a few are taken from the <a href="https://github.com/discourse/discourse">Discourse source code</a>.</p>
+
+<h2>Ember.assert(desc, test)</h2>
+
+<p>Define an assertion that will throw an exception if the condition is not met. <em>Ember build tools will remove any calls to <code>Ember.assert()</code> when doing a production build.</em></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="s2">&quot;should pass&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">//=&gt; undefined</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="s2">&quot;should fail&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">//=&gt; Assertion failed: should fail</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// You can force a failed assertion by not passing the boolean argument</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="s2">&quot;force fail&quot;</span><span class="p">)</span>           <span class="c1">//=&gt; Assertion failed: force fail</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_assert">http://emberjs.com/api/#method_assert</a></p>
+
+<h2>Ember.computed.SOMETHING</h2>
+
+<p>You can easily create computed properties with the computed property helper functions:</p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_and">http://emberjs.com/api/#method_computed_and</a></small></p>
+
+<h4>and(dependentKey,)</h4>
+
+<p>Performs the logical <em>and</em> on the dependentKeys provided and returns a boolean if all resolve to true.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">showMessageInput</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">and</span><span class="p">(</span><span class="s1">&#39;is_custom_flag&#39;</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_any">http://emberjs.com/api/#method_computed_any</a></small></p>
+
+<h4>any(dependentKey,)</h4>
+
+<p>Returns the first truthy value of a given list of properties.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">isAuthorized</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">,</span> <span class="s1">&#39;auth_token&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_bool">http://emberjs.com/api/#method_computed_bool</a></small></p>
+
+<h4>bool(dependentKey)</h4>
+
+<p>Convert to boolean the original value for property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">isSorted</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">bool</span><span class="p">(</span><span class="s1">&#39;sortProperties&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>empty(dependentKey)</h4>
+
+<p>Negate the original value for property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">sendTestEmailDisabled</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">empty</span><span class="p">(</span><span class="s1">&#39;testEmailAddress&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_equal">http://emberjs.com/api/#method_computed_equal</a></small></p>
+
+<h4>equal(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is equal to the given value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">markdown</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">),</span>
+</span><span class='line'><span class="nx">plainText</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;plain&#39;</span><span class="p">),</span>
+</span><span class='line'><span class="nx">html</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">),</span>
+</span><span class='line'><span class="nx">css</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;css&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_gt">http://emberjs.com/api/#method_computed_gt</a></small></p>
+
+<h4>gt(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is greater than the given value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">showContinueButton</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">gt</span><span class="p">(</span><span class="s1">&#39;minimumSongsSelected&#39;</span><span class="p">,</span> <span class="s1">&#39;songCount&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_gte">http://emberjs.com/api/#method_computed_gte</a></small></p>
+
+<h4>gte(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is greater than or equal to the given value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">isOldEnough</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">gte</span><span class="p">(</span><span class="s1">&#39;minimumAge&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_lt">http://emberjs.com/api/#method_computed_lt</a></small></p>
+
+<h4>lt(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is less than the given value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">needMoreSongs</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">lt</span><span class="p">(</span><span class="s1">&#39;minimumSongsSelected&#39;</span><span class="p">,</span> <span class="s1">&#39;songCount&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_lte">http://emberjs.com/api/#method_computed_lte</a></small></p>
+
+<h4>lte(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is less than or equal to the given value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">showContinueButton</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">lte</span><span class="p">(</span><span class="s1">&#39;maximumFavoriteGenres&#39;</span><span class="p">,</span> <span class="s1">&#39;chosenGenreCount&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_map">http://emberjs.com/api/#method_computed_map</a></small></p>
+
+<h4>map(dependentKey,)</h4>
+
+<p>Computed property which maps values of all passed properties in to an array.</p>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/ixapom/1/embed?javascript">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_match">http://emberjs.com/api/#method_computed_match</a></small></p>
+
+<h4>match(dependentKey, regExp)</h4>
+
+<p>Computed property which match the original value for property against a given RegExp.</p>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/esovay/3/embed?javascript">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_none">http://emberjs.com/api/#method_computed_none</a></small></p>
+
+<h4>computed.none(dependentKey)</h4>
+
+<p>Computed property which returns true if original value for property is null or undefined.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">showInstructions</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">none</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_not">http://emberjs.com/api/#method_computed_not</a></small></p>
+
+<h4>computed.not(dependentKey)</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">submitDisabled</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="s1">&#39;submitEnabled&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_notEmpty">http://emberjs.com/api/#method_computed_notEmpty</a></small></p>
+
+<h4>computed.notEmpty(dependentKey)</h4>
+
+<p>Computed property which returns true if original value for property is not empty.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">visible</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">notEmpty</span><span class="p">(</span><span class="s1">&#39;controller.buffer&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_oneWay">http://emberjs.com/api/#method_computed_oneWay</a></small></p>
+
+<h4>computed.oneWay</h4>
+
+<p>Computed property which creates an one way computed property to the original value for property. Where <code>computed.alias</code> aliases <code>get</code> and <code>set</code>, and allows for bidirectional data flow, <code>computed.oneWay</code> only provides an aliased <code>get</code>. The <code>set</code> will not mutate the upstream property, rather causes the current property to become the value set. This causes the downstream property to permentantly diverge from the upstream property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">User</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">firstName</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">lastName</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">nickName</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">oneWay</span><span class="p">(</span><span class="s1">&#39;firstName&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;Teddy&#39;</span><span class="p">,</span> <span class="nx">lastName</span><span class="o">:</span> <span class="s1">&#39;Zeenny&#39;</span> <span class="p">});</span>
+</span><span class='line'><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;nickName&#39;</span><span class="p">);</span>              <span class="c1">//=&gt; &#39;Teddy&#39; </span>
+</span><span class='line'><span class="nx">user</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;nickName&#39;</span><span class="p">,</span> <span class="s1">&#39;TeddyBear&#39;</span><span class="p">);</span> <span class="c1">//=&gt; &#39;TeddyBear&#39; </span>
+</span><span class='line'><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;firstName&#39;</span><span class="p">);</span>             <span class="c1">//=&gt; &#39;Teddy&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_or">http://emberjs.com/api/#method_computed_or</a></small></p>
+
+<h4>computed.or</h4>
+
+<p>Computed property which peforms a logical <code>or</code> on the values of all the original values for properties.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">showManagerTools</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">.</span><span class="nx">and</span><span class="p">(</span><span class="s1">&#39;is_admin&#39;</span><span class="p">,</span> <span class="s1">&#39;is_manager&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Ember.debug(message)</h2>
+
+<p>Display a debug notice. Ember build tools will remove any calls to Ember.debug() when doing a production build.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="s2">&quot;I&#39;m a debug notice!&quot;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_debug">http://emberjs.com/api/#method_debug</a></p>
+
+<h2>Ember.destroy(obj)</h2>
+
+<p>Tears down the meta on an object so that it can be garbage collected. Multiple calls will have no effect.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">destroy</span><span class="p">(</span><span class="nx">session</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_destroy">http://emberjs.com/api/#method_destroy</a></p>
+
+<h2>Ember.isArray(obj)</h2>
+
+<p>Returns true if the passed object is an array or Array-like.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isArray</span><span class="p">();</span>                                            <span class="c1">// false</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isArray</span><span class="p">([]);</span>                                          <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ArrayProxy</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">content</span><span class="o">:</span> <span class="p">[]</span> <span class="p">})</span> <span class="p">);</span>  <span class="c1">// true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_isArray">http://emberjs.com/api/#method_isArray</a></p>
+
+<h2>Ember.isEmpty(obj)</h2>
+
+<p>Verifies that a value is null or an empty string, empty array, or empty function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">();</span>                <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>            <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="kc">undefined</span><span class="p">);</span>       <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>              <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">([]);</span>              <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="s1">&#39;Adam Hawkins&#39;</span><span class="p">);</span>  <span class="c1">// false</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>         <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_isEmpty">http://emberjs.com/api/#method_isEmpty</a></p>
+
+<h2>Ember.isEqual(a, b)</h2>
+
+<p>Compares two objects, returning true if they are logically equal. This is a deeper comparison than a simple triple equal. For sets it will compare the internal objects. For any other object that implements isEqual() it will respect that method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;hello&#39;</span><span class="p">);</span>  <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>              <span class="c1">// false</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>      <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_isEqual">http://emberjs.com/api/#method_isEqual</a></p>
+
+<h2>Ember.isNone(obj)</h2>
+
+<p>Returns true if the passed value is null or undefined. This avoids errors from JSLint complaining about use of ==, which can be technically confusing.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">();</span>              <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>          <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">(</span><span class="kc">undefined</span><span class="p">);</span>     <span class="c1">// true</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>            <span class="c1">// false</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">([]);</span>            <span class="c1">// false</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">isNone</span><span class="p">(</span><span class="kd">function</span><span class="p">(){});</span>  <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_isNone">http://emberjs.com/api/#method_isNone</a></p>
+
+<h2>Ember.makeArray(obj)</h2>
+
+<p>Forces the passed object to be part of an array. If the object is already an array or array-like, returns the object. Otherwise adds the object to an array. If obj is null or undefined, returns an empty array.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">();</span>                           <span class="c1">// []</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>                       <span class="c1">// []</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">(</span><span class="kc">undefined</span><span class="p">);</span>                  <span class="c1">// []</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">(</span><span class="s1">&#39;lindsay&#39;</span><span class="p">);</span>                  <span class="c1">// [&#39;lindsay&#39;]</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">42</span><span class="p">]);</span>                   <span class="c1">// [1,2,42]</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">controller</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ArrayProxy</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">content</span><span class="o">:</span> <span class="p">[]</span> <span class="p">});</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">makeArray</span><span class="p">(</span><span class="nx">controller</span><span class="p">)</span> <span class="o">===</span> <span class="nx">controller</span><span class="p">;</span>  <span class="c1">// true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_makeArray">http://emberjs.com/api/#method_makeArray</a></p>
+
+<h2>Ember.tryInvoke(obj, methodName, args)</h2>
+
+<p>Checks to see if the methodName exists on the obj, and if it does, invokes it with the arguments passed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">trySet</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;deliverWelcomeEmail&#39;</span><span class="p">,</span> <span class="s1">&#39;cavneb@gmail.com&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_tryInvoke">http://emberjs.com/api/#method_tryInvoke</a></p>
+
+<h2>Ember.trySet(obj, methodName, args)</h2>
+
+<p>Error-tolerant form of Ember.set. Will not blow up if any part of the chain is undefined, null, or destroyed.</p>
+
+<p>This is primarily used when syncing bindings, which may try to update after an object has been destroyed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">trySet</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;firstName&#39;</span><span class="p">,</span> <span class="s1">&#39;Eric&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://emberjs.com/api/#method_trySet">http://emberjs.com/api/#method_trySet</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Flash Messages with EmberJS]]></title>
@@ -4466,199 +4833,6 @@ are human. Here is a screenshot of my implementation:</p>
 
 
 <p>So there ya go. It&#8217;s actually pretty easy and customers seem to like choosing an image much more than typing a word that is difficult to read.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Uploading Files in Grails]]></title>
-    <link href="http://coderberry.me/blog/2010/10/12/uploading-files-in-grails/"/>
-    <updated>2010-10-12T00:00:00-06:00</updated>
-    <id>http://coderberry.me/blog/2010/10/12/uploading-files-in-grails</id>
-    <content type="html"><![CDATA[<p>Here&#8217;s the slides from a presentation I did at the
-<a href="http://groups.google.com/group/uggug">UGGUG</a> in May 2010. I
-found that I needed to use it again today so I posted it.</p>
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/4000139" width="565" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
-
-
-<p>Here is the source code for the uploader service I created:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span>
-</span><span class='line'>      <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">destinationDirectory</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="n">destinationDirectory</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Store file</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>A tip that you may enjoy is the way I implemented this uploader into a real world application. I wanted to be able to upload files into a folder within the web-app folder for development, but in production, I wanted to put it in a folder that is served via Tomcat directly. So on our production server, I created a folder at /opt/assets and created a symbolic link in the $TOMCAT_ROOT/webapps/assets to point to it. I modified the service as follows:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">grails.util.GrailsUtil</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">String</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">GrailsUtil</span><span class="o">.</span><span class="na">environment</span> <span class="o">==</span> <span class="s">&quot;production&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;/opt/assets&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="err">&#39;</span><span class="n">assets</span><span class="err">&#39;</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>    <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Store file</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">null</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I then create a folder in my web-app folder named &#8216;assets&#8217;, being sure to add it to my ignore list for the repository. So once I upload the file, it will save to the correct location.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;${resource(dir:&#39;assets&#39;, file: &#39;myfile.jpg&#39;)}&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This now will work in both DEVELOPMENT and PRODUCTION enviroments.</p>
-
-<p><a href="http://github.com/cavneb/FileUploader">http://github.com/cavneb/FileUploader</a></p>
 ]]></content>
   </entry>
   

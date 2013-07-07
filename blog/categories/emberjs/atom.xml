@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-06-26T08:14:54-06:00</updated>
+  <updated>2013-07-07T12:36:55-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -12,6 +12,310 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Useful Functions in the Ember Namespace]]></title>
+    <link href="http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace/"/>
+    <updated>2013-07-07T10:28:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/07/useful-functions-in-the-ember-namespace</id>
+    <content type="html"><![CDATA[<p>There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the <a href="http://emberjs.com/api/">Ember API docs</a> and a few are taken from the <a href="https://github.com/discourse/discourse">Discourse source code</a>.</p>
+
+<h2>Ember.assert(desc, test)</h2>
+
+<p>Define an assertion that will throw an exception if the condition is not met. <em>Ember build tools will remove any calls to <code>Ember.assert()</code> when doing a production build.</em></p>
+
+<p>```javascript
+Ember.assert("should pass", 1 === 1) //=> undefined
+Ember.assert("should fail", 1 === 2) //=> Assertion failed: should fail</p>
+
+<p>// You can force a failed assertion by not passing the boolean argument
+Ember.assert("force fail")           //=> Assertion failed: force fail
+```</p>
+
+<p><a href="http://emberjs.com/api/#method_assert">http://emberjs.com/api/#method_assert</a></p>
+
+<h2>Ember.computed.SOMETHING</h2>
+
+<p>You can easily create computed properties with the computed property helper functions:</p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_and">http://emberjs.com/api/#method_computed_and</a></small></p>
+
+<h4>and(dependentKey,)</h4>
+
+<p>Performs the logical <em>and</em> on the dependentKeys provided and returns a boolean if all resolve to true.</p>
+
+<p><code>javascript
+showMessageInput: Ember.computed.and('is_custom_flag', 'selected')
+</code>
+<small style="float: right;"><a href="http://emberjs.com/api/#method_computed_any">http://emberjs.com/api/#method_computed_any</a></small></p>
+
+<h4>any(dependentKey,)</h4>
+
+<p>Returns the first truthy value of a given list of properties.</p>
+
+<p><code>javascript
+isAuthorized: Ember.computed.any('user_id', 'auth_token')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_bool">http://emberjs.com/api/#method_computed_bool</a></small></p>
+
+<h4>bool(dependentKey)</h4>
+
+<p>Convert to boolean the original value for property.</p>
+
+<p><code>javascript
+isSorted: Ember.computed.bool('sortProperties')
+</code></p>
+
+<h4>empty(dependentKey)</h4>
+
+<p>Negate the original value for property.</p>
+
+<p><code>javascript
+sendTestEmailDisabled: Ember.computed.empty('testEmailAddress')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_equal">http://emberjs.com/api/#method_computed_equal</a></small></p>
+
+<h4>equal(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is equal to the given value.</p>
+
+<p><code>javascript
+markdown: Ember.computed.equal('format', 'markdown'),
+plainText: Ember.computed.equal('format', 'plain'),
+html: Ember.computed.equal('format', 'html'),
+css: Ember.computed.equal('format', 'css')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_gt">http://emberjs.com/api/#method_computed_gt</a></small></p>
+
+<h4>gt(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is greater than the given value.</p>
+
+<p><code>javascript
+showContinueButton: Ember.computed.gt('minimumSongsSelected', 'songCount')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_gte">http://emberjs.com/api/#method_computed_gte</a></small></p>
+
+<h4>gte(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is greater than or equal to the given value.</p>
+
+<p><code>javascript
+isOldEnough: Ember.computed.gte('minimumAge', 'age')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_lt">http://emberjs.com/api/#method_computed_lt</a></small></p>
+
+<h4>lt(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is less than the given value.</p>
+
+<p><code>javascript
+needMoreSongs: Ember.computed.lt('minimumSongsSelected', 'songCount')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_lte">http://emberjs.com/api/#method_computed_lte</a></small></p>
+
+<h4>lte(dependentKey, value)</h4>
+
+<p>Computed property which returns true if the original value for property is less than or equal to the given value.</p>
+
+<p><code>javascript
+showContinueButton: Ember.computed.lte('maximumFavoriteGenres', 'chosenGenreCount')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_map">http://emberjs.com/api/#method_computed_map</a></small></p>
+
+<h4>map(dependentKey,)</h4>
+
+<p>Computed property which maps values of all passed properties in to an array.</p>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/ixapom/1/embed?javascript">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_match">http://emberjs.com/api/#method_computed_match</a></small></p>
+
+<h4>match(dependentKey, regExp)</h4>
+
+<p>Computed property which match the original value for property against a given RegExp.</p>
+
+<p><a class="jsbin-embed" href="http://jsbin.com/esovay/3/embed?javascript">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_none">http://emberjs.com/api/#method_computed_none</a></small></p>
+
+<h4>computed.none(dependentKey)</h4>
+
+<p>Computed property which returns true if original value for property is null or undefined.</p>
+
+<p><code>javascript
+showInstructions: Ember.computed.none('email')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_not">http://emberjs.com/api/#method_computed_not</a></small></p>
+
+<h4>computed.not(dependentKey)</h4>
+
+<p><code>javascript
+submitDisabled: Ember.computed.not('submitEnabled')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_notEmpty">http://emberjs.com/api/#method_computed_notEmpty</a></small></p>
+
+<h4>computed.notEmpty(dependentKey)</h4>
+
+<p>Computed property which returns true if original value for property is not empty.</p>
+
+<p><code>javascript
+visible: Ember.computed.notEmpty('controller.buffer')
+</code></p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_oneWay">http://emberjs.com/api/#method_computed_oneWay</a></small></p>
+
+<h4>computed.oneWay</h4>
+
+<p>Computed property which creates an one way computed property to the original value for property. Where <code>computed.alias</code> aliases <code>get</code> and <code>set</code>, and allows for bidirectional data flow, <code>computed.oneWay</code> only provides an aliased <code>get</code>. The <code>set</code> will not mutate the upstream property, rather causes the current property to become the value set. This causes the downstream property to permentantly diverge from the upstream property.</p>
+
+<p>```javascript
+User = Ember.Object.extend({
+  firstName: null,
+  lastName: null,
+  nickName: Ember.computed.oneWay('firstName')
+});</p>
+
+<p>user = User.create({ firstName: 'Teddy', lastName: 'Zeenny' });
+user.get('nickName');              //=> 'Teddy'
+user.set('nickName', 'TeddyBear'); //=> 'TeddyBear'
+user.get('firstName');             //=> 'Teddy'
+```</p>
+
+<p><small style="float: right;"><a href="http://emberjs.com/api/#method_computed_or">http://emberjs.com/api/#method_computed_or</a></small></p>
+
+<h4>computed.or</h4>
+
+<p>Computed property which peforms a logical <code>or</code> on the values of all the original values for properties.</p>
+
+<p><code>javascript
+showManagerTools: Ember.computed.and('is_admin', 'is_manager')
+</code></p>
+
+<h2>Ember.debug(message)</h2>
+
+<p>Display a debug notice. Ember build tools will remove any calls to Ember.debug() when doing a production build.</p>
+
+<p><code>javascript
+Ember.debug("I'm a debug notice!");
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_debug">http://emberjs.com/api/#method_debug</a></p>
+
+<h2>Ember.destroy(obj)</h2>
+
+<p>Tears down the meta on an object so that it can be garbage collected. Multiple calls will have no effect.</p>
+
+<p><code>javascript
+Ember.destroy(session)
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_destroy">http://emberjs.com/api/#method_destroy</a></p>
+
+<h2>Ember.isArray(obj)</h2>
+
+<p>Returns true if the passed object is an array or Array-like.</p>
+
+<p><code>javascript
+Ember.isArray();                                            // false
+Ember.isArray([]);                                          // true
+Ember.isArray( Ember.ArrayProxy.create({ content: [] }) );  // true
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_isArray">http://emberjs.com/api/#method_isArray</a></p>
+
+<h2>Ember.isEmpty(obj)</h2>
+
+<p>Verifies that a value is null or an empty string, empty array, or empty function.</p>
+
+<p><code>javascript
+Ember.isEmpty();                // true
+Ember.isEmpty(null);            // true
+Ember.isEmpty(undefined);       // true
+Ember.isEmpty('');              // true
+Ember.isEmpty([]);              // true
+Ember.isEmpty('Adam Hawkins');  // false
+Ember.isEmpty([0,1,2]);         // false
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_isEmpty">http://emberjs.com/api/#method_isEmpty</a></p>
+
+<h2>Ember.isEqual(a, b)</h2>
+
+<p>Compares two objects, returning true if they are logically equal. This is a deeper comparison than a simple triple equal. For sets it will compare the internal objects. For any other object that implements isEqual() it will respect that method.</p>
+
+<p><code>javascript
+Ember.isEqual('hello', 'hello');  // true
+Ember.isEqual(1, 2);              // false
+Ember.isEqual([4,2], [4,2]);      // false
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_isEqual">http://emberjs.com/api/#method_isEqual</a></p>
+
+<h2>Ember.isNone(obj)</h2>
+
+<p>Returns true if the passed value is null or undefined. This avoids errors from JSLint complaining about use of ==, which can be technically confusing.</p>
+
+<p><code>javascript
+Ember.isNone();              // true
+Ember.isNone(null);          // true
+Ember.isNone(undefined);     // true
+Ember.isNone('');            // false
+Ember.isNone([]);            // false
+Ember.isNone(function(){});  // false
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_isNone">http://emberjs.com/api/#method_isNone</a></p>
+
+<h2>Ember.makeArray(obj)</h2>
+
+<p>Forces the passed object to be part of an array. If the object is already an array or array-like, returns the object. Otherwise adds the object to an array. If obj is null or undefined, returns an empty array.</p>
+
+<p>```javascript
+Ember.makeArray();                           // []
+Ember.makeArray(null);                       // []
+Ember.makeArray(undefined);                  // []
+Ember.makeArray('lindsay');                  // ['lindsay']
+Ember.makeArray([1,2,42]);                   // [1,2,42]</p>
+
+<p>var controller = Ember.ArrayProxy.create({ content: [] });
+Ember.makeArray(controller) === controller;  // true
+```</p>
+
+<p><a href="http://emberjs.com/api/#method_makeArray">http://emberjs.com/api/#method_makeArray</a></p>
+
+<h2>Ember.tryInvoke(obj, methodName, args)</h2>
+
+<p>Checks to see if the methodName exists on the obj, and if it does, invokes it with the arguments passed.</p>
+
+<p><code>javascript
+Ember.trySet('model', 'deliverWelcomeEmail', 'cavneb@gmail.com')
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_tryInvoke">http://emberjs.com/api/#method_tryInvoke</a></p>
+
+<h2>Ember.trySet(obj, methodName, args)</h2>
+
+<p>Error-tolerant form of Ember.set. Will not blow up if any part of the chain is undefined, null, or destroyed.</p>
+
+<p>This is primarily used when syncing bindings, which may try to update after an object has been destroyed.</p>
+
+<p><code>javascript
+Ember.trySet('model', 'firstName', 'Eric')
+</code></p>
+
+<p><a href="http://emberjs.com/api/#method_trySet">http://emberjs.com/api/#method_trySet</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Flash Messages with EmberJS]]></title>

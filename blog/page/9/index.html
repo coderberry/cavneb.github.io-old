@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Recently I ran into a problem where I needed to be able to send emails via two different SMTP accounts within the same Rails application. I scoured &hellip;">
+  <meta name="description" content="One thing that I like to do with my logger output is allow for multi-line output. It makes it much easier to read and keeps my code cleaner. Instead &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,66 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/05/27/multi-line-rails-logger-trick/">Multi-Line Rails Logger Trick</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-05-27T00:00:00-06:00" pubdate data-updated="true">May 27<span>th</span>, 2010</time>
+        
+         | <a href="/blog/2010/05/27/multi-line-rails-logger-trick/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>One thing that I like to do with my logger output is allow for multi-line output. It makes it much easier to read and keeps my code cleaner.</p>
+
+<p>Instead of doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;Current Contest: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;Current User: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s2">    Current Contest: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"></span>
+</span><span class='line'><span class="s2">    Current User: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"></span>
+</span><span class='line'><span class="s2">&quot;&quot;&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -419,49 +479,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2008/10/16/rubycocoa-and-nstables-de-mystified/">RubyCocoa and NSTables De-Mystified</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-10-16T00:00:00-06:00" pubdate data-updated="true">Oct 16<span>th</span>, 2008</time>
-        
-         | <a href="/blog/2008/10/16/rubycocoa-and-nstables-de-mystified/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I spent a good 3 hours today trying to figure out exactly how to get NSTables working while using RubyCocoa. Now that I finally figured it out (to a minimum extent), I wanted to share the wealth.</p>
-
-<p>Here&#8217;s a screencast I made. There&#8217;s no audio on it, but the video should be good enough to understand what&#8217;s going on. This screencast how to create a RubyCocoa application which pulls search results from Amazon using their Web API and populates a table.</p>
-
-<iframe width="640" height="390" src="http://www.youtube.com/embed/w3dC5Gx5xUs" frameborder="0" allowfullscreen></iframe>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/10/">&larr; Older</a>
@@ -490,6 +507,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
       </li>
     
@@ -503,10 +524,6 @@
     
       <li class="post">
         <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS With Yeoman</a>
       </li>
     
   </ul>

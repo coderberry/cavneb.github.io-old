@@ -9,9 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="So let&#8217;s say you want to utilize the standard grails tag lib
-of formatNumber within your domain class, controller or
-service. How would you go &hellip;">
+  <meta name="description" content="I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +75,82 @@ service. How would you go &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/">Passing Data From View to Layout via pageProperty</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-10-08T00:00:00-06:00" pubdate data-updated="true">Oct 8<span>th</span>, 2010</time>
+        
+         | <a href="/blog/2010/10/08/passing-data-from-view-to-layout-via-pageproperty/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am writing a new Grails application which uses the website template Admintasia. Part of the layout gsp file has a section for the header and sub-header. For this to be used, I needed to be able to pass those two strings from the view to the layout.</p>
+
+<p>Here&#8217;s what my view looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;layout&quot;</span> <span class="na">content=</span><span class="s">&quot;admintasia&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;This is a test&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;pageSubHeader&quot;</span> <span class="na">content=</span><span class="s">&quot;blah blah blah&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here&#8217;s what my layout looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h2&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageHeader&quot;</span>
+</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;MISSING PAGE HEADER&quot;</span> <span class="nt">/&gt;&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;h4&gt;&lt;g:pageProperty</span> <span class="na">name=</span><span class="s">&quot;meta.pageSubHeader&quot;</span>
+</span><span class='line'>          <span class="na">default=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;&lt;/h4&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope this helps out!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -311,66 +385,6 @@ an issue. Here is the code:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2010/05/27/multi-line-rails-logger-trick/">Multi-Line Rails Logger Trick</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-05-27T00:00:00-06:00" pubdate data-updated="true">May 27<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/05/27/multi-line-rails-logger-trick/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>One thing that I like to do with my logger output is allow for multi-line output. It makes it much easier to read and keeps my code cleaner.</p>
-
-<p>Instead of doing this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;Current Contest: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;Current User: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can do this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="s2">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="s2">    Current Contest: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"></span>
-</span><span class='line'><span class="s2">    Current User: </span><span class="si">#{</span><span class="vi">@contest</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"></span>
-</span><span class='line'><span class="s2">&quot;&quot;&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/9/">&larr; Older</a>
@@ -399,6 +413,10 @@ an issue. Here is the code:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
       </li>
     
@@ -412,10 +430,6 @@ an issue. Here is the code:</p>
     
       <li class="post">
         <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/">Bootstrapping AngularJS With Yeoman</a>
       </li>
     
   </ul>
