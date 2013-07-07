@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-07T12:45:58-06:00</updated>
+  <updated>2013-07-07T15:50:50-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -300,7 +300,7 @@ Ember.makeArray(controller) === controller;  // true
 <p>Checks to see if the methodName exists on the obj, and if it does, invokes it with the arguments passed.</p>
 
 <p><code>javascript
-Ember.trySet('model', 'deliverWelcomeEmail', 'cavneb@gmail.com')
+Ember.tryInvoke('model', 'deliverWelcomeEmail', 'cavneb@gmail.com')
 </code></p>
 
 <p><a href="http://emberjs.com/api/#method_tryInvoke">http://emberjs.com/api/#method_tryInvoke</a></p>
