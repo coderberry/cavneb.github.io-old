@@ -275,7 +275,7 @@ Ember.makeArray(controller) === controller;  // true
 Checks to see if the methodName exists on the obj, and if it does, invokes it with the arguments passed.
 
 ```javascript
-Ember.trySet('model', 'deliverWelcomeEmail', 'cavneb@gmail.com')
+Ember.tryInvoke('model', 'deliverWelcomeEmail', 'cavneb@gmail.com')
 ```
 
 [http://emberjs.com/api/#method_tryInvoke](http://emberjs.com/api/#method_tryInvoke)
