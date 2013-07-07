@@ -7,7 +7,9 @@ categories:
 - EmberJS
 ---
 
-There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the [Ember API docs](http://emberjs.com/api/) and a few are taken from the [Discourse source code](https://github.com/discourse/discourse).
+{% img /images/posts/frustrated_programmer.jpg %}
+
+Have you been frustrated at all with Ember because of a lack of common functionality? Well, if you are you are probably like how I was and forgot to read the manual. There are a lot of really excellent functions baked right into the Ember. Here are some really useful ones that may come in handy and save you a few keystrokes. Many of the examples below are taken from the [Ember API docs](http://emberjs.com/api/) and a few are taken from the [Discourse source code](https://github.com/discourse/discourse).
 
 ## Ember.assert(desc, test)
 
