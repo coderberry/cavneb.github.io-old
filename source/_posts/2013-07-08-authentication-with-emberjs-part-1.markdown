@@ -9,7 +9,7 @@ categories:
 
 {% img /images/posts/keymaster.jpg %}
 
-Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of [Ryan Florence](http://ember101.com) and [Brad Humphrey](https://github.com/wbhumphrey), I have finally been able to understand how it should work and also have built a [simple application](https://github.com/cavneb/simple_auth_with_ember) which uses it.
+Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of [Ryan Florence](http://ember101.com) and [Brad Humphrey](https://github.com/wbhumphrey), I have finally been able to understand how it should work and also have built a [simple application](https://github.com/cavneb/simple_auth) which uses it.
 
 My goal in this article will be to build a simple Ember application with a RESTful backend (in Rails) which provides authentication and user registration. We will also set all requests to pass the access token to our backend for authorization.
 
