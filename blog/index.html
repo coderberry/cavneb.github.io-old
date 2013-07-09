@@ -1715,6 +1715,10 @@ Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
 <span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="ss">ActionController</span><span class="p">:</span><span class="ss">:API</span>
 </span><span class='line'>  <span class="kp">protected</span>
 </span><span class='line'>
@@ -1736,6 +1740,10 @@ Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
 </span><span class='line'>  <span class="c1"># Parses the access token from the header</span>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">token</span>
 </span><span class='line'>    <span class="n">bearer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">[</span><span class="s2">&quot;HTTP_AUTHORIZATION&quot;</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># allows our tests to pass</span>
+</span><span class='line'>    <span class="n">bearer</span> <span class="o">||=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">[</span><span class="s2">&quot;rack.session&quot;</span><span class="o">].</span><span class="n">try</span><span class="p">(</span><span class="ss">:[]</span><span class="p">,</span> <span class="s1">&#39;Authorization&#39;</span><span class="p">)</span>
+</span><span class='line'>
 </span><span class='line'>    <span class="k">if</span> <span class="n">bearer</span><span class="o">.</span><span class="n">present?</span>
 </span><span class='line'>      <span class="n">bearer</span><span class="o">.</span><span class="n">split</span><span class="o">.</span><span class="n">last</span>
 </span><span class='line'>    <span class="k">else</span>
