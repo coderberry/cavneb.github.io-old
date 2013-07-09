@@ -113,8 +113,6 @@ $ rake db:migrate; rake db:migrate RAILS_ENV=test
 $ rake test
 </code></pre>
 
-<p>Also, make sure you run <code>./bin/ember_build</code> in a separate tab.</p>
-
 <h2>Add Ember using Ember Tools!</h2>
 
 <p>I have created Ember applications using a variety of shortcuts (<a href="https://github.com/yeoman/generator-ember">Yeoman</a>, <a href="https://github.com/emberjs/ember-rails">ember-rails</a>) but have found that <a href="https://github.com/rpflorence/ember-tools">Ember Tools</a> is by far the best option available. It allows me to skip the <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">Asset Pipeline</a> completely and work directly in my public folder.</p>
@@ -428,14 +426,14 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Authenticate the user. Once they are authenticated, set the access token to be submitted with all</span>
 </span><span class='line'>  <span class="c1">// future AJAX requests to the server.</span>
 </span><span class='line'>  <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 </span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span>
 </span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
 </span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
 </span><span class='line'>    <span class="p">}));</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
@@ -495,7 +493,10 @@ Monitoring:  public/javascripts
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><strong>Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</strong></p>
+
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+
 
 <p>Now create the application router and add the AuthManager to the App in the <em>init</em> function. The reason it goes here is because it&#8217;s the first thing that gets run after all the code has been loaded.</p>
 

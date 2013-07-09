@@ -205,7 +205,10 @@ $ rake test
 
 <p><img src="/images/posts/simple-auth-ss-6.png"></p>
 
-<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn&#8217;t there, we would not be able to see a list of users. Click &#8216;Logout&#8217; and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>. <em>If you still see the users list, it is because they are cached. Refresh the page.</em></p>
+<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn&#8217;t there, we would not be able to see a list of users. Click &#8216;Logout&#8217; and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>.</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">If you still see the users list, it is because they are cached. Refresh the page.</div>
+
 
 <h2>Hide Pages Which Require Authorization</h2>
 
@@ -544,8 +547,6 @@ $ rake db:migrate; rake db:migrate RAILS_ENV=test
 $ rake test
 </code></pre>
 
-<p>Also, make sure you run <code>./bin/ember_build</code> in a separate tab.</p>
-
 <h2>Add Ember using Ember Tools!</h2>
 
 <p>I have created Ember applications using a variety of shortcuts (<a href="https://github.com/yeoman/generator-ember">Yeoman</a>, <a href="https://github.com/emberjs/ember-rails">ember-rails</a>) but have found that <a href="https://github.com/rpflorence/ember-tools">Ember Tools</a> is by far the best option available. It allows me to skip the <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">Asset Pipeline</a> completely and work directly in my public folder.</p>
@@ -859,14 +860,14 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Authenticate the user. Once they are authenticated, set the access token to be submitted with all</span>
 </span><span class='line'>  <span class="c1">// future AJAX requests to the server.</span>
 </span><span class='line'>  <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 </span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span>
 </span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
 </span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
 </span><span class='line'>    <span class="p">}));</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
@@ -926,7 +927,10 @@ Monitoring:  public/javascripts
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><strong>Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</strong></p>
+
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+
 
 <p>Now create the application router and add the AuthManager to the App in the <em>init</em> function. The reason it goes here is because it&#8217;s the first thing that gets run after all the code has been loaded.</p>
 
@@ -1809,7 +1813,12 @@ Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Because RailsAPI application controller extends ActionController::API, it doesn&#8217;t know about ActionController::StrongParameters. Because of this we need to add an initializer:</h3>
+
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Because RailsAPI application controller extends ActionController::API, it doesn&#8217;t know about ActionController::StrongParameters. Because of this we need to add an initializer:</div>
+
+
+
 
 <figure class='code'><figcaption><span>config/initializers/strong_param_fix_for_rails_api.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

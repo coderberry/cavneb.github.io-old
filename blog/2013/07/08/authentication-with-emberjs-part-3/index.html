@@ -204,7 +204,10 @@ $ rake test
 
 <p><img src="/images/posts/simple-auth-ss-6.png"></p>
 
-<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn&#8217;t there, we would not be able to see a list of users. Click &#8216;Logout&#8217; and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>. <em>If you still see the users list, it is because they are cached. Refresh the page.</em></p>
+<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn&#8217;t there, we would not be able to see a list of users. Click &#8216;Logout&#8217; and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>.</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">If you still see the users list, it is because they are cached. Refresh the page.</div>
+
 
 <h2>Hide Pages Which Require Authorization</h2>
 

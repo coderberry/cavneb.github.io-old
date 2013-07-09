@@ -506,7 +506,12 @@ Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Because RailsAPI application controller extends ActionController::API, it doesn&#8217;t know about ActionController::StrongParameters. Because of this we need to add an initializer:</h3>
+
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Because RailsAPI application controller extends ActionController::API, it doesn&#8217;t know about ActionController::StrongParameters. Because of this we need to add an initializer:</div>
+
+
+
 
 <figure class='code'><figcaption><span>config/initializers/strong_param_fix_for_rails_api.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

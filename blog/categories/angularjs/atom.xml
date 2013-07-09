@@ -4,7 +4,7 @@
   <title><![CDATA[Category: AngularJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/angularjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-08T20:23:26-06:00</updated>
+  <updated>2013-07-09T08:44:04-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,9 +18,7 @@
     <link href="http://coderberry.me/blog/2013/02/13/bootstrapping-angularjs-with-yeoman/"/>
     <updated>2013-02-13T16:13:00-07:00</updated>
     <id>http://coderberry.me/blog/2013/02/13/bootstrapping-angularjs-with-yeoman</id>
-    <content type="html"><![CDATA[<p><em>Note: This post is incomplete and will be worked on over the next week</em></p>
-
-<div style="width: 242px;
+    <content type="html"><![CDATA[<div style="width: 242px;
       height: 388px;
       margin: 10px 30px 10px 0;
       float: left;
