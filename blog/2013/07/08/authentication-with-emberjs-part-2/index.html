@@ -426,14 +426,14 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Authenticate the user. Once they are authenticated, set the access token to be submitted with all</span>
 </span><span class='line'>  <span class="c1">// future AJAX requests to the server.</span>
 </span><span class='line'>  <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 </span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span>
 </span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
 </span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
 </span><span class='line'>    <span class="p">}));</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
@@ -462,7 +462,7 @@ Monitoring:  public/javascripts
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js">https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
 
 <figure class='code'><figcaption><span>public/javascripts/config/app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -543,7 +543,7 @@ Monitoring:  public/javascripts
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
 </span><span class='line'>  <span class="nx">name</span><span class="o">:</span>     <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
 </span><span class='line'>  <span class="nx">email</span><span class="o">:</span>    <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
-</span><span class='line'>  <span class="nx">username</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">username</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">User</span><span class="p">;</span>

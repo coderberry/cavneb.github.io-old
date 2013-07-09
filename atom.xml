@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-09T08:44:04-06:00</updated>
+  <updated>2013-07-09T09:23:08-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -747,14 +747,14 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Authenticate the user. Once they are authenticated, set the access token to be submitted with all</span>
 </span><span class='line'>  <span class="c1">// future AJAX requests to the server.</span>
 </span><span class='line'>  <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
-</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 </span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span>
 </span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
 </span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
 </span><span class='line'>    <span class="p">}));</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
@@ -783,7 +783,7 @@ Monitoring:  public/javascripts
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js">https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
 
 <figure class='code'><figcaption><span>public/javascripts/config/app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -864,7 +864,7 @@ Monitoring:  public/javascripts
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
 </span><span class='line'>  <span class="nx">name</span><span class="o">:</span>     <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
 </span><span class='line'>  <span class="nx">email</span><span class="o">:</span>    <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
-</span><span class='line'>  <span class="nx">username</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">username</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">User</span><span class="p">;</span>
@@ -1334,6 +1334,28 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 
 <pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
 </code></pre>
+
+<p>Because we are using the Active Model Serializers gem, serializers are created automatically for our models. However, we want to limit what they return to only the parts which are useful. Update the serializers as follows:</p>
+
+<figure class='code'><figcaption><span>app/serializers/user_serializer.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">UserSerializer</span> <span class="o">&lt;</span> <span class="ss">ActiveModel</span><span class="p">:</span><span class="ss">:Serializer</span>
+</span><span class='line'>  <span class="n">attributes</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">:email</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>app/serializers/api_key_serializer.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ApiKeySerializer</span> <span class="o">&lt;</span> <span class="ss">ActiveModel</span><span class="p">:</span><span class="ss">:Serializer</span>
+</span><span class='line'>  <span class="n">attributes</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">,</span> <span class="ss">:access_token</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now let&#8217;s add a couple of tests for our models. Update the fixtures for users so we have a user to work with:</p>
 

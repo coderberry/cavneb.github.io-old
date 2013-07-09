@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-09T08:44:04-06:00</updated>
+  <updated>2013-07-09T09:23:08-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -569,14 +569,14 @@ if (!Ember.isEmpty(accessToken) &amp;&amp; !Ember.isEmpty(authUserId)) {
   // future AJAX requests to the server.
   authenticate: function(accessToken, userId) {</p>
 
-<pre><code>$.ajaxSetup({
-  headers: { 'Authorization': 'Bearer ' + accessToken }
-});
-var user = User.find(userId);
+<pre><code>var user = User.find(userId);
 this.set('apiKey', App.ApiKey.createRecord({
   accessToken: accessToken,
   user: user
 }));
+$.ajaxSetup({
+  headers: { 'Authorization': 'Bearer ' + accessToken }
+});
 </code></pre>
 
 <p>  },</p>
@@ -612,7 +612,7 @@ if (Ember.isEmpty(this.get('apiKey'))) {
 <p>module.exports = AuthManager;
 ```</p>
 
-<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js">https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
 
 <p>```javascript public/javascripts/config/app.js
 require('../vendor/jquery');
@@ -665,7 +665,7 @@ App.AuthManager = AuthManager.create();
 var User = DS.Model.extend({
   name:     DS.attr('string'),
   email:    DS.attr('string'),
-  username: DS.attr('string'),
+  username: DS.attr('string')
 });</p>
 
 <p>module.exports = User;
@@ -1036,6 +1036,20 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 
 <pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
 </code></pre>
+
+<p>Because we are using the Active Model Serializers gem, serializers are created automatically for our models. However, we want to limit what they return to only the parts which are useful. Update the serializers as follows:</p>
+
+<p><code>ruby app/serializers/user_serializer.rb
+class UserSerializer &lt; ActiveModel::Serializer
+  attributes :id, :name, :username, :email
+end
+</code></p>
+
+<p><code>ruby app/serializers/api_key_serializer.rb
+class ApiKeySerializer &lt; ActiveModel::Serializer
+  attributes :id, :user_id, :access_token
+end
+</code></p>
 
 <p>Now let's add a couple of tests for our models. Update the fixtures for users so we have a user to work with:</p>
 
