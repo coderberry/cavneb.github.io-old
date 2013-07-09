@@ -9,7 +9,8 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Our company has been using PostgreSQL for a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into &hellip;">
+  <meta name="description" content="Booyah!
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,7 +82,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/">Paginator for Those Suffering From PostgreSQL Count(*) Speed Issues</a></h1>
+      <h1 class="entry-title"><a href="/blog/2011/06/01/this-is-a-test/">This Is Post</a></h1>
     
     
       <p class="meta">
@@ -97,166 +98,16 @@
   
 
 
-<time datetime="2010-11-24T00:00:00-07:00" pubdate data-updated="true">Nov 24<span>th</span>, 2010</time>
+<time datetime="2011-06-01T14:44:00-06:00" pubdate data-updated="true">Jun 1<span>st</span>, 2011</time>
         
-         | <a href="/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/#disqus_thread">Comments</a>
+         | <a href="/blog/2011/06/01/this-is-a-test/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into is that as our database grows (1mil+
-records), there is a major slowdown on page loads due to a <a href="http://sql-info.de/postgresql/postgres-gotchas.html#1_7">PostgreSQL bug</a>.</p>
-
-<p>To resolve this, I had to re-create a new paginator that didn&#8217;t rely on the count(*) sql call. I changed it to work similar to how Google performs their queries relying solely on the offset and max to determine which pagination buttons to show.</p>
-
-<p>Here&#8217;s my final taglib:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.servlet.support.RequestContextUtils</span> <span class="n">as</span> <span class="n">RCU</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PagerTagLib</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="cm">/**</span>
-</span><span class='line'><span class="cm">   * Creates next/previous links to support pagination for the current controller</span>
-</span><span class='line'><span class="cm">   * This is developed to avoid problems with the PostgreSQL count(*) bug.</span>
-</span><span class='line'><span class="cm">   * http://sql-info.de/postgresql/postgres-gotchas.html#1_7</span>
-</span><span class='line'><span class="cm">   * </span>
-</span><span class='line'><span class="cm">   * &lt;g:pager total=&quot;${accountListInstance.size()}&quot; params=&quot;${params}&quot; /&gt;</span>
-</span><span class='line'><span class="cm">   */</span>
-</span><span class='line'>  <span class="n">def</span> <span class="n">pager</span> <span class="o">=</span> <span class="o">{</span> <span class="n">attrs</span> <span class="o">-&gt;</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">out</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">total</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">throwTagError</span><span class="o">(</span><span class="s">&quot;Tag [pager] is missing required attribute [total] which is the total showing for the current page&quot;</span><span class="o">)</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">def</span> <span class="n">messageSource</span> <span class="o">=</span> <span class="n">grailsAttributes</span><span class="o">.</span><span class="na">messageSource</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">locale</span> <span class="o">=</span> <span class="n">RCU</span><span class="o">.</span><span class="na">getLocale</span><span class="o">(</span><span class="n">request</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">def</span> <span class="n">total</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">total</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">def</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="o">))</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">max</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">offset</span><span class="o">)</span> <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">max</span><span class="o">)</span> <span class="n">max</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">10</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">def</span> <span class="n">linkParams</span> <span class="o">=</span> <span class="o">[:]</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">putAll</span><span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span>
-</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
-</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">max</span> <span class="o">=</span> <span class="n">max</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">sort</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">sort</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">sort</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">order</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">order</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">order</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">def</span> <span class="n">linkTagAttrs</span> <span class="o">=</span> <span class="o">[</span><span class="nl">action:</span><span class="n">action</span><span class="o">]</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">controller</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">controller</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">id</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">id</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">params</span> <span class="o">=</span> <span class="n">linkParams</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// determine paging variables</span>
-</span><span class='line'>    <span class="n">def</span> <span class="n">isFirstStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
-</span><span class='line'>    <span class="n">def</span> <span class="n">isLastStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">total</span> <span class="o">&lt;</span> <span class="n">max</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// display previous link when not on firststep</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isFirstStep</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">prevLink</span><span class="err">&#39;</span>
-</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
-</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Previous</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
-</span><span class='line'>          <span class="o">}</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// display next link when not on laststep</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isLastStep</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">nextLink</span><span class="err">&#39;</span>
-</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">max</span>
-</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Next</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
-</span><span class='line'>          <span class="o">}</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
+  <div class="entry-content"><p>Booyah!</p>
 </div>
   
   
@@ -269,7 +120,7 @@ records), there is a major slowdown on page loads due to a <a href="http://sql-i
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/">Roll Your Own Ajax-Based Captcha in Grails</a></h1>
+      <h1 class="entry-title"><a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/">How to Fix the Iconv Require Error in Ruby 1.9 and RVM</a></h1>
     
     
       <p class="meta">
@@ -285,85 +136,72 @@ records), there is a major slowdown on page loads due to a <a href="http://sql-i
   
 
 
-<time datetime="2010-10-28T00:00:00-06:00" pubdate data-updated="true">Oct 28<span>th</span>, 2010</time>
+<time datetime="2011-05-17T00:00:00-06:00" pubdate data-updated="true">May 17<span>th</span>, 2011</time>
         
-         | <a href="/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/#disqus_thread">Comments</a>
+         | <a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Recently, I was asked to come up with a better solution to our
-captcha needs. We have been using <a href="http://www.google.com/recaptcha">ReCaptcha</a>, which is great
-but difficult to read at times, and has caused frustrated
-customers and lost sales. I found a great solution at
-<a href="http://www.jkdesign.org/captcha">http://www.jkdesign.org/captcha</a> which displays a number of
-graphics and let&#8217;s the user choose the right one to prove they
-are human. Here is a screenshot of my implementation:</p>
+  <div class="entry-content"><p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
 
-<p><img src="/images/posts/Using-Criteria-Builder-with-Projections-1.png"></p>
+<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
 
-<p>To make this work within Grails, I had to make several tweaks. The following files are required:</p>
-
-<ul>
-<li><a href="http://jqueryui.com/">JQuery 1.2+</a> (I am using version - 1.4.2)</li>
-<li><a href="http://jqueryui.com/">JQuery UI</a> (I am using version - 1.8.2)</li>
-<li><a href="http://gist.github.com/651605">jquery.simpleCaptcha-0.2.js</a></li>
-<li><a href="/files/captchaImages.zip">Captcha Images</a> placed in images/captchaImages</li>
-<li><a href="http://gist.github.com/651613">BCrypt.java</a> by Damien Miller</li>
-<li>CaptchaController.groovy (below)</li>
-</ul>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>'require': no such file to load – iconv (LoadError)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Create a new controller called Captcha. This can really be named anything, but if you do rename it, it will have to be updated in the jquery.simpleCaptcha-0.2.js file or passed in as an option via the javascript.</p>
+<p><strong>To fix the issue, perform the following steps:</strong></p>
 
-<div><script src='https://gist.github.com/1291660.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
-
-
-<p>What this controller does is return a JSON object with the data needed to generate the captcha. The JSON appears like so:</p>
-
-<div><script src='https://gist.github.com/1291662.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
+<ol>
+<li>Install readline using rvm: rvm install readline rvm package install readline</li>
+<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
+<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
+</ol>
 
 
-<p>Now we just need to implement this in our GSP file and controller. Suppose we have a page like shown above with a pickup code and the last 4 digits of the persons phone number. With adding our captcha div and required javascript, our GSP would look like this:</p>
-
-<div><script src='https://gist.github.com/1291664.js'></script>
-<noscript><pre><code></code></pre></noscript></div>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm remove 1.9.2</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Finally, we need to perform the validation on the controller side. The modified authentication action would look like the following:</p>
+<ol>
+<li>The final step is to re-install the version of ruby:</li>
+</ol>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Now to test that it worked:</strong></p>
+
+<ol>
+<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
+<li>Check you are on the right version of ruby:</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">def</span> <span class="n">pickup</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Determine if the captcha is picked correctly</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">captchaSelection</span> <span class="o">!=</span> <span class="n">session</span><span class="o">.</span><span class="na">selectedCaptchaText</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// They selected the correct Captcha image. Continue with Authentication</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;You did not click the correct image below. Please Try Again.&quot;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
+</span><span class='line'>ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]</span></code></pre></td></tr></table></div></figure>
 
 
-<p>So there ya go. It&#8217;s actually pretty easy and customers seem to like choosing an image much more than typing a word that is difficult to read.</p>
+<ol>
+<li>Start a new irb session</li>
+<li>Now you should be able to require &#8216;iconv&#8217; and get a &#8216;true&#8217; result</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby-1.9.2-p180 :001 &gt; require 'iconv'
+</span><span class='line'>=&gt; true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you should be good to go!</p>
 </div>
   
   
@@ -376,7 +214,7 @@ are human. Here is a screenshot of my implementation:</p>
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2010/10/12/uploading-files-in-grails/">Uploading Files in Grails</a></h1>
+      <h1 class="entry-title"><a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/">Multi-Associative GORM Criteria With Projections</a></h1>
     
     
       <p class="meta">
@@ -392,23 +230,16 @@ are human. Here is a screenshot of my implementation:</p>
   
 
 
-<time datetime="2010-10-12T00:00:00-06:00" pubdate data-updated="true">Oct 12<span>th</span>, 2010</time>
+<time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
         
-         | <a href="/blog/2010/10/12/uploading-files-in-grails/#disqus_thread">Comments</a>
+         | <a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Here&#8217;s the slides from a presentation I did at the
-<a href="http://groups.google.com/group/uggug">UGGUG</a> in May 2010. I
-found that I needed to use it again today so I posted it.</p>
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/4000139" width="565" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
-
-
-<p>Here is the source code for the uploader service I created:</p>
+  <div class="entry-content"><p>I have three domain classes: Lead, Submission and BuyerLog:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -429,67 +260,48 @@ found that I needed to use it again today so I posted it.</p>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Lead</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submissions:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Date</span> <span class="n">dateCreated</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">Submission</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">lead:</span> <span class="n">Lead</span> <span class="o">]</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">buyerLogs:</span> <span class="n">BuyerLog</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Lead</span> <span class="n">lead</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span>
-</span><span class='line'>      <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">destinationDirectory</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="n">destinationDirectory</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Store file</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">BuyerLog</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submission:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Submission</span> <span class="n">submission</span>
+</span><span class='line'>  <span class="n">String</span> <span class="n">leadBuyer</span>
+</span><span class='line'>  <span class="c1">// ...</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>A tip that you may enjoy is the way I implemented this uploader into a real world application. I wanted to be able to upload files into a folder within the web-app folder for development, but in production, I wanted to put it in a folder that is served via Tomcat directly. So on our production server, I created a folder at /opt/assets and created a symbolic link in the $TOMCAT_ROOT/webapps/assets to point to it. I modified the service as follows:</p>
+<p>I have a need to get the number of duplicate leads which share the same leadBuyer (in the BuyerLog domain class). Here is the SQL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">FROM</span> <span class="n">lead</span> <span class="k">AS</span> <span class="n">l</span><span class="p">,</span> <span class="n">submission</span> <span class="k">AS</span> <span class="n">s</span><span class="p">,</span> <span class="n">buyerLog</span> <span class="k">as</span> <span class="n">bl</span>
+</span><span class='line'>    <span class="k">WHERE</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">leadId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">bl</span><span class="p">.</span><span class="n">submissionId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">bl</span><span class="p">.</span><span class="n">leadBuyer</span> <span class="o">=</span> <span class="err">$</span><span class="n">buyerName</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">!=</span> <span class="err">$</span><span class="n">lead</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">dateCreated</span><span class="p">::</span><span class="nb">date</span> <span class="o">&gt;</span> <span class="err">$</span><span class="n">daysAgo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I want to do this using GORM / Criteria Builder. Here&#8217;s my final code:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -522,70 +334,41 @@ found that I needed to use it again today so I posted it.</p>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
 <span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">grails.util.GrailsUtil</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">String</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">GrailsUtil</span><span class="o">.</span><span class="na">environment</span> <span class="o">==</span> <span class="s">&quot;production&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;/opt/assets&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="err">&#39;</span><span class="n">assets</span><span class="err">&#39;</span><span class="o">)</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Count duplicate submissions within 45 days</span>
+</span><span class='line'><span class="cm"> * SELECT count(l.id)</span>
+</span><span class='line'><span class="cm"> *      FROM lead AS l, submission AS s, buyerLog as bl</span>
+</span><span class='line'><span class="cm"> *      WHERE l.id = s.leadId</span>
+</span><span class='line'><span class="cm"> *          AND s.id = bl.submissionId</span>
+</span><span class='line'><span class="cm"> *          AND bl.leadBuyer = $buyerName</span>
+</span><span class='line'><span class="cm"> *          AND l.id != $lead.id</span>
+</span><span class='line'><span class="cm"> *          AND l.dateCreated::date &gt; $daysAgo</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">protected</span> <span class="n">def</span> <span class="n">Boolean</span> <span class="nf">isDuplicateSubmission</span><span class="o">(</span><span class="n">Lead</span> <span class="n">lead</span><span class="o">,</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">buyerNames</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">isDuplicate</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">daysAgo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">()</span> <span class="o">-</span> <span class="mi">45</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">Lead</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">not</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">idEq</span><span class="o">(</span><span class="n">lead</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
 </span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>    <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
+</span><span class='line'>    <span class="n">and</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">le</span><span class="o">(</span><span class="err">&#39;</span><span class="n">dateCreated</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">daysAgo</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">submissions</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">buyerLogs</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">inList</span><span class="o">(</span><span class="err">&#39;</span><span class="n">leadBuyer</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">buyerNames</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>      <span class="o">}</span>
 </span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Store file</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">rowCount</span><span class="o">()</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I then create a folder in my web-app folder named &#8216;assets&#8217;, being sure to add it to my ignore list for the repository. So once I upload the file, it will save to the correct location.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;${resource(dir:&#39;assets&#39;, file: &#39;myfile.jpg&#39;)}&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This now will work in both DEVELOPMENT and PRODUCTION enviroments.</p>
-
-<p><a href="http://github.com/cavneb/FileUploader">http://github.com/cavneb/FileUploader</a></p>
+<p>Thanks to schmolly159 on the #grails freenode IRC channel for the examples and continued help.</p>
 </div>
   
   
@@ -612,13 +395,21 @@ found that I needed to use it again today so I posted it.</p>
     <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
   </ul>
 </section>
-
-<a class="twitter-timeline" href="https://twitter.com/cavneb" data-widget-id="311532353849794561">Tweets by @cavneb</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
@@ -626,18 +417,6 @@ found that I needed to use it again today so I posted it.</p>
     
       <li class="post">
         <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">AngularJS on Rails 4 - Part 2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">AngularJS on Rails 4 - Part 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a>
       </li>
     
   </ul>

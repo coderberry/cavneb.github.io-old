@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following &hellip;">
+  <meta name="description" content="I was frustrated as hell today finding examples on how to use HTTPBuilder to perform a simple POST and GET request in my Grails application. I now &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,7 +81,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/04/23/grails-domain-classes-and-enums/">Grails Domain Classes and Enums</a></h1>
+      <h1 class="entry-title"><a href="/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/">Stupid Simple POST/GET With Groovy HTTPBuilder</a></h1>
     
     
       <p class="meta">
@@ -97,16 +97,220 @@
   
 
 
-<time datetime="2012-04-23T00:00:00-06:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2012</time>
+<time datetime="2012-05-07T16:57:00-06:00" pubdate data-updated="true">May 7<span>th</span>, 2012</time>
         
-         | <a href="/blog/2012/04/23/grails-domain-classes-and-enums/#disqus_thread">Comments</a>
+         | <a href="/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following:</p>
+  <div class="entry-content"><p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
+
+<p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
+
+<figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="n">runtime</span> <span class="s">&quot;:rest:0.7&quot;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&#8217;s the code. I placed it in <code>/src/groovy/com/berry/utils/ApiConsumer.groovy</code></p>
+
+<figure class='code'><figcaption><span>src/groovy/com/berry/utils/ApiConsumer.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">berry</span><span class="o">.</span><span class="na">utils</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.HTTPBuilder</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.ContentType</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.Method</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.RESTClient</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">ApiConsumer</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">def</span> <span class="nf">postText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">Method</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">ret</span> <span class="o">=</span> <span class="kc">null</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">http</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HTTPBuilder</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// perform a POST request, expecting TEXT response</span>
+</span><span class='line'>            <span class="n">http</span><span class="o">.</span><span class="na">request</span><span class="o">(</span><span class="n">method</span><span class="o">,</span> <span class="n">ContentType</span><span class="o">.</span><span class="na">TEXT</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">uri</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>                <span class="n">uri</span><span class="o">.</span><span class="na">query</span> <span class="o">=</span> <span class="n">query</span>
+</span><span class='line'>                <span class="n">headers</span><span class="o">.</span><span class="err">&#39;</span><span class="n">User</span><span class="o">-</span><span class="n">Agent</span><span class="err">&#39;</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">Mozilla</span><span class="o">/</span><span class="mf">5.0</span> <span class="n">Ubuntu</span><span class="o">/</span><span class="mf">8.10</span> <span class="n">Firefox</span><span class="o">/</span><span class="mf">3.0</span><span class="o">.</span><span class="mi">4</span><span class="err">&#39;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// response handler for a success response code</span>
+</span><span class='line'>                <span class="n">response</span><span class="o">.</span><span class="na">success</span> <span class="o">=</span> <span class="o">{</span> <span class="n">resp</span><span class="o">,</span> <span class="n">reader</span> <span class="o">-&gt;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="s">&quot;response status: ${resp.statusLine}&quot;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="nl">Headers:</span> <span class="o">-----------</span><span class="err">&#39;</span>
+</span><span class='line'>                    <span class="n">resp</span><span class="o">.</span><span class="na">headers</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">h</span> <span class="o">-&gt;</span>
+</span><span class='line'>                        <span class="n">println</span> <span class="s">&quot; ${h.name} : ${h.value}&quot;</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">ret</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">getText</span><span class="o">()</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="n">Response</span> <span class="nl">data:</span> <span class="o">-----</span><span class="err">&#39;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="n">ret</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="o">--------------------</span><span class="err">&#39;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">ret</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">groovyx</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">http</span><span class="o">.</span><span class="na">HttpResponseException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">ConnectException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">def</span> <span class="nf">getText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nf">postText</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">Method</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this new class, we can easily perform requests.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">def</span> <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://myexample.com&quot;</span>
+</span><span class='line'><span class="n">def</span> <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;/path/to/api&quot;</span>
+</span><span class='line'><span class="n">def</span> <span class="n">query</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">firstName:</span> <span class="s">&quot;Eric&quot;</span><span class="o">,</span> <span class="nl">lastName:</span> <span class="s">&quot;Berry&quot;</span><span class="o">,</span> <span class="nl">email:</span> <span class="s">&quot;cavneb@gmail.com&quot;</span> <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Submit a request via GET</span>
+</span><span class='line'><span class="n">def</span> <span class="n">response</span> <span class="o">=</span> <span class="n">ApiConsumer</span><span class="o">.</span><span class="na">getText</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Submit a request via POST</span>
+</span><span class='line'><span class="n">def</span> <span class="n">response</span> <span class="o">=</span> <span class="n">ApiConsumer</span><span class="o">.</span><span class="na">postText</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope this helps.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/04/26/grails-authentication-with-shiro/">Grails Authentication With Shiro</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-26T18:03:00-06:00" pubdate data-updated="true">Apr 26<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/04/26/grails-authentication-with-shiro/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
+
+<p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>
+
+<p>My goal for this article is to help people understand how to implement the Shiro plugin into their Grails application as simply as possible. I will also cover some common usages of the plugin for reference.</p>
+
+<h2>A bit more about Shiro</h2>
+
+<p>I strongly suggest going through the <a href="http://shiro.apache.org/documentation.html">documentation</a> for Shiro before continuing. If not, there are a couple of tidbits that will help you understand how it works.</p>
+
+<p>First, a term that Shiro uses for a <em>User</em> is <em>Subject</em>. Anytime the <em>Subject</em> is referenced, it is referring to Shiro&#8217;s version of a User class.</p>
+
+<p>Second, there is always a <em>Subject</em> that represents the current user. The <em>Subject</em> can be handled prior to authentication. This means that if someone was to visit your site without any authentication, there is already an instanciated class that represents them. In Java, you can obtain the <em>Subject</em> with the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Subject</span> <span class="n">currentUser</span> <span class="o">=</span> <span class="n">SecurityUtils</span><span class="o">.</span><span class="na">getSubject</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To authenticate the user, you must create a <code>UserPasswordToken</code> and call <code>login</code> on the instanciated <em>Subject</em>. The success or failure of the login are returned via <a href="http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authc/AuthenticationException.html">exceptions</a>. Here is an example of code that may be used when logging in a user.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -125,29 +329,139 @@
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span> <span class="o">!</span><span class="n">currentUser</span><span class="o">.</span><span class="na">isAuthenticated</span><span class="o">()</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">UsernamePasswordToken</span> <span class="n">token</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UsernamePasswordToken</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">,</span> <span class="s">&quot;bar&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">token</span><span class="o">.</span><span class="na">setRememberMe</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span> <span class="c1">// Use remember me if desired - all built in!</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApproval</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Attempt to authenticate. If no exception thrown, the login was successful</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">currentUser</span><span class="o">.</span><span class="na">login</span><span class="o">(</span> <span class="n">token</span> <span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">STATUS_PENDING</span>  <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'>  <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">STATUS_APPROVED</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'>  <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">STATUS_REJECTED</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'>    <span class="c1">// Username wasn&#39;t in the system</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">UnknownAccountException</span> <span class="n">uae</span> <span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">status</span>
+</span><span class='line'>    <span class="c1">// Password didn&#39;t match</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">IncorrectCredentialsException</span> <span class="n">ice</span> <span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span><span class="o">,</span> <span class="nl">inList:</span> <span class="o">[</span>
-</span><span class='line'>      <span class="n">STATUS_PENDING_APPROVAL</span><span class="o">,</span> <span class="n">STATUS_APPROVED</span><span class="o">,</span> <span class="n">STATUS_REJECTED</span>
-</span><span class='line'>    <span class="o">]</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>    <span class="c1">// Account with username is locked</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">LockedAccountException</span> <span class="n">lae</span> <span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>
+</span><span class='line'>    <span class="c1">// Unexpected error      </span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">AuthenticationException</span> <span class="n">ae</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Peter Ledbrook ( <a href="https://twitter.com/#!/pledbrook">@pledbrook</a> ) gave me some tips on how to handle this better using <code>Enums</code>. Enum values should always be in uppercase letters because they are constants in the fixed set. If we were to refactor the code above, it would something more like this:</p>
+<p>Cool! Now we have a bit of knowledge to help us know what we are doing in our Grails implementation.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<h2>Installation</h2>
+
+<p>Let&#8217;s start by creating a new Grails application. I am using version 2.0.3. In the code samples to follow, anything that starts with a $ means that it is a shell command.</p>
+
+<pre><code>$ grails create-app shiro-example
+$ cd shiro-example</code></pre>
+
+
+<p>The <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> can be installed by using the dependency in your <code>BuildConfig.groovy</code>. Even though the plugin page shows version 1.1.4, we will use the latest snapshot release:</p>
+
+<figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="n">runtime</span> <span class="s">&quot;:shiro:1.2.0-SNAPSHOT&quot;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you have the dependency setup in the <code>BuildConfig.groovy</code> file, you must compile the app to make sure the dependencies are installed.</p>
+
+<pre><code>$ grails compile</code></pre>
+
+
+<p>Let&#8217;s kickstart our app now by using the <code>shiro-quick-start</code> command. I am using the optional <code>--prefix=[package]</code>. Make sure you have a dot at the end if you are using the prefix.</p>
+
+<pre><code>$ grails shiro-quick-start --prefix=com.example.
+| Created file grails-app/domain/com/example/User.groovy
+| Created file grails-app/domain/com/example/Role.groovy
+| Created file grails-app/realms/com/example/DbRealm.groovy
+| Created file grails-app/controllers/com/example/AuthController.groovy
+| Created file grails-app/views/auth/login.gsp
+| Created file grails-app/conf/com/example/SecurityFilters.groovy</code></pre>
+
+
+<p>Whoa! What just happened? As you can see, you now have created some files:</p>
+
+<p><code>domain/../User.groovy</code> is the <em>domain class</em> for your user.</p>
+
+<p><code>domain/../Role.groovy</code> is the <em>domain class</em> for your user roles.</p>
+
+<p><code>realms/../DbRealm.groovy</code> is the class Shiro uses to handle authentication and permissions.</p>
+
+<p><code>controllers/../AuthController.groovy</code> and <code>views/auth/login.gsp</code> are the user-facing controller and view meant to handle login.</p>
+
+<p><code>config/../SecurityFilters.groovy</code> adds a <a href="http://grails.org/doc/2.0.3/ref/Controllers/beforeInterceptor.html">beforeInterceptor</a> to all url&#8217;s. This blocks/redirects users from accessing pages they are not authorized to visit (based on their roles).</p>
+
+<blockquote><p><strong>What is a realm?</strong><br/>
+Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</em> is basically a resource Shiro should use to authenticate a user. Further explanation can be found <a href="http://www.brucephillips.name/blog/index.cfm/2009/4/5/An-Introduction-to-Ki-formerly-JSecurity--A-Beginners--Tutorial-Part-2">here</a>.</p></blockquote>
+
+<h2>Configuration</h2>
+
+<h2>Bootstrapping</h2>
+
+<p>Bootstrapping users and roles is similar to how it&#8217;s done with the <a href="http://grails.org/plugin/spring-security-core">Spring Security Core plugin</a>. Let&#8217;s create a couple of roles and users to go with them.</p>
+
+<p>File /Users/eberry/Personal/cavneb.github.io/source/downloads/code/BootStrap.groovy could not be found</p>
+
+<p>On line 5, we include the Shiro Security Service. This is necessary for us to encode the password into a password hash for the user.</p>
+
+<p>On lines 9-15, the admin and user roles are created.</p>
+
+<p>On lines 17-21, the admin user is either loaded from the database or is created. Here is where we use the Shiro Security Service for encoding the password.</p>
+
+<p>On lines 23-26, the roles <em>ADMIN_ROLE</em> and <em>USER_ROLE</em> are assigned to the admin user. Note that we add both roles to this user. This allows the admin user to act as a normal user as well. This may or may not be appropriate, depending on the application.</p>
+
+<p>Lines 28-36 are similar to 23-26, but for the standard user role instead of the admin role.</p>
+
+<h2>Kick the Tires</h2>
+
+<p>Now that we have the default users created, let&#8217;s run the app and test to make sure the login works. Start up the application with the <code>run-app</code> command:</p>
+
+<pre><code>$ grails run-app</code></pre>
+
+
+<p>Once it&#8217;s running, open up the browser and go to <a href="http://localhost:8080/shiro-example/" target="_blank">http://localhost:8080/shiro-example/</a>.</p>
+
+<p><img src="/images/posts/shiro-example-1.png"></p>
+
+<p>Click on the link <em>com.example.AuthController</em> and login as the admin user (username: &#8216;admin&#8217;, password: &#8216;password&#8217;).</p>
+
+<p><img src="/images/posts/shiro-example-2.png"></p>
+
+<p>If you successfully logged in, you will be redirected back to the first page. This doesn&#8217;t help us very much.</p>
+
+<h2>Adding Security</h2>
+
+<p>Now that we&#8217;ve figured out how to authenticate users with the login form, we need to create some pages that require being authenticated. Pay attention.. this is really the core of the plugin.. and the part that was most difficult for me to figure out.</p>
+
+<p>Let&#8217;s start off by creating a controller with three actions: <code>index</code>, <code>secured</code> and <code>admin</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Home</code></pre>
+
+
+<p>Create three actions in the controller:</p>
+
+<figure class='code'><figcaption><span>grails-app/controllers/com/example/HomeController.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -162,25 +476,35 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApproval</span> <span class="o">{</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">HomeController</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">enum</span> <span class="n">ApprovalStatus</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">PENDING</span><span class="o">,</span> <span class="n">APPROVED</span><span class="o">,</span> <span class="n">REJECTED</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">index</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">render</span> <span class="s">&quot;This page is not secured&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">ApprovalStatus</span> <span class="n">status</span>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">secured</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">render</span> <span class="s">&quot;This page requires a user to be logged in&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">admin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">render</span> <span class="s">&quot;This page requires the logged in user to be an administrator&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This works great for a single domain class, but what if I wanted to use the same Enum in two different domain classes. For example:</p>
+<p>As you can see, the three actions <em>should</em> have different security levels. <code>index</code> will allow anyone to be able to view the page. <code>secured</code> requires that a user be logged in. <code>admin</code> requries that the user logged in must have the <em>ROLE_ADMIN</em> role assigned to them.</p>
+
+<p>Try out the URL&#8217;s to the new actions created. Notice that they all lead you back to the login page if you haven&#8217;t logged in. Stranger yet is that once you log in, you should see this;</p>
+
+<p><img src="/images/posts/shiro-example-3.png"></p>
+
+<p>Don&#8217;t worry though. This is expected and can be resolved easily by updating <code>SecurityFilters.groovy</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -219,64 +543,138 @@
 <span class='line-number'>35</span>
 <span class='line-number'>36</span>
 <span class='line-number'>37</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// PluginPendingApproval.groovy</span>
-</span><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApproval</span> <span class="o">{</span>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Generated by the Shiro plugin. This filters class protects all URLs</span>
+</span><span class='line'><span class="cm"> * via access control by convention.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">SecurityFilters</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">pluginPendingApprovalRequests:</span> <span class="n">PluginPendingApprovalRequest</span><span class="o">]</span>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Array of controller/action combinations which will be skipped from authentication</span>
+</span><span class='line'><span class="cm">     * if the controller and action names match. The action value can also be &#39;*&#39; if it</span>
+</span><span class='line'><span class="cm">     * encompasses all actions within the controller.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">nonAuthenticatedActions</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">]</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">enum</span> <span class="n">ApprovalStatus</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">PENDING</span><span class="o">,</span> <span class="n">APPROVED</span><span class="o">,</span> <span class="n">REJECTED</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Array of controller/action combinations that will be authenticated against the user&#39;s</span>
+</span><span class='line'><span class="cm">     * role. The map also includes the roles which the controller/action pair will match</span>
+</span><span class='line'><span class="cm">     * against.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">authenticatedActions</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">secured</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">roles:</span> <span class="o">[</span><span class="err">&#39;</span><span class="n">ROLE_ADMIN</span><span class="err">&#39;</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">ROLE_USER</span><span class="err">&#39;</span><span class="o">]],</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">admin</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">roles:</span> <span class="o">[</span><span class="err">&#39;</span><span class="n">ROLE_ADMIN</span><span class="err">&#39;</span><span class="o">]]</span>
+</span><span class='line'>    <span class="o">]</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">ApprovalStatus</span> <span class="n">status</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">filters</span> <span class="o">=</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>        <span class="n">all</span><span class="o">(</span><span class="nl">controller:</span> <span class="sc">&#39;*&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">before</span> <span class="o">=</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'><span class="o">}</span>
+</span><span class='line'>                <span class="c1">// Determine if the controller/action belongs is not to be authenticated</span>
+</span><span class='line'>                <span class="n">def</span> <span class="n">needsAuth</span> <span class="o">=</span> <span class="o">!</span><span class="n">nonAuthenticatedActions</span><span class="o">.</span><span class="na">find</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">controller</span> <span class="o">==</span> <span class="n">controllerName</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>                            <span class="o">((</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="n">actionName</span><span class="o">))</span>
+</span><span class='line'>                <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="c1">// PluginPendingApprovalRequest.groovy</span>
-</span><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">needsAuth</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApprovalRequest</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="c1">// Get the map within the authenticated actions which pertain to the current</span>
+</span><span class='line'>                    <span class="c1">// controller and view.</span>
+</span><span class='line'>                    <span class="n">def</span> <span class="n">authRoles</span> <span class="o">=</span> <span class="n">authenticatedActions</span><span class="o">.</span><span class="na">find</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">controller</span> <span class="o">==</span> <span class="n">controllerName</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>                                <span class="o">((</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="n">actionName</span><span class="o">))</span>
+</span><span class='line'>                    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span><span class="nl">pluginPendingApproval:</span> <span class="n">PluginPendingApproval</span><span class="o">]</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">authRoles</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">enum</span> <span class="n">ApprovalStatus</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">PENDING</span><span class="o">,</span> <span class="n">APPROVED</span><span class="o">,</span> <span class="n">REJECTED</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>                        <span class="c1">// Perform the access control for each of the roles provided in the authRoles</span>
+</span><span class='line'>                        <span class="n">accessControl</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">authRoles</span><span class="o">.</span><span class="na">roles</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">roleName</span> <span class="o">-&gt;</span>
+</span><span class='line'>                                <span class="n">role</span><span class="o">(</span><span class="n">roleName</span><span class="o">)</span>
+</span><span class='line'>                            <span class="o">}</span>
+</span><span class='line'>                        <span class="o">}</span>
+</span><span class='line'>                    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">ApprovalStatus</span> <span class="n">status</span>
+</span><span class='line'>                    <span class="c1">// Skip authentication if the authRoles was not found</span>
+</span><span class='line'>                    <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>                <span class="c1">// Skip authentication if no auth is needed</span>
+</span><span class='line'>                <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I could keep do it this way where I have the enum code duplicated in two places, but that doesn&#8217;t follow the DRY principal.</p>
+<p>This may be a lot to take in but the only sections that are really important are lines 14-16 and 23-26. Here we are establishing which controller/action combinations are not to be authenticated, and which are to be authenticated against the provided roles.</p>
 
-<p>Let&#8217;s refactor this and create a new Enum class that both domain classes can use:</p>
+<p>Now when you access the pages, the expected security should be in place. Give it a shot.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">enum</span> <span class="n">ApprovalStatusEnum</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">PENDING</span><span class="o">,</span> <span class="n">APPROVED</span><span class="o">,</span> <span class="n">REJECTED</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<blockquote><p><strong>Confused?</strong><br/>
+This can be a confusing topic, and moreso a confusing portion of the topic. Please feel free to ask any questions in the comments section and I will do my best to help out.*</p></blockquote>
+
+<h2>Creating Users</h2>
+
+<p>The <code>shiro-quick-start</code> command did create the login page and authentication controller, but it didn&#8217;t help us a bit on creating users. Good thing it&#8217;s pretty easy to do.</p>
+
+<p>We could create a controller called <em>Users</em> to handle the signup process, however, I don&#8217;t want to do that. The reason is because I would like to eventually have a <em>Users</em> controller that will perform all the CRUD operations for the users and would only be accessible by administrators.</p>
+
+<p>Instead, let&#8217;s create a new controller for handling the signup process. Let&#8217;s call it <code>Signup</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Signup
+| Created file grails-app/controllers/com/example/SignupController.groovy
+| Created file grails-app/views/signup
+| Created file test/unit/com/example/SignupControllerTests.groovy</code></pre>
 
 
-<p>Now both of my domain classes can access the same Enum:</p>
+<p>Update your SignupController as follows:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -307,261 +705,97 @@
 <span class='line-number'>27</span>
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// PluginPendingApproval.groovy</span>
-</span><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApproval</span> <span class="o">{</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.shiro.authc.UsernamePasswordToken</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.shiro.SecurityUtils</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span><span class="nl">pluginPendingApprovalRequests:</span> <span class="n">PluginPendingApprovalRequest</span><span class="o">]</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">SignupController</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">shiroSecurityService</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="n">ApprovalStatus</span> <span class="n">status</span>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">index</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">()</span>
+</span><span class='line'>        <span class="o">[</span><span class="nl">user:</span> <span class="n">user</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span>
-</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
 </span><span class='line'>
+</span><span class='line'>        <span class="c1">// Check to see if the username already exists</span>
+</span><span class='line'>        <span class="n">def</span> <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="na">findByUsername</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">username</span><span class="o">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;User already exists with the username &#39;${params.username}&#39;&quot;</span>
+</span><span class='line'>            <span class="n">render</span><span class="o">(</span><span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// User doesn&#39;t exist with username. Let&#39;s create one</span>
+</span><span class='line'>        <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Make sure the passwords match</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">password</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="na">password2</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;Passwords do not match&quot;</span>
+</span><span class='line'>                <span class="n">render</span><span class="o">(</span><span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Passwords match. Let&#39;s attempt to save the user</span>
+</span><span class='line'>            <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// Create user</span>
+</span><span class='line'>                <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span>
+</span><span class='line'>                        <span class="nl">username:</span> <span class="n">params</span><span class="o">.</span><span class="na">username</span><span class="o">,</span>
+</span><span class='line'>                        <span class="nl">passwordHash:</span> <span class="n">shiroSecurityService</span><span class="o">.</span><span class="na">encodePassword</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">password</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">save</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Add USER role to new user</span>
+</span><span class='line'>                    <span class="n">user</span><span class="o">.</span><span class="na">addToRoles</span><span class="o">(</span><span class="n">Role</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="err">&#39;</span><span class="n">ROLE_USER</span><span class="err">&#39;</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Login user</span>
+</span><span class='line'>                    <span class="n">def</span> <span class="n">authToken</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UsernamePasswordToken</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">username</span><span class="o">,</span> <span class="n">params</span><span class="o">.</span><span class="na">password</span><span class="o">)</span>
+</span><span class='line'>                    <span class="n">SecurityUtils</span><span class="o">.</span><span class="na">subject</span><span class="o">.</span><span class="na">login</span><span class="o">(</span><span class="n">authToken</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">redirect</span><span class="o">(</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">secured</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// PluginPendingApprovalRequest.groovy</span>
-</span><span class='line'><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">PluginPendingApprovalRequest</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span><span class="nl">pluginPendingApproval:</span> <span class="n">PluginPendingApproval</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">ApprovalStatus</span> <span class="n">status</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">static</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">status</span> <span class="nl">blank:</span> <span class="kc">false</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>For more information on Enums in Groovy, see <a href="http://groovy.codehaus.org/Using+Enums">http://groovy.codehaus.org/Using+Enums</a></p>
-</div>
-  
-  
+<p>In the code above, there are two actions: <code>index</code> and <code>register</code>. The <code>index</code> action is what contains the form (view). The <code>register</code> action performs the user registration and responds/redirects according to the results.</p>
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/10/18/groovy-and-grails-want-to-know-more/">Groovy &amp; Grails - Want to Know More?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-10-18T00:00:00-06:00" pubdate data-updated="true">Oct 18<span>th</span>, 2011</time>
-        
-         | <a href="/blog/2011/10/18/groovy-and-grails-want-to-know-more/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
-
-<iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>
-
-
-<iframe width="560" height="315" src="http://www.youtube.com/embed/ahRMgvKbVLI" frameborder="0" allowfullscreen></iframe>
-
-
-<iframe width="560" height="315" src="http://www.youtube.com/embed/ILL2TXAF04k" frameborder="0" allowfullscreen></iframe>
-
-
-
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/3379277" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
-
-
-
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/3261710" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/08/09/bunny-rabbitmq/">Bunny RabbitMQ</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-08-09T00:00:00-06:00" pubdate data-updated="true">Aug 9<span>th</span>, 2011</time>
-        
-         | <a href="/blog/2011/08/09/bunny-rabbitmq/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img src="/images/posts/crazy-rabbit.jpg"></p>
-
-<p>Recently I was asked to implement <a href="https://github.com/defunkt/resque">Redis/Resque</a> into an existing project that already had Redis up and running with another Redis server. This ended up being a lot more difficult than I had anticipated due to the <a href="https://github.com/defunkt/resque/blob/master/lib/resque.rb">singleton nature</a> of the Resque gem. This led us to explore other possible options and we ended up on <a href="http://www.rabbitmq.com/">RabbitMQ</a>.</p>
-
-<p>RabbitMQ has two heavily supported gems that can be used to interface with our Rails app. One of them is the <a href="http://rubydoc.info/github/ruby-amqp/amqp/master/file/docs/AMQP091ModelExplained.textile">AMQP gem</a>. It is very powerful and acts as a daemon for both publisher and consumer. Our needs aren&#8217;t as big, however, so we decided to use the <a href="https://github.com/celldee/bunny">bunny gem</a>.</p>
-
-<p>Initially, I started off by wanting to create a publisher/consumer scenario. I installed RabbitMQ on a <a href="http://www.virtualbox.org/">VirtualBox</a> using <a href="http://vagrantup.com/">Vagrant</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ gem install vagrant # See vangrantup.com for install instructions
-</span><span class='line'>$ vagrant box add base http://files.vagrantup.com/lucid32.box
-</span><span class='line'>$ vagrant init</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Make sure you modify your Vagrantfile to allow port access for the tcp protocol:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">forward_port</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="mi">5672</span><span class="p">,</span> <span class="mi">5672</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then I started up the server, logged in and installed the RabbitMQ server:</p>
-
-<pre><code>$ vagrant up
-$ vagrant ssh
-vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
-...
-</code></pre>
-
-<p>Once this is done, the RabbitMQ server starts automatically. To ensure that it&#8217;s working you can run the following command. Remember to run it as sudo.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span> <span class="n">sudo</span> <span class="n">rabbitmqctl</span> <span class="n">list_queues</span>
-</span><span class='line'><span class="no">Listing</span> <span class="n">queues</span> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">done</span><span class="o">.</span>
-</span><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now that this works, let&#8217;s play with the gem. Ensure that you have the bunny gem installed.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="err">$</span> <span class="n">gem</span> <span class="n">install</span> <span class="n">bunny</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once this is installed, start up a console and we will create a queue.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="err">$</span> <span class="n">irb</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="nb">require</span> <span class="s1">&#39;rubygems&#39;</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="kp">true</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="nb">require</span> <span class="s1">&#39;bunny&#39;</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="kp">true</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_client</span> <span class="o">=</span> <span class="no">Bunny</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="c1">#&lt;Bunny::Client:0x1095a..., @port=5672&gt;</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_client</span><span class="o">.</span><span class="n">start</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="ss">:connected</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_queue</span> <span class="o">=</span> <span class="n">my_client</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s1">&#39;my_first_queue&#39;</span><span class="p">)</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="c1">#&lt;Bunny::Queue:0x1063v..., @port=5672&gt;&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now we have a queue created. Let&#8217;s go back to our RabbitMQ server and run the list_queues command again.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span> <span class="n">sudo</span> <span class="n">rabbitmqctl</span> <span class="n">list_queues</span>
-</span><span class='line'><span class="no">Listing</span> <span class="n">queues</span> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">my_first_queue</span>  <span class="mi">0</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">done</span><span class="o">.</span>
-</span><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you can see, we now have the <em>my_first_queue</em> queue created with 0 items in the queue.</p>
-
-<p>Let&#8217;s now add a message to the queue.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&gt;</span> <span class="n">direct_exchange</span> <span class="o">=</span> <span class="n">my_client</span><span class="o">.</span><span class="n">exchange</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">direct_exchange</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s1">&#39;This is my first message&#39;</span><span class="p">,</span> <span class="ss">:key</span> <span class="o">=&gt;</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">name</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="kp">nil</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">message_count</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="mi">1</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And now when you run the <em>list_queues</em> command, you will see it has a <strong>1</strong> after the <em>my_first_queue</em>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span> <span class="n">sudo</span> <span class="n">rabbitmqctl</span> <span class="n">list_queues</span>
-</span><span class='line'><span class="no">Listing</span> <span class="n">queues</span> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">my_first_queue</span>  <span class="mi">1</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">done</span><span class="o">.</span>
-</span><span class='line'><span class="n">vagrant</span><span class="vi">@lucid32</span><span class="ss">:~</span><span class="err">$</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Awesome. Now that we know how to add messages into our RabbitMQ server using the bunny gem, let&#8217;s now create a consumer to read the messages from the queue.</p>
-
-<p>Let&#8217;s open up another terminal and run irb. This part will be the same as before.</p>
+<p>Paste this into your <code>/grails-app/views/home/index.gsp</code> view:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -577,37 +811,453 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="err">$</span> <span class="n">irb</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="nb">require</span> <span class="s1">&#39;rubygems&#39;</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="kp">true</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="nb">require</span> <span class="s1">&#39;bunny&#39;</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="kp">true</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_client</span> <span class="o">=</span> <span class="no">Bunny</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="c1">#&lt;Bunny::Client:0x1095a..., @port=5672&gt;</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_client</span><span class="o">.</span><span class="n">start</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="ss">:connected</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_queue</span> <span class="o">=</span> <span class="n">my_client</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s1">&#39;my_first_queue&#39;</span><span class="p">)</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="c1">#&lt;Bunny::Queue:0x1063v..., @port=5672&gt;&gt;</span>
-</span><span class='line'> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">message_count</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="mi">1</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="err">&lt;</span>%@ page contentType=&quot;text/html;charset=UTF-8&quot; %&gt;
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&quot;Content-Type&quot;</span> <span class="na">content=</span><span class="s">&quot;text/html; charset=UTF-8&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;title&gt;</span>Register<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;layout&quot;</span> <span class="na">content=</span><span class="s">&quot;main&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;h1&gt;</span>Signup<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:if</span> <span class="na">test=</span><span class="s">&quot;${flash.message}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;alert alert-info&quot;</span><span class="nt">&gt;</span>${flash.message}<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:if&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:hasErrors</span> <span class="na">bean=</span><span class="s">&quot;${user}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;alert alert-error&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:renderErrors</span> <span class="na">bean=</span><span class="s">&quot;${user}&quot;</span> <span class="na">as=</span><span class="s">&quot;list&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:hasErrors&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:form</span> <span class="na">action=</span><span class="s">&quot;register&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;username&quot;</span><span class="nt">&gt;</span>Username<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:textField</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;${user.username}&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:passwordField</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Confirm Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:passwordField</span> <span class="na">name=</span><span class="s">&quot;password2&quot;</span> <span class="na">value=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:submitButton</span> <span class="na">name=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Submit&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:form&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>To grab the next item in the queue, we would call <em>pop</em> on <em>my_queue</em></p>
+<p>Go ahead and try the signup by going to <a href="http://localhost:8080/shiro-example/signup">http://localhost:8080/shiro-example/signup</a>.</p>
+
+<p><img src="/images/posts/shiro-example-4.png"></p>
+
+<p>If the signup is successful, you will see a page like this:</p>
+
+<p><img src="/images/posts/shiro-example-5.png"></p>
+
+<p>Congrats! You now have a full circle authenticated app using <strong>Shiro</strong>!</p>
+
+<h2>Tag Lib Reference</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:isLoggedIn&gt;</span>Body<span class="nt">&lt;/shiro:isLoggedIn&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:isNotLoggedIn&gt;</span>Body<span class="nt">&lt;/shiro:isNotLoggedIn&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is NOT logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:authenticated</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+A synonym for &#8216;isLoggedIn&#8217;. This is the same name as used by the standard Shiro tag library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notAuthenticated</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A synonym for &#8216;isNotLoggedIn&#8217;. This is the same name as used by the standard Shiro tag library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:user&gt;</span>Body<span class="nt">&lt;/shiro:user&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is either logged in or remembered from a previous session (via the &#8220;remember me&#8221; cookie).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notUser&gt;</span>Body<span class="nt">&lt;/shiro:notUser&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user is neither logged in nor remembered from a previous session (via the &#8220;remember me&#8221; cookie).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:remembered&gt;</span>Body<span class="nt">&lt;/shiro:remembered&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user is remembered from a previous session (via the &#8220;remember me&#8221; cookie) but not currently logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notRemembered&gt;</span>Body<span class="nt">&lt;/shiro:notRemembered&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is not remembered from a previous session (via the &#8220;remember me&#8221; cookie). This is the case if they are a guest user or logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:principal</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span> <span class="na">property=</span><span class="s">&quot;property&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputs the string form of the current user&#8217;s identity. By default this assumes that the subject has only one principal; its string representation is written to the page.</p>
+
+<p>The <strong><em>type</em></strong> is the species the type or class of the principal to use.</p>
+
+<p>The <strong><em>property</em></strong> value specifies the name of the property on the principal to use as the string representation, e.g. <code>firstName</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasRole</span> <span class="na">name=</span><span class="s">&quot;role_name&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user has the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksRole</span> <span class="na">name=</span><span class="s">&quot;role_name&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user does not have the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasAllRoles</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasAllRoles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has all the given roles (inversion of lacksAnyRole).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksAllRoles</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksAllRoles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user doesn&#8217;t have all of the given roles (inversion of hasAllRoles).
+The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasAnyRole</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasAnyRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has any of the given roles (inversion of lacksAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksAnyRole</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksAnyRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has none of the given roles (inversion of hasAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&gt;</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">pop</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="s2">&quot;This is a test message&quot;</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">message_count</span>
-</span><span class='line'> <span class="o">=&gt;</span> <span class="mi">0</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                     <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                     <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                     <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we want it to run as a listener, we can place the <em>pop</em> in a loop.</p>
+<p>This tag only writes its body to the output if the current user has the given permission.</p>
+
+<p>The <strong><em>type</em></strong> property is the permission type.</p>
+
+<p>The <strong><em>permission</em></strong> is the permission name. Either <em>type</em> or <em>permission</em> must be used.</p>
+
+<p>The <strong><em>actions</em></strong> must be present if the <em>type</em> is present.</p>
+
+<p>The <em>target</em> is optional and will be defaulted to &#8217;<em>&#8217; if not provided. It is also only applicable for when the </em>type* attribute is available.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                     <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                     <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                     <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has the given permission. Attribute descriptions are the same as found on <code>hasPermissions</code> above.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                      <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                      <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                      <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user does not have the given permission. Attribute descriptions are the same as found on <code>hasPermissions</code> above.</p>
+
+<h2>Notes</h2>
+
+<p>I did not cover topics such as permissions. For more information on this, please refer to the <a href="http://shiro.apache.org/documentation.html">Shiro documentation</a> and the <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> source code.</p>
+
+<p><a href="https://github.com/gavinhogan">Gavin Hogan</a> has forked the grails-shiro plugin and has done some excellent work on updating the documentation. His fork can be found at <a href="https://github.com/gavinhogan/grails-shiro/">https://github.com/gavinhogan/grails-shiro/</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/04/24/asset-pipeline-for-dummies/">Asset Pipeline for Dummies</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-24T08:41:00-06:00" pubdate data-updated="true">Apr 24<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/04/24/asset-pipeline-for-dummies/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The Rails asset pipeline is very powerful, but often misunderstood. At the <a href="http://utruby.org">Utah Ruby User Group</a>, most of the attendees aren&#8217;t sure how to use it fully in their Rails app. It&#8217;s considered as one of the <em>magic</em> features that Rails offers. I admit that I was confused as well and took it&#8217;s magic for granted. Not any longer.</p>
+
+<p>I reference the word <em>asset</em> a lot in this article. An asset is a file that is to be included in your Rails application (JavaScript, CSS, Image, etc).</p>
+
+<p><strong>In this article, I want to simplify the asset pipeline so it is better understood.</strong></p>
+
+<h2>Purpose</h2>
+
+<p>The asset pipeline has three goals: precompile, concatenate and minify assets into one central path. Or in other words, it takes all of your stylesheets, javascript files, images and any other files you want, joins them together when possible, and places them in the public/assets folder.</p>
+
+<h2>Moving Parts</h2>
+
+<p><img src="/images/posts/sprockets.png" class="fleft" align="top" />
+The asset pipeline is powered by two technologies: <a href="https://github.com/sstephenson/sprockets">Sprockets</a> and <a href="https://github.com/rtomayko/tilt">Tilt</a>, the latter being a dependency of the former (look at your <code>Gemfile.lock</code> if you don&#8217;t believe me).</p>
+
+<p><strong>Sprockets</strong> performs the asset packaging which takes the assets from all the specified paths, compiles them together and places them in the target path (public/assets).</p>
+
+<p><strong>Tilt</strong> is the template engine that Sprockets uses. This allows file types like <em>scss</em> and <em>erb</em> to be used in the asset pipeline. See the <a href="https://github.com/rtomayko/tilt/blob/master/README.md">Tilt Readme</a> for a list of supported template engines.</p>
+
+<p><img src="/images/posts/asset_pipeline_flow.png"></p>
+
+<h2>Asset Paths</h2>
+
+<p>Rails applications default to having three possible asset paths.</p>
+
+<p><code>app/assets</code> is for assets that are owned by the application, such as custom images, JavaScript files or stylesheets.</p>
+
+<p><code>lib/assets</code> is for your own libraries’ code that doesn’t really fit into the scope of the application or those libraries which are shared across applications.</p>
+
+<p><code>vendor/assets</code> is for assets that are owned by outside entities, such as code for JavaScript plugins and CSS frameworks.</p>
+
+<h2>The Manifest</h2>
+
+<p>The keystone of the asset pipeline is the manifest file. By default, Rails creates one for stylesheets (<code>app/assets/stylesheets/application.css</code>) and JavaScript files (<code>app/assets/javascripts/application.js</code>). This file uses <em>directives</em> to declare dependencies in asset source files.</p>
+
+<p>For directives that take a path argument, you may specify either a logical path or a relative path. Relative paths begin with ./ and reference files relative to the location of the current file.</p>
+
+<p>Here are some <em>directives</em> that can be used:</p>
+
+<ul>
+<li><code>require</code> <em>[path]</em> inserts the contents of the asset source file specified by path. If the file is required multiple times, it will appear in the bundle only once.</li>
+<li><code>include</code> <em>[path]</em> works like require, but inserts the contents of the specified source file even if it has already been included or required.
+<code>require_directory</code> <em>[path]</em> requires all source files of the same format in the directory specified by path. Files are required in alphabetical order.</li>
+<li><code>require_tree</code> <em>[path]</em> works like require_directory, but operates recursively to require all files in all subdirectories of the directory specified by path.</li>
+<li><code>require_self</code> tells Sprockets to insert the body of the current source file before any subsequent require or include directives.</li>
+<li><code>depend_on</code> <em>[path]</em> declares a dependency on the given path without including it in the bundle. This is useful when you need to expire an asset&#8217;s cache in response to a change in another file.</li>
+<li><code>stub</code> <em>[path]</em> allows dependency to be excluded from the asset bundle. The path must be a valid asset and may or may not already be part of the bundle. Once stubbed, it is blacklisted and can&#8217;t be brought back by any other require.</li>
+</ul>
+
+
+<p>Documentation for this section was largely extracted from the <a href="https://github.com/sstephenson/sprockets">Sprockets</a> README.</p>
+
+<h2>Usage</h2>
+
+<p>Using the asset pipeline is very simple. All it involves is placing assets (js/css/images/other) into the asset path. You can access the files using multiple helper methods within your views:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">audio_path</span><span class="p">(</span><span class="s2">&quot;horse.wav&quot;</span><span class="p">)</span>   <span class="c1"># =&gt; /audios/horse.wav</span>
+</span><span class='line'><span class="n">audio_tag</span><span class="p">(</span><span class="s2">&quot;sound&quot;</span><span class="p">)</span>        <span class="c1"># =&gt; &lt;audio src=&quot;/audios/sound&quot; /&gt;</span>
+</span><span class='line'><span class="n">font_path</span><span class="p">(</span><span class="s2">&quot;font.ttf&quot;</span><span class="p">)</span>     <span class="c1"># =&gt; /fonts/font.ttf</span>
+</span><span class='line'><span class="n">image_path</span><span class="p">(</span><span class="s2">&quot;edit.png&quot;</span><span class="p">)</span>    <span class="c1"># =&gt; &quot;/images/edit.png&quot;</span>
+</span><span class='line'><span class="n">image_tag</span><span class="p">(</span><span class="s2">&quot;icon.png&quot;</span><span class="p">)</span>     <span class="c1"># =&gt; &lt;img src=&quot;/images/icon.png&quot; alt=&quot;Icon&quot; /&gt;</span>
+</span><span class='line'><span class="n">video_path</span><span class="p">(</span><span class="s2">&quot;hd.avi&quot;</span><span class="p">)</span>      <span class="c1"># =&gt; /videos/hd.avi</span>
+</span><span class='line'><span class="n">video_tag</span><span class="p">(</span><span class="s2">&quot;trailer.ogg&quot;</span><span class="p">)</span>  <span class="c1"># =&gt; &lt;video src=&quot;/videos/trailer.ogg&quot; /&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See <a href="http://api.rubyonrails.org/classes/ActionView/Helpers/AssetTagHelper.html">ActionView::Helpers::AssetTagHelper</a> documentation for more information.</p>
+
+<h2>Misconceptions</h2>
+
+<h4>Files must belong in their respective paths. For example, all JavaScript files must be in a <code>javascripts</code> folder within an asset path.</h4>
+
+<p>The truth is that the paths (<em>stylesheets</em>, <em>javascripts</em>, <em>images</em>) are only there for organization. You can have all the assets in a single folder or in a hundred.</p>
+
+<h4><a href="http://sass-lang.com/">Sass</a> files need to use <em>erb</em> extension to allow for asset path inclusions within the files.</h4>
+
+<p>The truth is that <code>sass-rails</code> provides <code>-url</code> and <code>-path</code> helpers for the following asset types: image, font, video, audio, JavaScript and stylesheet.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">image</span><span class="o">-</span><span class="n">url</span><span class="p">(</span><span class="s2">&quot;rails.png&quot;</span><span class="p">)</span>         <span class="c1"># becomes url(/assets/rails.png)</span>
+</span><span class='line'><span class="n">image</span><span class="o">-</span><span class="n">path</span><span class="p">(</span><span class="s2">&quot;rails.png&quot;</span><span class="p">)</span>        <span class="c1"># becomes &quot;/assets/rails.png&quot;.</span>
+</span><span class='line'><span class="n">asset</span><span class="o">-</span><span class="n">url</span><span class="p">(</span><span class="s2">&quot;rails.png&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>  <span class="c1"># becomes url(/assets/rails.png)</span>
+</span><span class='line'><span class="n">asset</span><span class="o">-</span><span class="n">path</span><span class="p">(</span><span class="s2">&quot;rails.png&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span> <span class="c1"># becomes &quot;/assets/rails.png&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#coding-links-to-assets">Rails Asset Pipeline</a> guide (2.2.2) for more information.</p>
+
+<h2>Adding to Gems</h2>
+
+<p>A good way to include assets easily in a Rails application is by using gems. To include assets within a gem to be precompiled with the Rails application that is using it, all you need is to place the assets in one of the three standard asset paths: <code>app/assets</code>, <code>lib/assets</code> and <code>vendor/assets</code>. These will be automatically included in by Sprockets when the assets are compiled. See the <a href="http://guides.rubyonrails.org/asset_pipeline.html#adding-assets-to-your-gems">Rails documentation</a> for more information.</p>
+
+<h2>FAQ</h2>
+
+<h4>Q: Why doesn&#8217;t the auto-generated scss and coffeescript only get included in their respective controller views?</h4>
+
+<p>Because the assets all concatenate into one file, there are no seperate files to be included on a view-by-view basis. There is a way to get around this by using css classes.</p>
+
+<p>Let&#8217;s say we have a controller named <code>Users</code> with an accompanying sass file called <code>users.css.scss</code>. Make sure your css is wrapped in a class which includes the name of the controller:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nt">body-users</span> <span class="p">{</span>
+</span><span class='line'>  <span class="o">//</span> <span class="n">Custom</span> <span class="n">css</span> <span class="n">goes</span> <span class="n">here</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, add a class to the body tag of your layout:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;body</span> <span class="na">class=</span><span class="s">&quot;body-#{controller_name}&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the css in <code>users.css.scss</code> will only be applied to views under the <code>Users</code> controller.</p>
+
+<h4>Q: Do I have to use the asset pipeline?</h4>
+
+<p>No. In Rails 3.1, the asset pipeline is enabled by default. It can be disabled in <code>config/application.rb</code> by putting this line inside the application class definition:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kp">false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Q: What happens if there are duplicate file names in different asset folders?</h4>
+
+<p>Let&#8217;s say you have two asset files with the same name in different paths. For example, let&#8217;s say we have two files: <code>app/assets/stylesheets/style.css.scss</code> and <code>vendor/assets/stylesheets/style.css.scss</code>.</p>
+
+<p>When the assets are compiled, it disregards all the duplicate files after the first one found in the asset path. Let&#8217;s look at the asset path using the <em>rails console</em>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -617,18 +1267,96 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&gt;</span> <span class="kp">loop</span> <span class="k">do</span>
-</span><span class='line'><span class="o">&gt;</span>   <span class="k">if</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">message_count</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'><span class="o">&gt;</span>     <span class="n">msg</span> <span class="o">=</span> <span class="n">my_queue</span><span class="o">.</span><span class="n">pop</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span>
-</span><span class='line'><span class="o">&gt;</span>     <span class="nb">puts</span> <span class="s2">&quot;Found Message: </span><span class="si">#{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="o">&gt;</span>   <span class="k">else</span>
-</span><span class='line'><span class="o">&gt;</span>     <span class="nb">sleep</span> <span class="mi">5</span>
-</span><span class='line'><span class="o">&gt;</span>   <span class="k">end</span>
-</span><span class='line'><span class="o">&gt;</span> <span class="k">end</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>&gt;&gt; y Rails.application.config.assets.paths
+</span><span class='line'>---
+</span><span class='line'>- /Users/eberry/example/app/assets/images
+</span><span class='line'>- /Users/eberry/example/app/assets/javascripts
+</span><span class='line'>- /Users/eberry/example/app/assets/stylesheets
+</span><span class='line'>- /Users/eberry/example/vendor/assets/javascripts
+</span><span class='line'>- /Users/eberry/example/vendor/assets/stylesheets
+</span><span class='line'>- /Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/jquery-rails-2.0.2/vendor/assets/javascripts
+</span><span class='line'>- /Users/eberry/.rvm/gems/ruby-1.9.2-p290/gems/coffee-rails-3.2.2/lib/assets/javascripts
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>There you have it!</p>
+<p>Note that the path <code>/Users/eberry/example/app/assets/stylesheets</code> appears before the path <code>/Users/eberry/example/vendor/assets/stylesheets</code>.</p>
+
+<h4>Q: How can I precompile assets that aren&#8217;t to be used in the pipeline?</h4>
+
+<p>Let&#8217;s say you want to include the folder <code>other/assets</code> into the asset pipeline to be precompiled. This is a simple addition in the <code>application.rb</code> file (or environment specific config file).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Foo</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="ss">Rails</span><span class="p">:</span><span class="ss">:Application</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="c1"># Add additional path to the assets path for pipeline compilation</span>
+</span><span class='line'>    <span class="n">config</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">paths</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">root</span><span class="si">}</span><span class="s2">/other/assets&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when you run the command <code>Rails.application.config.assets.paths</code> in the Rails console, you will see the new asset path.</p>
+
+<h4>Q: How can I have certain JavaScript files appear at the bottom of the HTML page?</h4>
+
+<p>Multiple manifests can be created in the assets folder. For example, I can have a separate manifest called <code>footer.js</code> which includes the files <code>footer_1.js</code> and <code>footer_2.js</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//= require footer_1</span>
+</span><span class='line'><span class="c1">//= require footer_2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I can add this into the HTML by using the same <code>javascript_include_tag</code> that is used in the HTML header of the layout.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="err">&lt;</span>%= javascript_include_tag(&quot;footer&quot;) %&gt;
+</span><span class='line'>  <span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Q: How can I precompile additional assets without having to include them in the manifest?</h4>
+
+<p>Let&#8217;s say we have a file called <code>search.js</code> in our <code>app/assets/javascripts</code> directory and we don&#8217;t include it in the manifest. We still would like it to be compiled and placed into the <code>public/assets</code> when the assets are compiled.</p>
+
+<p>This is very simple. Just add the following to your <code>application.rb</code> file (or environment specific config file):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># Precompile additional assets (application.js, </span>
+</span><span class='line'><span class="c1"># application.css, and all non-JS/CSS are already added)</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">precompile</span> <span class="o">+=</span> <span class="sx">%w( search.js )</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This configuration option appears by default in <code>config/environments/production.rb</code>.</p>
+
+<h2>Summary</h2>
+
+<p>As I said before, the asset pipeline has three goals: <em><em>precompile</em>, </em>concatenate<em> and </em>minify* assets.</p>
+
+<p><strong>Precompilation</strong> let&#8217;s you use higher-level languages to create actual assets (for example, Sass to CSS).</p>
+
+<p><strong>Concatenation</strong> is very important in the production environment. It can reduce the number of requests that a browser makes to render a web page, which leads to faster load time.</p>
+
+<p><strong>Minification</strong> takes out the extra whitespace and comments from your assets. This allows for smaller asset file size, which leads to faster load times.</p>
+
+<p>I strongly suggest learning more about the asset pipeline by going to the <a href="http://guides.rubyonrails.org/asset_pipeline.html">Rails documentation</a>. Ryan Bates also two excellent Railscasts on <a href="http://railscasts.com/episodes/279-understanding-the-asset-pipeline">Understanding the Asset Pipeline</a> and <a href="http://railscasts.com/episodes/341-asset-pipeline-in-production">Asset Pipeline in Production</a>.</p>
+
+<p>Feel free to hop on the #urug channel on Freenode to chat with me anytime. Also, for a different perspective on asset handling, see the <a href="http://grails-plugins.github.com/grails-resources/">Resources</a> plugin for <a href="http://grails.org">Grails</a>.</p>
 </div>
   
   
@@ -655,13 +1383,21 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
     <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
   </ul>
 </section>
-
-<a class="twitter-timeline" href="https://twitter.com/cavneb" data-widget-id="311532353849794561">Tweets by @cavneb</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
@@ -669,18 +1405,6 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
     
       <li class="post">
         <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">AngularJS on Rails 4 - Part 2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">AngularJS on Rails 4 - Part 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a>
       </li>
     
   </ul>

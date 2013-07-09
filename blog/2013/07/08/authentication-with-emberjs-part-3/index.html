@@ -1,0 +1,691 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Authentication with EmberJS - Part 3 - coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="If you have not yet gone through Part 1 and Part 2, I recommend you do. You can check out the code up to this point with the following: $ git clone &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Authentication With EmberJS - Part 3</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-08T19:39:00-06:00" pubdate data-updated="true">Jul 8<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a> and <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Part 2</a>, I recommend you do. You can check out the code up to this point with the following:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/simple_auth.git
+$ cd simple_auth
+$ git checkout step2
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+</code></pre>
+
+<p>Also, make sure you run <code>./bin/ember_build</code> in a separate tab.</p>
+
+<h2>What&#8217;s Left?</h2>
+
+<p>So far, we have created an Ember application with a RailsAPI backend and can register, login and logout. There are a few more things that we want to be able to do before we can call it a wrap on this series.</p>
+
+<ol>
+<li>Pass the access token with each request to the backend and require authorization for some data to return.</li>
+<li>Force the user to the login page when they try to access a page which requires authentication.</li>
+<li>Add validation to our registration form.</li>
+</ol>
+
+
+<h2>Access Token In Each Request</h2>
+
+<p>Believe it or not, this is already happening. If you look at <em>auth_manager.js</em>, you will see that in the <em>authenticate</em> function, we add the headers to each AJAX request with the access token.</p>
+
+<p>Let&#8217;s test this.</p>
+
+<p>Open up the <em>top_secret</em> route and load place the user list into the controllers model:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/routes/top_secret_route.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">TopSecretRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">TopSecretRoute</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now update the <em>top_secret</em> template with the following:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/templates/top_secret.hbs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h2&gt;</span>Users (Top Secret Stuff)<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">&quot;table&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;thead&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;tr&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Name<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Email<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Username<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/thead&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;tbody&gt;</span>
+</span><span class='line'>  {{#each controller}}
+</span><span class='line'>    <span class="nt">&lt;tr&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span>{{name}}<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span>{{email}}<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span>{{username}}<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
+</span><span class='line'>  {{/each}}
+</span><span class='line'>  <span class="nt">&lt;/tbody&gt;</span>
+</span><span class='line'><span class="nt">&lt;/table&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh the browser and click on the <em>Top Secret</em> nav item. <strong>If you haven&#8217;t already registered and/or logged in, do it first.</strong></p>
+
+<p><img src="/images/posts/simple-auth-ss-6.png"></p>
+
+<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn&#8217;t there, we would not be able to see a list of users. Click &#8216;Logout&#8217; and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>. <em>If you still see the users list, it is because they are cached. Refresh the page.</em></p>
+
+<h2>Hide Pages Which Require Authorization</h2>
+
+<p>It seems rather silly for us to be able to click on the <em>Top Secret</em> nav item and see an empty list of users. Let&#8217;s require the user to be authenticated in order to view that page.</p>
+
+<p>The easiest way to do this is to create a base route which can be extended by routes which require authentication.  Create a new route called <em>authenticated</em>.</p>
+
+<pre><code>$ ember generate -r authenticated
+</code></pre>
+
+<figure class='code'><figcaption><span>public/javascripts/routes/authenticated_route.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">AuthenticatedRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">beforeModel</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">transition</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">App</span><span class="p">.</span><span class="nx">AuthManager</span><span class="p">.</span><span class="nx">isAuthenticated</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">redirectToLogin</span><span class="p">(</span><span class="nx">transition</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Redirect to the login page and store the current transition so we can</span>
+</span><span class='line'>  <span class="c1">// run it again after login</span>
+</span><span class='line'>  <span class="nx">redirectToLogin</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">transition</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">sessionNewController</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">controllerFor</span><span class="p">(</span><span class="s1">&#39;sessions.new&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">sessionNewController</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;attemptedTransition&#39;</span><span class="p">,</span> <span class="nx">transition</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;sessions.new&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">transition</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">redirectToLogin</span><span class="p">(</span><span class="nx">transition</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">AuthenticatedRoute</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now modify the <em>sessions/new</em> controller and redirect to the <em>attemptedTransition</em> if available:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/controllers/sessions/new_controller.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">SessionsNewController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">attemptedTransition</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">loginUser</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getProperties</span><span class="p">(</span><span class="s1">&#39;username_or_email&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">attemptedTrans</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;attemptedTransition&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/session&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">App</span><span class="p">.</span><span class="nx">AuthManager</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">api_key</span><span class="p">.</span><span class="nx">access_token</span><span class="p">,</span> <span class="nx">results</span><span class="p">.</span><span class="nx">api_key</span><span class="p">.</span><span class="nx">user_id</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">attemptedTrans</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">attemptedTrans</span><span class="p">.</span><span class="nx">retry</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;attemptedTransition&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">router</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">SessionsNewController</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, update the <em>top_secret</em> route to extend the new AuthenticatedRoute:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/routes/top_secret_route.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">AuthenticatedRoute</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./authenticated_route&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">TopSecretRoute</span> <span class="o">=</span> <span class="nx">AuthenticatedRoute</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">TopSecretRoute</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh your browser and click on the <em>Top Secret</em> nav item. You should be redirected to the login page. Now log in and it should redirect you right back to the top secret page.</p>
+
+<h2>Form Validation</h2>
+
+<p>The final thing I am going to cover (briefly) is performing form validation. This is very simple considering our backend is already giving us what we need. Open up the <em>user.js</em> model and add &#8216;errors&#8217; as an attribute:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/models/user.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">name</span><span class="o">:</span>     <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">email</span><span class="o">:</span>    <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">username</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">errors</span><span class="o">:</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">User</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now open up the <em>users/new</em> controller and capture the errors on a failed registration and place them into the errors hash:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/controllers/users/new_controller.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">UsersNewController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">createUser</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getProperties</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;password_confirmation&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/users&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">data</span> <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">App</span><span class="p">.</span><span class="nx">AuthManager</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">(</span><span class="nx">results</span><span class="p">.</span><span class="nx">api_key</span><span class="p">.</span><span class="nx">access_token</span><span class="p">,</span> <span class="nx">results</span><span class="p">.</span><span class="nx">api_key</span><span class="p">.</span><span class="nx">user_id</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">router</span><span class="p">.</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}).</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jqxhr</span><span class="p">,</span> <span class="nx">textStatus</span><span class="p">,</span> <span class="nx">error</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">jqxhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">422</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">errs</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">jqxhr</span><span class="p">.</span><span class="nx">responseText</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">user</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;errors&#39;</span><span class="p">,</span> <span class="nx">errs</span><span class="p">.</span><span class="nx">errors</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersNewController</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, update the registration template:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/templates/users/new.hbs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h2&gt;</span>Register<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;form</span> <span class="err">{{</span><span class="na">action</span> <span class="err">&quot;</span><span class="na">createUser</span><span class="err">&quot;</span> <span class="na">on=</span><span class="s">&quot;submit&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="err">{{</span><span class="na">bindAttr</span> <span class="na">class=</span><span class="s">&quot;:controls errors.name:error&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;label&gt;</span>Full Name<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>    {{input type=&quot;text&quot; value=name placeholder=&quot;Full Name&quot;}}
+</span><span class='line'>    <span class="nt">&lt;small</span> <span class="na">class=</span><span class="s">&quot;below&quot;</span><span class="nt">&gt;</span>{{errors.name}}<span class="nt">&lt;/small&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="err">{{</span><span class="na">bindAttr</span> <span class="na">class=</span><span class="s">&quot;:controls errors.email:error&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;label&gt;</span>Email Address<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>    {{input type=&quot;email&quot; value=email placeholder=&quot;Email Address&quot;}}
+</span><span class='line'>    <span class="nt">&lt;small</span> <span class="na">class=</span><span class="s">&quot;below&quot;</span><span class="nt">&gt;</span>{{errors.email}}<span class="nt">&lt;/small&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="err">{{</span><span class="na">bindAttr</span> <span class="na">class=</span><span class="s">&quot;:controls errors.username:error&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;label&gt;</span>Username<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>    {{input type=&quot;text&quot; value=username placeholder=&quot;Username&quot;}}
+</span><span class='line'>    <span class="nt">&lt;small</span> <span class="na">class=</span><span class="s">&quot;below&quot;</span><span class="nt">&gt;</span>{{errors.username}}<span class="nt">&lt;/small&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="err">{{</span><span class="na">bindAttr</span> <span class="na">class=</span><span class="s">&quot;:controls errors.password:error&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;label&gt;</span>Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>    {{input type=&quot;password&quot; value=password placeholder=&quot;Password&quot;}}
+</span><span class='line'>    <span class="nt">&lt;small</span> <span class="na">class=</span><span class="s">&quot;below&quot;</span><span class="nt">&gt;</span>{{errors.password}}<span class="nt">&lt;/small&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="err">{{</span><span class="na">bindAttr</span> <span class="na">class=</span><span class="s">&quot;:controls errors.password_confirmation:error&quot;</span><span class="err">}}</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;label&gt;</span>Confirm Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>    {{input type=&quot;password&quot; value=password_confirmation placeholder=&quot;Confirm Password&quot;}}
+</span><span class='line'>    <span class="nt">&lt;small</span> <span class="na">class=</span><span class="s">&quot;below&quot;</span><span class="nt">&gt;</span>{{errors.password_confirmation}}<span class="nt">&lt;/small&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;br&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span><span class="nt">&gt;</span>Submit<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh the browser and play around with the form. You should see error messages on submit if they are invalid. These errors are provided by Rails on the backend and are returned via the API.</p>
+
+<p><img src="/images/posts/simple-auth-ss-7.png"></p>
+
+<h2>Done!</h2>
+
+<p>Thanks for sticking through this with me. The final code can be found at <a href="https://github.com/cavneb/simple_auth">https://github.com/cavneb/simple_auth</a>.</p>
+
+<p>I especially want to thank all those who are taking the time to teach Ember via blogs, screencasts and live presentations. I find myself struggling less and less every day because new content comes out from all of you. Thanks!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-08T19:39:00-06:00" pubdate data-updated="true">Jul 8<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/08/authentication-with-emberjs-part-2/" title="Previous Post: Authentication with EmberJS - Part 2">&laquo; Authentication with EmberJS - Part 2</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/';
+        var disqus_url = 'http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
