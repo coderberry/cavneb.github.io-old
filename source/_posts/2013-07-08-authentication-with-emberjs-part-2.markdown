@@ -225,14 +225,14 @@ var AuthManager = Ember.Object.extend({
   // Authenticate the user. Once they are authenticated, set the access token to be submitted with all
   // future AJAX requests to the server.
   authenticate: function(accessToken, userId) {
-    $.ajaxSetup({
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
     var user = User.find(userId);
     this.set('apiKey', App.ApiKey.createRecord({
       accessToken: accessToken,
       user: user
     }));
+    $.ajaxSetup({
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
   },
  
   // Log out the user
@@ -260,7 +260,7 @@ var AuthManager = Ember.Object.extend({
 module.exports = AuthManager;
 ```
 
-For this to work, we will need to add include jquery.cookies into our app. Download [https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js](https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js) into the folder *public/javascripts/vendor* and update the *app.js* file:
+For this to work, we will need to add include jquery.cookies into our app. Download [https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js](https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js) into the folder *public/javascripts/vendor* and update the *app.js* file:
 
 ```javascript public/javascripts/config/app.js
 require('../vendor/jquery');
@@ -307,7 +307,7 @@ Let's create the parts of our app which will allow a user to register. We want t
 var User = DS.Model.extend({
   name:     DS.attr('string'),
   email:    DS.attr('string'),
-  username: DS.attr('string'),
+  username: DS.attr('string')
 });
 
 module.exports = User;

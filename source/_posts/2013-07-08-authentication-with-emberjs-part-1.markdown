@@ -58,6 +58,20 @@ Run your migrations:
 
     $ rake db:migrate; rake db:migrate RAILS_ENV=test
 
+Because we are using the Active Model Serializers gem, serializers are created automatically for our models. However, we want to limit what they return to only the parts which are useful. Update the serializers as follows:
+
+```ruby app/serializers/user_serializer.rb
+class UserSerializer < ActiveModel::Serializer
+  attributes :id, :name, :username, :email
+end
+```
+
+```ruby app/serializers/api_key_serializer.rb
+class ApiKeySerializer < ActiveModel::Serializer
+  attributes :id, :user_id, :access_token
+end
+```
+
 Now let's add a couple of tests for our models. Update the fixtures for users so we have a user to work with:
 
 ```yaml test/fixtures/users.yml
