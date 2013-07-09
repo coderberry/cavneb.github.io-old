@@ -16,8 +16,6 @@ If you have not yet gone through [Part 1](/blog/2013/07/08/authentication-with-e
     $ rake db:migrate; rake db:migrate RAILS_ENV=test
     $ rake test
 
-Also, make sure you run `./bin/ember_build` in a separate tab.
-
 ## Add Ember using Ember Tools!
 
 I have created Ember applications using a variety of shortcuts ([Yeoman](https://github.com/yeoman/generator-ember), [ember-rails](https://github.com/emberjs/ember-rails)) but have found that [Ember Tools](https://github.com/rpflorence/ember-tools) is by far the best option available. It allows me to skip the [Asset Pipeline](http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/) completely and work directly in my public folder.
@@ -227,14 +225,14 @@ var AuthManager = Ember.Object.extend({
   // Authenticate the user. Once they are authenticated, set the access token to be submitted with all
   // future AJAX requests to the server.
   authenticate: function(accessToken, userId) {
+    $.ajaxSetup({
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
     var user = User.find(userId);
     this.set('apiKey', App.ApiKey.createRecord({
       accessToken: accessToken,
       user: user
     }));
-    $.ajaxSetup({
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
   },
  
   // Log out the user
@@ -280,7 +278,7 @@ App.Store = require('./store');
 module.exports = App;
 ```
 
-**Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.**
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
 
 Now create the application router and add the AuthManager to the App in the *init* function. The reason it goes here is because it's the first thing that gets run after all the code has been loaded.
 

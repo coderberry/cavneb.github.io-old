@@ -8,8 +8,6 @@ categories:
 - JavaScript
 ---
 
-*Note: This post is incomplete and will be worked on over the next week*
-
 <div style="width: 242px;
       height: 388px;
       margin: 10px 30px 10px 0;

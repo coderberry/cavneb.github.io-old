@@ -255,7 +255,7 @@ class SessionController < ApplicationController
 end
 ```
 
-### Because RailsAPI application controller extends ActionController::API, it doesn't know about ActionController::StrongParameters. Because of this we need to add an initializer:
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Because RailsAPI application controller extends ActionController::API, it doesn't know about ActionController::StrongParameters. Because of this we need to add an initializer:</div>
 
 ```ruby config/initializers/strong_param_fix_for_rails_api.rb
 # The application controllers don't know anything about ActionController::StrongParameters 

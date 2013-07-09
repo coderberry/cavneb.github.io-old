@@ -77,7 +77,9 @@ Refresh the browser and click on the *Top Secret* nav item. **If you haven't alr
 
 {% img /images/posts/simple-auth-ss-6.png %}
 
-If you view the console when loading this page, you will see the network request made to */users*. In this request, you can see the headers sent out, one of which is the *Authorization* header. If this wasn't there, we would not be able to see a list of users. Click 'Logout' and then go to the Top Secret page again. See? You get a **401 Unauthorized** response from */users*. *If you still see the users list, it is because they are cached. Refresh the page.*
+If you view the console when loading this page, you will see the network request made to */users*. In this request, you can see the headers sent out, one of which is the *Authorization* header. If this wasn't there, we would not be able to see a list of users. Click 'Logout' and then go to the Top Secret page again. See? You get a **401 Unauthorized** response from */users*.
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">If you still see the users list, it is because they are cached. Refresh the page.</div>
 
 ## Hide Pages Which Require Authorization
 
