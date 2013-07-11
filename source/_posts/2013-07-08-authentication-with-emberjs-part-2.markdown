@@ -5,13 +5,15 @@ date: 2013-07-08 17:36
 comments: true
 categories: 
 - EmberJS
+- Rails
+- Rails::API
 ---
 
 If you have not yet gone through [Part 1](/blog/2013/07/08/authentication-with-emberjs-part-1/), I recommend you do. You can check out the code up to this point with the following:
 
-    $ git clone https://github.com/cavneb/simple_auth.git
+    $ git clone https://github.com/cavneb/simple-auth.git simple_auth
     $ cd simple_auth
-    $ git checkout step1
+    $ git checkout part-1-completed
     $ bundle install
     $ rake db:migrate; rake db:migrate RAILS_ENV=test
     $ rake test
@@ -90,19 +92,21 @@ This created three files: templates.js, index.js and application.js. The two for
 
 {% img /images/posts/simple-auth-ss-1.png %}
 
-Running *ember build* can get very tedious, so let's create a script which will monitor the file structure and run the command when needed.
+Running *ember build* can get very tedious, so let's create a script which will monitor the file structure and run the command when needed. You will need to have *fsmonitor* installed if you don't already:
+
+    $ npm install -g fsmonitor
 
 Create the file bin/ember_build:
 
-```bash bin/ember_build
+```bash bin/ember_build.sh
 #!/bin/bash
-fsmonitor -p -d public/javascripts '!index.js' '!templates.js' '!application.js' ember build
+fsmonitor -p -d public/javascripts '!index.js' '!templates.js' '!application.js' ember build -d
 ```
 
 Now in a separate tab, make the file executable and run it:
 
-    $ chmod a+x ember_build
-    $ ./bin/ember_build
+    $ chmod a+x bin/ember_build.sh
+    $ ./bin/ember_build.sh
 
     Monitoring:  public/javascripts
         filter:  **/ !**/index.js/** !**/templates.js/** !**/application.js/**
@@ -118,7 +122,7 @@ Ember Tools comes with generators, which I LOVE! Let's create some files using t
 
 Start by creating the route, handlebars template and **object** controller for *users/new*. This will be where we register.
 
-    $ ember generate -r -t -c users/new
+    $ ember generate -rtc users/new
     -> What kind of controller: object, array, or neither? [o|a|n]: o
        created: public/javascripts/controllers/users/new_controller.js
        created: public/javascripts/templates/users/new.hbs
@@ -126,15 +130,15 @@ Start by creating the route, handlebars template and **object** controller for *
 
 Now create the route, handlebars template and **object** controller for *sessions/new*. This will be where we login.
 
-    $ ember generate -r -t -c sessions/new
+    $ ember generate -rtc sessions/new
     -> What kind of controller: object, array, or neither? [o|a|n]: o
        created: public/javascripts/controllers/sessions/new_controller.js
        created: public/javascripts/templates/sessions/new.hbs
        created: public/javascripts/routes/sessions/new_route.js
 
-Finally, create a page which is **TOP SECRET** and will require authentication to access. Let's use an ArrayController so we can list the users.
+Finally, create a page which is **TOP SECRET** and will require authentication to access. Let's use an **array** controller so we can list the users.
 
-    $ ember generate -r -t -c top_secret
+    $ ember generate -rtc top_secret
     -> What kind of controller: object, array, or neither? [o|a|n]: a
        created: public/javascripts/controllers/top_secret_controller.js
        created: public/javascripts/templates/top_secret.hbs
@@ -195,6 +199,26 @@ Refresh. You can click on the links as well and you should see the correct pages
 
 {% img /images/posts/simple-auth-ss-3.png %}
 
+## Update to the Latest Ember Data
+
+At the moment, Ember Tools does not provide the [latest version](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js) of Ember Data, so we will need to add this manually. Save the following file to the path *public/javascripts/vendor*:
+
+    $ wget -P public/javascripts/vendor/ http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js
+
+Now update a your main application config file to make sure we are using the latest:
+
+```javascript public/javascripts/config/app.js
+require('../vendor/jquery');
+require('../vendor/handlebars');
+require('../vendor/ember');
+require('../vendor/ember-data-latest');
+
+var App = window.App = Ember.Application.create();
+App.Store = require('./store');
+
+module.exports = App;
+```
+
 ## Auth Manager
 
 On the blog post found at * [http://log.simplabs.com/post/53016599611/authentication-in-ember-js](http://log.simplabs.com/post/53016599611/authentication-in-ember-js)
@@ -202,7 +226,7 @@ On the blog post found at * [http://log.simplabs.com/post/53016599611/authentica
 
 Create a file in your *public/javascripts/config* folder called *auth_manager.js*:
 
-```javascript auth_manager.js
+```javascript public/javascripts/config/auth_manager.js
 var User = require('../models/user');
 
 var AuthManager = Ember.Object.extend({
@@ -216,25 +240,25 @@ var AuthManager = Ember.Object.extend({
       this.authenticate(accessToken, authUserId);
     }
   },
- 
+
   // Determine if the user is currently authenticated.
   isAuthenticated: function() {
     return !Ember.isEmpty(this.get('apiKey.accessToken')) && !Ember.isEmpty(this.get('apiKey.user'));
   },
- 
+
   // Authenticate the user. Once they are authenticated, set the access token to be submitted with all
   // future AJAX requests to the server.
   authenticate: function(accessToken, userId) {
-    var user = User.find(userId);
-    this.set('apiKey', App.ApiKey.createRecord({
-      accessToken: accessToken,
-      user: user
-    }));
     $.ajaxSetup({
       headers: { 'Authorization': 'Bearer ' + accessToken }
     });
+    var user = User.find(userId);
+    this.set('apiKey', App.ApiKey.create({
+      accessToken: accessToken,
+      user: user
+    }));
   },
- 
+
   // Log out the user
   reset: function() {
     this.set('apiKey', null);
@@ -242,11 +266,10 @@ var AuthManager = Ember.Object.extend({
       headers: { 'Authorization': 'Bearer none' }
     });
   },
- 
+
   // Ensure that when the apiKey changes, we store the data in cookies in order for us to load
   // the user when the browser is refreshed.
   apiKeyObserver: function() {
-    App.Store.accessToken = this.get('apiKey.accessToken');
     if (Ember.isEmpty(this.get('apiKey'))) {
       $.removeCookie('access_token');
       $.removeCookie('auth_user');
@@ -257,20 +280,27 @@ var AuthManager = Ember.Object.extend({
   }.observes('apiKey')
 });
 
+// Reset the authentication if any ember data request returns a 401 unauthorized error
+DS.rejectionHandler = function(reason) {
+  if (reason.status === 401) {
+    App.AuthManager.reset();
+  }
+  throw reason;
+};
+
 module.exports = AuthManager;
 ```
 
 For this to work, we will need to add include jquery.cookies into our app. Download [https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js](https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js) into the folder *public/javascripts/vendor* and update the *app.js* file:
+
+    $ wget -P public/javascripts/vendor/ https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js
 
 ```javascript public/javascripts/config/app.js
 require('../vendor/jquery');
 require('../vendor/jquery.cookie');
 require('../vendor/handlebars');
 require('../vendor/ember');
-require('../vendor/ember-data');
-
-// Hide deprecation messages
-Ember.TESTING_DEPRECATION = true;
+require('../vendor/ember-data-latest');
 
 var App = window.App = Ember.Application.create();
 App.Store = require('./store');
@@ -278,7 +308,7 @@ App.Store = require('./store');
 module.exports = App;
 ```
 
-<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 7 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
 
 Now create the application router and add the AuthManager to the App in the *init* function. The reason it goes here is because it's the first thing that gets run after all the code has been loaded.
 
@@ -318,19 +348,21 @@ While we're here, let's also create the model for *api_key*:
     $ ember generate -m api_key
 
 ```javascript public/javascripts/models/api_key.js
-var ApiKey = DS.Model.extend({
-  access_token: DS.attr('string'),
-  user:         DS.belongsTo('App.User')
+// Ember.Object instead of DS.Model because this will never persist to or query the server
+var ApiKey = Ember.Object.extend({
+  access_token: '',
+  user: null
 });
 
 module.exports = ApiKey;
 ```
 
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;"><strong>Important:</strong> I changed the type of object for ApiKey from <em>DS.Model</em> to <em>Ember.Object</em>. I did this because we will never persist to or query the server for API keys.</div>
+
 For us to use Ember Data, we need to enable it. By default with Ember Tools, the localstorage adapter is enabled by default. Let's remove that and set the adapter to the REST adapter. Open up *config/store.js* and make the following changes:
 
 ```javascript public/javascripts/config/store.js
 module.exports = DS.Store.extend({
-  revision: 11,
   adapter: DS.RESTAdapter.create()
 });
 ```
@@ -448,7 +480,7 @@ Now modify the application handlebars template to show the menu based on whether
 <div class="container">
   <div class="navbar">
     <div class="navbar-inner">
-      <a class="brand" href="#">Simple Auth with Ember</a>
+      <a class="brand" href="#">Simple Auth</a>
       <ul class="nav">
         <li>{{#linkTo 'index'}}Home{{/linkTo}}</li>
         <li>{{#linkTo 'top_secret'}}Top Secret{{/linkTo}}</li>

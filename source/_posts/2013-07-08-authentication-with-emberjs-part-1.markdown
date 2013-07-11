@@ -5,11 +5,13 @@ date: 2013-07-08 15:24
 comments: true
 categories: 
 - EmberJS
+- Rails
+- Rails::API
 ---
 
 {% img /images/posts/keymaster.jpg %}
 
-Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of [Ryan Florence](http://ember101.com) and [Brad Humphrey](https://github.com/wbhumphrey), I have finally been able to understand how it should work and also have built a [simple application](https://github.com/cavneb/simple_auth) which uses it.
+Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of [Ryan Florence](http://ember101.com) and [Brad Humphrey](https://github.com/wbhumphrey), I have finally been able to understand how it should work and also have built a [simple application](https://github.com/cavneb/simple-auth) which uses it.
 
 My goal in this article will be to build a simple Ember application with a RESTful backend (in Rails) which provides authentication and user registration. We will also set all requests to pass the access token to our backend for authorization.
 
@@ -25,7 +27,7 @@ Here are a couple of the resources I used to build this app:
 Our application is going to be using the [Rails::API](https://github.com/rails-api/rails-api) (see [Railscast](http://railscasts.com/episodes/348-the-rails-api-gem))gem. By using this gem, we limit our Rails app to include only things necessary for API-driven apps. We will also be using Rails 4.0.
 
     $ gem install rails-api
-    $ rails-api new simple_auth
+    $ rails-api new simple_auth --skip-bundle
     $ cd simple_auth
 
 We are going to use the active_model_serializers gem to format our JSON responses to be Ember-friendly. We will also use *has_secure_password* so let's uncomment the 'bcrypt' gem in our Gemfile:
@@ -50,9 +52,9 @@ We are going to have two models in our application: **user** and **api_key**. Th
 
 Create the resources.
 
-    $ rails g resource user name username email password_digest
+    $ rails g resource user name username:string:uniq email:string:uniq password_digest
     ...
-    $ rails g resource api_key user_id:integer:index access_token scope expired_at:datetime created_at:datetime --timestamps=false
+    $ rails g resource api_key user:references access_token:string:uniq scope expired_at:datetime created_at:datetime --timestamps=false
 
 Run your migrations:
 
@@ -68,8 +70,11 @@ end
 
 ```ruby app/serializers/api_key_serializer.rb
 class ApiKeySerializer < ActiveModel::Serializer
-  attributes :id, :user_id, :access_token
+  attributes :id, :access_token
+  
+  has_one :user, embed: :id
 end
+
 ```
 
 Now let's add a couple of tests for our models. Update the fixtures for users so we have a user to work with:
@@ -79,19 +84,36 @@ joe:
   name: Joe User
   username: joe_user
   email: joe_user@example.com
-  password_digest: something
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'
 
 jane:
   name: Jane User
   username: jane_user
   email: jane_user@example.com
-  password_digest: something
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'
+```
+
+We also want to add a couple of fixtures for the api keys:
+
+```yaml test/fixtures/api_keys.yml
+joe_session:
+  user: joe
+  access_token: <%= SecureRandom.hex %>
+  scope: 'session'
+  expired_at: <%= 4.hours.from_now %>
+
+jane_api:
+  user: jane
+  access_token: <%= SecureRandom.hex %>
+  scope: 'api'
+  expired_at: <%= 30.days.from_now %>
 ```
 
 Add a test to ensure the api_key generates an access token when created.
 
 ```ruby test/models/api_key_test.rb
 require 'test_helper'
+require 'minitest/mock'
 
 class ApiKeyTest < ActiveSupport::TestCase
   test "generates access token" do
@@ -99,6 +121,24 @@ class ApiKeyTest < ActiveSupport::TestCase
     api_key = ApiKey.create(scope: 'session', user_id: joe.id)
     assert !api_key.new_record?
     assert api_key.access_token =~ /\S{32}/
+  end
+
+  test "sets the expired_at properly for 'session' scope" do
+    Time.stub :now, Time.at(0) do
+      joe = users(:joe)
+      api_key = ApiKey.create(scope: 'session', user_id: joe.id)
+ 
+      assert api_key.expired_at == 4.hours.from_now
+    end
+  end
+ 
+  test "sets the expired_at properly for 'api' scope" do
+    Time.stub :now, Time.at(0) do
+      joe = users(:joe)
+      api_key = ApiKey.create(scope: 'api', user_id: joe.id)
+ 
+      assert api_key.expired_at == 30.days.from_now
+    end
   end
 end
 ```
@@ -121,7 +161,7 @@ class ApiKey < ActiveRecord::Base
     self.expired_at = if self.scope == 'session'
                         4.hours.from_now
                       else
-                        30.days_from_now
+                        30.days.from_now
                       end
   end
   
@@ -137,8 +177,8 @@ Run your tests and they should pass:
 
     $ rake
     ...
-    Finished tests in 0.069155s, 14.4603 tests/s, 28.9205 assertions/s.
-    1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
+    Finished tests in 0.066920s, 44.8296 tests/s, 59.7729 assertions/s.
+    3 tests, 4 assertions, 0 failures, 0 errors, 0 skips
 
 Now let's add a test to our user and the accompanying code to make it work:
 
@@ -175,8 +215,8 @@ Tests still pass?
 
     $ rake
     ...
-    Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
-    2 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+    Finished tests in 0.080250s, 49.8442 tests/s, 74.7664 assertions/s.
+    4 tests, 6 assertions, 0 failures, 0 errors, 0 skips
 
 ## API Endpoints
 
@@ -407,8 +447,8 @@ end
 That was a lot! Let's run our tests and make sure everything passes.
 
     $ rake
-    ...
-    Finished tests in 0.215704s, 41.7238 tests/s, 64.9038 assertions/s.
-    9 tests, 14 assertions, 0 failures, 0 errors, 0 skips
+    ...........
+    Finished tests in 0.229066s, 61.1178 tests/s, 91.6766 assertions/s.
+    14 tests, 21 assertions, 0 failures, 0 errors, 0 skips
 
 <h3><a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Continue to Part 2</a></h3>

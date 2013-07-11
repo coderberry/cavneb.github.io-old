@@ -118,6 +118,8 @@ Next, add a class to the body tag of your layout:
 
 Now the css in `users.css.scss` will only be applied to views under the `Users` controller.
 
+* This may not be best practice. Refer to the comments below.*
+
 #### Q: Do I have to use the asset pipeline?
 
 No. In Rails 3.1, the asset pipeline is enabled by default. It can be disabled in `config/application.rb` by putting this line inside the application class definition:

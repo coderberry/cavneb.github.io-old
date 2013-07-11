@@ -5,18 +5,20 @@ date: 2013-07-08 19:39
 comments: true
 categories: 
 - EmberJS
+- Rails
+- Rails::API
 ---
 
 If you have not yet gone through [Part 1](/blog/2013/07/08/authentication-with-emberjs-part-1/) and [Part 2](/blog/2013/07/08/authentication-with-emberjs-part-2/), I recommend you do. You can check out the code up to this point with the following:
 
-    $ git clone https://github.com/cavneb/simple_auth.git
+    $ git clone https://github.com/cavneb/simple-auth.git simple_auth
     $ cd simple_auth
-    $ git checkout step2
+    $ git checkout part-2-completed
     $ bundle install
     $ rake db:migrate; rake db:migrate RAILS_ENV=test
     $ rake test
 
-Also, make sure you run `./bin/ember_build` in a separate tab.
+Also, make sure you run `./bin/ember_build.sh` in a separate tab.
 
 ## What's Left?
 
