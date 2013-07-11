@@ -105,9 +105,9 @@
 
 <div class="entry-content"><p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a>, I recommend you do. You can check out the code up to this point with the following:</p>
 
-<pre><code>$ git clone https://github.com/cavneb/simple_auth.git
+<pre><code>$ git clone https://github.com/cavneb/simple-auth.git simple_auth
 $ cd simple_auth
-$ git checkout step1
+$ git checkout part-1-completed
 $ bundle install
 $ rake db:migrate; rake db:migrate RAILS_ENV=test
 $ rake test
@@ -203,21 +203,24 @@ build time: 358 ms
 
 <p><img src="/images/posts/simple-auth-ss-1.png"></p>
 
-<p>Running <em>ember build</em> can get very tedious, so let&#8217;s create a script which will monitor the file structure and run the command when needed.</p>
+<p>Running <em>ember build</em> can get very tedious, so let&#8217;s create a script which will monitor the file structure and run the command when needed. You will need to have <em>fsmonitor</em> installed if you don&#8217;t already:</p>
+
+<pre><code>$ npm install -g fsmonitor
+</code></pre>
 
 <p>Create the file bin/ember_build:</p>
 
-<figure class='code'><figcaption><span>bin/ember_build</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>bin/ember_build.sh</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
-</span><span class='line'>fsmonitor -p -d public/javascripts <span class="s1">&#39;!index.js&#39;</span> <span class="s1">&#39;!templates.js&#39;</span> <span class="s1">&#39;!application.js&#39;</span> ember build
+</span><span class='line'>fsmonitor -p -d public/javascripts <span class="s1">&#39;!index.js&#39;</span> <span class="s1">&#39;!templates.js&#39;</span> <span class="s1">&#39;!application.js&#39;</span> ember build -d
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now in a separate tab, make the file executable and run it:</p>
 
-<pre><code>$ chmod a+x ember_build
-$ ./bin/ember_build
+<pre><code>$ chmod a+x bin/ember_build.sh
+$ ./bin/ember_build.sh
 
 Monitoring:  public/javascripts
     filter:  **/ !**/index.js/** !**/templates.js/** !**/application.js/**
@@ -234,7 +237,7 @@ Monitoring:  public/javascripts
 
 <p>Start by creating the route, handlebars template and <strong>object</strong> controller for <em>users/new</em>. This will be where we register.</p>
 
-<pre><code>$ ember generate -r -t -c users/new
+<pre><code>$ ember generate -rtc users/new
 -&gt; What kind of controller: object, array, or neither? [o|a|n]: o
    created: public/javascripts/controllers/users/new_controller.js
    created: public/javascripts/templates/users/new.hbs
@@ -243,16 +246,16 @@ Monitoring:  public/javascripts
 
 <p>Now create the route, handlebars template and <strong>object</strong> controller for <em>sessions/new</em>. This will be where we login.</p>
 
-<pre><code>$ ember generate -r -t -c sessions/new
+<pre><code>$ ember generate -rtc sessions/new
 -&gt; What kind of controller: object, array, or neither? [o|a|n]: o
    created: public/javascripts/controllers/sessions/new_controller.js
    created: public/javascripts/templates/sessions/new.hbs
    created: public/javascripts/routes/sessions/new_route.js
 </code></pre>
 
-<p>Finally, create a page which is <strong>TOP SECRET</strong> and will require authentication to access. Let&#8217;s use an ArrayController so we can list the users.</p>
+<p>Finally, create a page which is <strong>TOP SECRET</strong> and will require authentication to access. Let&#8217;s use an <strong>array</strong> controller so we can list the users.</p>
 
-<pre><code>$ ember generate -r -t -c top_secret
+<pre><code>$ ember generate -rtc top_secret
 -&gt; What kind of controller: object, array, or neither? [o|a|n]: a
    created: public/javascripts/controllers/top_secret_controller.js
    created: public/javascripts/templates/top_secret.hbs
@@ -342,6 +345,36 @@ Monitoring:  public/javascripts
 
 <p><img src="/images/posts/simple-auth-ss-3.png"></p>
 
+<h2>Update to the Latest Ember Data</h2>
+
+<p>At the moment, Ember Tools does not provide the <a href="http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js">latest version</a> of Ember Data, so we will need to add this manually. Save the following file to the path <em>public/javascripts/vendor</em>:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js
+</code></pre>
+
+<p>Now update a your main application config file to make sure we are using the latest:</p>
+
+<figure class='code'><figcaption><span>public/javascripts/config/app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/jquery&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/handlebars&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/ember&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/ember-data-latest&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Store</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./store&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">App</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>Auth Manager</h2>
 
 <p>On the blog post found at * <a href="http://log.simplabs.com/post/53016599611/authentication-in-ember-js">http://log.simplabs.com/post/53016599611/authentication-in-ember-js</a>
@@ -349,7 +382,7 @@ Monitoring:  public/javascripts
 
 <p>Create a file in your <em>public/javascripts/config</em> folder called <em>auth_manager.js</em>:</p>
 
-<figure class='code'><figcaption><span>auth_manager.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>public/javascripts/config/auth_manager.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -404,6 +437,13 @@ Monitoring:  public/javascripts
 <span class='line-number'>53</span>
 <span class='line-number'>54</span>
 <span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'><span class="kd">var</span> <span class="nx">AuthManager</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
@@ -426,14 +466,14 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Authenticate the user. Once they are authenticated, set the access token to be submitted with all</span>
 </span><span class='line'>  <span class="c1">// future AJAX requests to the server.</span>
 </span><span class='line'>  <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">accessToken</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
-</span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
-</span><span class='line'>    <span class="p">}));</span>
 </span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
 </span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">accessToken</span> <span class="p">}</span>
 </span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">ApiKey</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">accessToken</span><span class="o">:</span> <span class="nx">accessToken</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
+</span><span class='line'>    <span class="p">}));</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
@@ -447,7 +487,6 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="c1">// Ensure that when the apiKey changes, we store the data in cookies in order for us to load</span>
 </span><span class='line'>  <span class="c1">// the user when the browser is refreshed.</span>
 </span><span class='line'>  <span class="nx">apiKeyObserver</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">accessToken</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;apiKey.accessToken&#39;</span><span class="p">);</span>
 </span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">Ember</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">)))</span> <span class="p">{</span>
 </span><span class='line'>      <span class="nx">$</span><span class="p">.</span><span class="nx">removeCookie</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">);</span>
 </span><span class='line'>      <span class="nx">$</span><span class="p">.</span><span class="nx">removeCookie</span><span class="p">(</span><span class="s1">&#39;auth_user&#39;</span><span class="p">);</span>
@@ -458,11 +497,22 @@ Monitoring:  public/javascripts
 </span><span class='line'>  <span class="p">}.</span><span class="nx">observes</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">)</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
+</span><span class='line'><span class="c1">// Reset the authentication if any ember data request returns a 401 unauthorized error</span>
+</span><span class='line'><span class="nx">DS</span><span class="p">.</span><span class="nx">rejectionHandler</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">reason</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">401</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">AuthManager</span><span class="p">.</span><span class="nx">reset</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">throw</span> <span class="nx">reason</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">AuthManager</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js
+</code></pre>
 
 <figure class='code'><figcaption><span>public/javascripts/config/app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -474,17 +524,11 @@ Monitoring:  public/javascripts
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/jquery&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/jquery.cookie&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/handlebars&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/ember&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/ember-data&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Hide deprecation messages</span>
-</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">TESTING_DEPRECATION</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../vendor/ember-data-latest&#39;</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'><span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
 </span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Store</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./store&#39;</span><span class="p">);</span>
@@ -495,7 +539,7 @@ Monitoring:  public/javascripts
 
 
 
-<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 10 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 7 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
 
 
 <p>Now create the application router and add the AuthManager to the App in the <em>init</em> function. The reason it goes here is because it&#8217;s the first thing that gets run after all the code has been loaded.</p>
@@ -561,13 +605,20 @@ Monitoring:  public/javascripts
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">ApiKey</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">access_token</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
-</span><span class='line'>  <span class="nx">user</span><span class="o">:</span>         <span class="nx">DS</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="s1">&#39;App.User&#39;</span><span class="p">)</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Ember.Object instead of DS.Model because this will never persist to or query the server</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ApiKey</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">access_token</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">user</span><span class="o">:</span> <span class="kc">null</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">ApiKey</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;"><strong>Important:</strong> I changed the type of object for ApiKey from <em>DS.Model</em> to <em>Ember.Object</em>. I did this because we will never persist to or query the server for API keys.</div>
 
 
 <p>For us to use Ember Data, we need to enable it. By default with Ember Tools, the localstorage adapter is enabled by default. Let&#8217;s remove that and set the adapter to the REST adapter. Open up <em>config/store.js</em> and make the following changes:</p>
@@ -575,9 +626,7 @@ Monitoring:  public/javascripts
 <figure class='code'><figcaption><span>public/javascripts/config/store.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-<span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">revision</span><span class="o">:</span> <span class="mi">11</span><span class="p">,</span>
 </span><span class='line'>  <span class="nx">adapter</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">create</span><span class="p">()</span>
 </span><span class='line'><span class="p">});</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -780,7 +829,7 @@ Monitoring:  public/javascripts
 </pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
 </span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar&quot;</span><span class="nt">&gt;</span>
 </span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-inner&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;brand&quot;</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>Simple Auth with Ember<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;brand&quot;</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>Simple Auth<span class="nt">&lt;/a&gt;</span>
 </span><span class='line'>      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;nav&quot;</span><span class="nt">&gt;</span>
 </span><span class='line'>        <span class="nt">&lt;li&gt;</span>{{#linkTo &#39;index&#39;}}Home{{/linkTo}}<span class="nt">&lt;/li&gt;</span>
 </span><span class='line'>        <span class="nt">&lt;li&gt;</span>{{#linkTo &#39;top_secret&#39;}}Top Secret{{/linkTo}}<span class="nt">&lt;/li&gt;</span>
@@ -968,7 +1017,7 @@ Monitoring:  public/javascripts
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>
+    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/rails-api/'>Rails::API</a>
   
 </span>
 

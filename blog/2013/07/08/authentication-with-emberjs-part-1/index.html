@@ -105,7 +105,7 @@
 
 <div class="entry-content"><p><img src="/images/posts/keymaster.jpg"></p>
 
-<p>Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of <a href="http://ember101.com">Ryan Florence</a> and <a href="https://github.com/wbhumphrey">Brad Humphrey</a>, I have finally been able to understand how it should work and also have built a <a href="https://github.com/cavneb/simple_auth">simple application</a> which uses it.</p>
+<p>Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of <a href="http://ember101.com">Ryan Florence</a> and <a href="https://github.com/wbhumphrey">Brad Humphrey</a>, I have finally been able to understand how it should work and also have built a <a href="https://github.com/cavneb/simple-auth">simple application</a> which uses it.</p>
 
 <p>My goal in this article will be to build a simple Ember application with a RESTful backend (in Rails) which provides authentication and user registration. We will also set all requests to pass the access token to our backend for authorization.</p>
 
@@ -124,7 +124,7 @@
 <p>Our application is going to be using the <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>)gem. By using this gem, we limit our Rails app to include only things necessary for API-driven apps. We will also be using Rails 4.0.</p>
 
 <pre><code>$ gem install rails-api
-$ rails-api new simple_auth
+$ rails-api new simple_auth --skip-bundle
 $ cd simple_auth
 </code></pre>
 
@@ -158,9 +158,9 @@ $ cd simple_auth
 
 <p>Create the resources.</p>
 
-<pre><code>$ rails g resource user name username email password_digest
+<pre><code>$ rails g resource user name username:string:uniq email:string:uniq password_digest
 ...
-$ rails g resource api_key user_id:integer:index access_token scope expired_at:datetime created_at:datetime --timestamps=false
+$ rails g resource api_key user:references access_token:string:uniq scope expired_at:datetime created_at:datetime --timestamps=false
 </code></pre>
 
 <p>Run your migrations:</p>
@@ -184,8 +184,12 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 <figure class='code'><figcaption><span>app/serializers/api_key_serializer.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ApiKeySerializer</span> <span class="o">&lt;</span> <span class="ss">ActiveModel</span><span class="p">:</span><span class="ss">:Serializer</span>
-</span><span class='line'>  <span class="n">attributes</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">,</span> <span class="ss">:access_token</span>
+</span><span class='line'>  <span class="n">attributes</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:access_token</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">embed</span><span class="p">:</span> <span class="ss">:id</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -207,13 +211,40 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 </span><span class='line'>  <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Joe User</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">username</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">joe_user</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">joe_user@example.com</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">password_digest</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">something</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">password_digest</span><span class="p-Indicator">:</span> <span class="s">&quot;$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS&quot;</span> <span class="c1"># &#39;secret&#39;</span>
 </span><span class='line'>
 </span><span class='line'><span class="l-Scalar-Plain">jane</span><span class="p-Indicator">:</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Jane User</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">username</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">jane_user</span>
 </span><span class='line'>  <span class="l-Scalar-Plain">email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">jane_user@example.com</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">password_digest</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">something</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">password_digest</span><span class="p-Indicator">:</span> <span class="s">&quot;$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS&quot;</span> <span class="c1"># &#39;secret&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We also want to add a couple of fixtures for the api keys:</p>
+
+<figure class='code'><figcaption><span>test/fixtures/api_keys.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">joe_session</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">user</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">joe</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">access_token</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;%= SecureRandom.hex %&gt;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">scope</span><span class="p-Indicator">:</span> <span class="s">&#39;session&#39;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">expired_at</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;%= 4.hours.from_now %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">jane_api</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">user</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">jane</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">access_token</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;%= SecureRandom.hex %&gt;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">scope</span><span class="p-Indicator">:</span> <span class="s">&#39;api&#39;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">expired_at</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;%= 30.days.from_now %&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -229,7 +260,27 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/mock&#39;</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">ApiKeyTest</span> <span class="o">&lt;</span> <span class="ss">ActiveSupport</span><span class="p">:</span><span class="ss">:TestCase</span>
 </span><span class='line'>  <span class="nb">test</span> <span class="s2">&quot;generates access token&quot;</span> <span class="k">do</span>
@@ -237,6 +288,24 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 </span><span class='line'>    <span class="n">api_key</span> <span class="o">=</span> <span class="no">ApiKey</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">scope</span><span class="p">:</span> <span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">joe</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 </span><span class='line'>    <span class="n">assert</span> <span class="o">!</span><span class="n">api_key</span><span class="o">.</span><span class="n">new_record?</span>
 </span><span class='line'>    <span class="n">assert</span> <span class="n">api_key</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=~</span> <span class="sr">/\S{32}/</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nb">test</span> <span class="s2">&quot;sets the expired_at properly for &#39;session&#39; scope&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">Time</span><span class="o">.</span><span class="n">stub</span> <span class="ss">:now</span><span class="p">,</span> <span class="no">Time</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">joe</span> <span class="o">=</span> <span class="n">users</span><span class="p">(</span><span class="ss">:joe</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">api_key</span> <span class="o">=</span> <span class="no">ApiKey</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">scope</span><span class="p">:</span> <span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">joe</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">assert</span> <span class="n">api_key</span><span class="o">.</span><span class="n">expired_at</span> <span class="o">==</span> <span class="mi">4</span><span class="o">.</span><span class="n">hours</span><span class="o">.</span><span class="n">from_now</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nb">test</span> <span class="s2">&quot;sets the expired_at properly for &#39;api&#39; scope&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">Time</span><span class="o">.</span><span class="n">stub</span> <span class="ss">:now</span><span class="p">,</span> <span class="no">Time</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">joe</span> <span class="o">=</span> <span class="n">users</span><span class="p">(</span><span class="ss">:joe</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">api_key</span> <span class="o">=</span> <span class="no">ApiKey</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">scope</span><span class="p">:</span> <span class="s1">&#39;api&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">joe</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">assert</span> <span class="n">api_key</span><span class="o">.</span><span class="n">expired_at</span> <span class="o">==</span> <span class="mi">30</span><span class="o">.</span><span class="n">days</span><span class="o">.</span><span class="n">from_now</span>
+</span><span class='line'>    <span class="k">end</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -284,7 +353,7 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 </span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">expired_at</span> <span class="o">=</span> <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">scope</span> <span class="o">==</span> <span class="s1">&#39;session&#39;</span>
 </span><span class='line'>                        <span class="mi">4</span><span class="o">.</span><span class="n">hours</span><span class="o">.</span><span class="n">from_now</span>
 </span><span class='line'>                      <span class="k">else</span>
-</span><span class='line'>                        <span class="mi">30</span><span class="o">.</span><span class="n">days_from_now</span>
+</span><span class='line'>                        <span class="mi">30</span><span class="o">.</span><span class="n">days</span><span class="o">.</span><span class="n">from_now</span>
 </span><span class='line'>                      <span class="k">end</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'>
@@ -301,8 +370,8 @@ $ rails g resource api_key user_id:integer:index access_token scope expired_at:d
 
 <pre><code>$ rake
 ...
-Finished tests in 0.069155s, 14.4603 tests/s, 28.9205 assertions/s.
-1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
+Finished tests in 0.066920s, 44.8296 tests/s, 59.7729 assertions/s.
+3 tests, 4 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 <p>Now let&#8217;s add a test to our user and the accompanying code to make it work:</p>
@@ -363,8 +432,8 @@ Finished tests in 0.069155s, 14.4603 tests/s, 28.9205 assertions/s.
 
 <pre><code>$ rake
 ...
-Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
-2 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+Finished tests in 0.080250s, 49.8442 tests/s, 74.7664 assertions/s.
+4 tests, 6 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 <h2>API Endpoints</h2>
@@ -782,9 +851,9 @@ Finished tests in 0.077889s, 25.6776 tests/s, 51.3551 assertions/s.
 <p>That was a lot! Let&#8217;s run our tests and make sure everything passes.</p>
 
 <pre><code>$ rake
-...
-Finished tests in 0.215704s, 41.7238 tests/s, 64.9038 assertions/s.
-9 tests, 14 assertions, 0 failures, 0 errors, 0 skips
+...........
+Finished tests in 0.229066s, 61.1178 tests/s, 91.6766 assertions/s.
+14 tests, 21 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 <h3><a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Continue to Part 2</a></h3>
@@ -816,7 +885,7 @@ Finished tests in 0.215704s, 41.7238 tests/s, 64.9038 assertions/s.
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>
+    <a class='category' href='/blog/categories/emberjs/'>EmberJS</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/rails-api/'>Rails::API</a>
   
 </span>
 
