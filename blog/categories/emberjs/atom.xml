@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EmberJS | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-11T11:06:12-06:00</updated>
+  <updated>2013-07-19T11:22:07-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -12,6 +12,84 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GitHub's Copy to Clipboard with Ember]]></title>
+    <link href="http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/"/>
+    <updated>2013-07-19T10:36:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/zeroclipboard-video.gif"></p>
+
+<p>GitHub recently <a href="http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/">replaced the copy and paste functionality</a> with <a href="http://jonrohan.github.com/ZeroClipboard/">ZeroClipboard</a>, a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.</p>
+
+<p>I wanted to integrate this functionality into an app that I am writing for <a href="http://www.instructure.com">Instructure</a> and have been able to do so using very little code. Here's how I did it.</p>
+
+<p>```javascript app.js
+var App = Ember.Application.create();</p>
+
+<p>App.ApplicationController = Ember.ObjectController.extend({
+  message: 'This is the text that should be copied'
+});</p>
+
+<p>Ember.Handlebars.helper('zeroClipboard', Ember.View.extend({
+  tagName: 'button',
+  classNames: ['btn'],
+  attributeBindings: ['title', 'data-clipboard-text'],
+  title: 'Copy to clipboard',</p>
+
+<p>  didInsertElement: function() {</p>
+
+<pre><code>var clip = new ZeroClipboard(this.$(), {
+  moviePath: "/ZeroClipboard.swf"
+});
+
+clip.on( 'complete', function(client, args) {
+  alert('Copied "' + args.text + '" to clipboard');
+});
+</code></pre>
+
+<p>  }
+}));
+```</p>
+
+<p>and the HTML:</p>
+
+<p>
+```html index.html
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.4/handlebars.js"></script>
+  <script src="http://builds.emberjs.com.s3.amazonaws.com/ember-1.0.0-rc.6.js"></script>
+</head>
+<body></p>
+
+<p>  <script type="text/x-handlebars"></p>
+
+<pre><code>&lt;div class="container"&gt;
+  &lt;div class="input-append"&gt;
+    &lt;span class="span4 uneditable-input"&gt;{{message}}&lt;/span&gt;
+    {{#zeroClipboard data-clipboard-textBinding="message"}}Copy{{/zeroClipboard}}
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>  </script></p>
+
+<p>  <script type="text/javascript" src="ZeroClipboard.js"></script>
+  <script type="text/javascript" src="app.js"></script>
+</body>
+</html>
+```
+</p>
+
+<p>I would have used JSBin to share this code, however I couldn't use a SWF file on it, so instead you can download the code:</p>
+
+<p><a href="/assets/posts/zeroclipboard-ember.zip">zeroclipboard-ember.zip</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Authentication with EmberJS - Part 3]]></title>
@@ -1862,221 +1940,6 @@ Ember.trySet('model', 'firstName', 'Eric')
 </code></p>
 
 <p><a href="http://emberjs.com/api/#method_trySet">http://emberjs.com/api/#method_trySet</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Using Flash Messages with EmberJS]]></title>
-    <link href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/"/>
-    <updated>2013-06-20T15:12:00-06:00</updated>
-    <id>http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs</id>
-    <content type="html"><![CDATA[<p><img width="250" height="338" src="http://coderberry.me/images/flash-to-flash.png" style="border: 0px; float: left; margin-right: 20px; -webkit-border-radius: 0px; -ms-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px; -webkit-box-shadow: 0px; -moz-box-shadow: 0px; box-shadow: 0px;" /></p>
-
-<p>In a recent app I have written in Ember, I found that the need to display flash messages came up. This has always been given to me for free with Rails, so I didn't really think of it not being just as easy to integrate using Ember. I was wrong.. well, sort of wrong.</p>
-
-<p>On searching the web for 'ember flash', I found a nice little library at <a href="https://github.com/cheapRoc/ember-flash">https://github.com/cheapRoc/ember-flash</a> by <strong>cheapRoc</strong>. After some minor tweaking and customization, I was able to get it working in my app.</p>
-
-<p>In this post, I want to share how easy it is to integrate and offer a little explanation as to how it works.</p>
-
-<p>Instead of creating four different files (controller, message, queue and view), I found that placing all of the same file made sense. I created the file <em>flash.js</em>:</p>
-
-<p>```javascript flash.js
-App.FlashMessage = Ember.Object.extend({
-  type: "notice",
-  message: null,
-  isNotice: (function() {</p>
-
-<pre><code>return this.get("type") === "notice";
-</code></pre>
-
-<p>  }).property("type").cacheable(),
-  isWarning: (function() {</p>
-
-<pre><code>return this.get("type") === "warning";
-</code></pre>
-
-<p>  }).property("type").cacheable(),
-  isError: (function() {</p>
-
-<pre><code>return this.get("type") === "error";
-</code></pre>
-
-<p>  }).property("type").cacheable()
-});</p>
-
-<p>App.FlashView = Ember.View.extend({
-  contentBinding: "App.FlashController.content",
-  classNameBindings: ["isNotice", "isWarning", "isError"],
-  isNoticeBinding: "content.isNotice",
-  isWarningBinding: "content.isWarning",
-  isErrorBinding: "content.isError",</p>
-
-<p>  didInsertElement: function() {</p>
-
-<pre><code>this.$("#message").hide();
-return App.FlashController.set("view", this);
-</code></pre>
-
-<p>  },</p>
-
-<p>  show: function(callback) {</p>
-
-<pre><code>return this.$("#message").css({
-  top: "-40px"
-}).animate({
-  top: "+=40",
-  opacity: "toggle"
-}, 500, callback);
-</code></pre>
-
-<p>  },</p>
-
-<p>  hide: function(callback) {</p>
-
-<pre><code>return this.$("#message").css({
-  top: "0px"
-}).animate({
-  top: "-39px",
-  opacity: "toggle"
-}, 500, callback);
-</code></pre>
-
-<p>  }
-});</p>
-
-<p>App.FlashController = Ember.Object.create({
-  content: null,
-  clearContent: function(content, view) {</p>
-
-<pre><code>return view.hide(function() {
-  return App.FlashQueue.removeObject(content);
-});
-</code></pre>
-
-<p>  }
-});</p>
-
-<p>App.FlashController.addObserver('content', function() {
-  if (this.get("content")) {</p>
-
-<pre><code>if (this.get("view")) {
-  this.get("view").show();
-  return setTimeout(this.clearContent, 4000, this.get("content"), this.get("view"));
-}
-</code></pre>
-
-<p>  } else {</p>
-
-<pre><code>return App.FlashQueue.contentChanged();
-</code></pre>
-
-<p>  }
-});</p>
-
-<p>App.FlashQueue = Ember.ArrayProxy.create({
-  content: [],
-  contentChanged: function() {</p>
-
-<pre><code>var current;
-current = App.FlashController.get("content");
-if (current !== this.objectAt(0)) {
-  return App.FlashController.set("content", this.objectAt(0));
-}
-</code></pre>
-
-<p>  },
-  pushFlash: function(type, message) {</p>
-
-<pre><code>return this.pushObject(App.FlashMessage.create({
-  message: message,
-  type: type
-}));
-</code></pre>
-
-<p>  }
-});</p>
-
-<p>App.FlashQueue.addObserver('length', function() {
-  return this.contentChanged();
-});
-```</p>
-
-<h2>How does it work?</h2>
-
-<p>A <strong>FlashMessage</strong> is an Ember object <em>(lines 1-13)</em> which contains the message text and type of message (notice, warning, error). These messages are added into the <strong>FlashQueue</strong>, which is an array proxy, via the <em>pushFlash</em> function <em>(lines 75-59)</em>. There is an observer <em>(lines 83-85)</em> which triggers the function <em>contentChanged</em> whenever a message is added to the queue. When the <em>contentChanged</em> function is called, it places the flash message into the <strong>FlashController</strong>'s content <em>(lines 68-74)</em>. There is an observer watching the content of the controller <em>(lines 55-64)</em> which displays the <strong>FlashView</strong> for a short period of time, then hides it <em>(lines 58-59)</em>. Once hidden, <em>clearContent</em> is called which hides the view and removes the message from the queue <em>(lines 46-53)</em>.</p>
-
-<h2>CSS and Animation</h2>
-
-<p>On lines 27-43 above, there are animations set up for when the view is to be shown and hidden. These can be modified to anything. What happens in this code is the view will slide down and fade into view. The reverse happens when it is hidden.</p>
-
-<p>Here is the CSS that I am using:</p>
-
-<p>```css</p>
-
-<h1>flash-view {</h1>
-
-<p>  position: fixed;
-  top: 100px;
-  width: 100%;
-  z-index: 20;
-  overflow: hidden;
-}</p>
-
-<h1>flash-view #message {</h1>
-
-<p>  color: #fff;
-  font-size: 16px;
-  line-height: 1.2em;
-  text-align: center;
-  padding: 20px 0;
-}</p>
-
-<h1>flash-view.is-notice #message {</h1>
-
-<p>  background-color: #6c3;
-}</p>
-
-<h1>flash-view.is-alert #message {</h1>
-
-<p>  background-color: #f14247;
-}</p>
-
-<h1>flash-view.is-error #message {</h1>
-
-<p>  background-color: #f14247;
-}
-```</p>
-
-<h2>Usage</h2>
-
-<p>First, you must include the JavaScript and CSS above in your app.</p>
-
-<p>Second, add the view into your template (e.g. application.handlebars)</p>
-
-<p>
-``` javascript application.handlebars
-{{#view App.FlashView id="flash-view"}}
-  <div id="message"></p>
-
-<pre><code>{{view.content.message}}
-</code></pre>
-
-<p>  </div>
-{{/view}}</p>
-
-<h1>Application</h1>
-
-
-<p>{{outlet}}
-```
-</p>
-
-<p>Finally, trigger messages to be shown with the <em>pushFlash</em> function:</p>
-
-<pre><code>App.FlashQueue.pushFlash('notice', 'This actually works!!!');
-</code></pre>
-
-<p><a class="jsbin-embed" href="http://jsbin.com/olurim/5/embed?live">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script></p>
 ]]></content>
   </entry>
   

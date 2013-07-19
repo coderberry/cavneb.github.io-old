@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-11T11:06:12-06:00</updated>
+  <updated>2013-07-19T11:22:07-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GitHub's Copy to Clipboard with Ember]]></title>
+    <link href="http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/"/>
+    <updated>2013-07-19T10:36:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember</id>
+    <content type="html"><![CDATA[<p><img src="http://coderberry.me/images/posts/zeroclipboard-video.gif"></p>
+
+<p>GitHub recently <a href="http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/">replaced the copy and paste functionality</a> with <a href="http://jonrohan.github.com/ZeroClipboard/">ZeroClipboard</a>, a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.</p>
+
+<p>I wanted to integrate this functionality into an app that I am writing for <a href="http://www.instructure.com">Instructure</a> and have been able to do so using very little code. Here&#8217;s how I did it.</p>
+
+<figure class='code'><figcaption><span>app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">ApplicationController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;This is the text that should be copied&#39;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helper</span><span class="p">(</span><span class="s1">&#39;zeroClipboard&#39;</span><span class="p">,</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">tagName</span><span class="o">:</span> <span class="s1">&#39;button&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">classNames</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;btn&#39;</span><span class="p">],</span>
+</span><span class='line'>  <span class="nx">attributeBindings</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;data-clipboard-text&#39;</span><span class="p">],</span>
+</span><span class='line'>  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Copy to clipboard&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">clip</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ZeroClipboard</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(),</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">moviePath</span><span class="o">:</span> <span class="s2">&quot;/ZeroClipboard.swf&quot;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">clip</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Copied &quot;&#39;</span> <span class="o">+</span> <span class="nx">args</span><span class="p">.</span><span class="nx">text</span> <span class="o">+</span> <span class="s1">&#39;&quot; to clipboard&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and the HTML:</p>
+
+<figure class='code'><figcaption><span>index.html</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://code.jquery.com/jquery-1.9.1.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.4/handlebars.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://builds.emberjs.com.s3.amazonaws.com/ember-1.0.0-rc.6.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/x-handlebars&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;input-append&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">span</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;span4 uneditable-input&quot;</span><span class="o">&gt;</span><span class="p">{{</span><span class="nx">message</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/span&gt;</span>
+</span><span class='line'>        <span class="p">{{</span><span class="err">#</span><span class="nx">zeroClipboard</span> <span class="nx">data</span><span class="o">-</span><span class="nx">clipboard</span><span class="o">-</span><span class="nx">textBinding</span><span class="o">=</span><span class="s2">&quot;message&quot;</span><span class="p">}}</span><span class="nx">Copy</span><span class="p">{{</span><span class="err">/zeroClipboard}}</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/script&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;ZeroClipboard.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;app.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I would have used JSBin to share this code, however I couldn&#8217;t use a SWF file on it, so instead you can download the code:</p>
+
+<p><a href="http://coderberry.me/assets/posts/zeroclipboard-ember.zip">zeroclipboard-ember.zip</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Authentication with EmberJS - Part 3]]></title>
@@ -6462,71 +6577,6 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
     <updated>2011-06-01T14:44:00-06:00</updated>
     <id>http://coderberry.me/blog/2011/06/01/this-is-a-test</id>
     <content type="html"><![CDATA[<p>Booyah!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How to fix the iconv require error in Ruby 1.9 and RVM]]></title>
-    <link href="http://coderberry.me/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/"/>
-    <updated>2011-05-17T00:00:00-06:00</updated>
-    <id>http://coderberry.me/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm</id>
-    <content type="html"><![CDATA[<p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
-
-<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>'require': no such file to load – iconv (LoadError)</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>To fix the issue, perform the following steps:</strong></p>
-
-<ol>
-<li>Install readline using rvm: rvm install readline rvm package install readline</li>
-<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
-<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm remove 1.9.2</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>The final step is to re-install the version of ruby:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>Now to test that it worked:</strong></p>
-
-<ol>
-<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
-<li>Check you are on the right version of ruby:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
-</span><span class='line'>ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>Start a new irb session</li>
-<li>Now you should be able to require &#8216;iconv&#8217; and get a &#8216;true&#8217; result</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ruby-1.9.2-p180 :001 &gt; require 'iconv'
-</span><span class='line'>=&gt; true</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you should be good to go!</p>
 ]]></content>
   </entry>
   

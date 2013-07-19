@@ -9,7 +9,26 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Our company has been using PostgreSQL for a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into &hellip;">
+  <meta name="description" content="I have three domain classes: Lead, Submission and BuyerLog: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+class Lead { static hasMany = [ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +94,173 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/">Multi-Associative GORM Criteria With Projections</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-29T00:00:00-06:00" pubdate data-updated="true">Mar 29<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have three domain classes: Lead, Submission and BuyerLog:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Lead</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submissions:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Date</span> <span class="n">dateCreated</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">Submission</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">lead:</span> <span class="n">Lead</span> <span class="o">]</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">hasMany</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">buyerLogs:</span> <span class="n">BuyerLog</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Lead</span> <span class="n">lead</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">BuyerLog</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">static</span> <span class="n">belongsTo</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">submission:</span> <span class="n">Submission</span> <span class="o">]</span>
+</span><span class='line'>  <span class="n">Submission</span> <span class="n">submission</span>
+</span><span class='line'>  <span class="n">String</span> <span class="n">leadBuyer</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have a need to get the number of duplicate leads which share the same leadBuyer (in the BuyerLog domain class). Here is the SQL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">FROM</span> <span class="n">lead</span> <span class="k">AS</span> <span class="n">l</span><span class="p">,</span> <span class="n">submission</span> <span class="k">AS</span> <span class="n">s</span><span class="p">,</span> <span class="n">buyerLog</span> <span class="k">as</span> <span class="n">bl</span>
+</span><span class='line'>    <span class="k">WHERE</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">leadId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">s</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">bl</span><span class="p">.</span><span class="n">submissionId</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">bl</span><span class="p">.</span><span class="n">leadBuyer</span> <span class="o">=</span> <span class="err">$</span><span class="n">buyerName</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">id</span> <span class="o">!=</span> <span class="err">$</span><span class="n">lead</span><span class="p">.</span><span class="n">id</span>
+</span><span class='line'>      <span class="k">AND</span> <span class="n">l</span><span class="p">.</span><span class="n">dateCreated</span><span class="p">::</span><span class="nb">date</span> <span class="o">&gt;</span> <span class="err">$</span><span class="n">daysAgo</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I want to do this using GORM / Criteria Builder. Here&#8217;s my final code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Count duplicate submissions within 45 days</span>
+</span><span class='line'><span class="cm"> * SELECT count(l.id)</span>
+</span><span class='line'><span class="cm"> *      FROM lead AS l, submission AS s, buyerLog as bl</span>
+</span><span class='line'><span class="cm"> *      WHERE l.id = s.leadId</span>
+</span><span class='line'><span class="cm"> *          AND s.id = bl.submissionId</span>
+</span><span class='line'><span class="cm"> *          AND bl.leadBuyer = $buyerName</span>
+</span><span class='line'><span class="cm"> *          AND l.id != $lead.id</span>
+</span><span class='line'><span class="cm"> *          AND l.dateCreated::date &gt; $daysAgo</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">protected</span> <span class="n">def</span> <span class="n">Boolean</span> <span class="nf">isDuplicateSubmission</span><span class="o">(</span><span class="n">Lead</span> <span class="n">lead</span><span class="o">,</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">buyerNames</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">isDuplicate</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">daysAgo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">()</span> <span class="o">-</span> <span class="mi">45</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">Lead</span><span class="o">.</span><span class="na">withCriteria</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">not</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">idEq</span><span class="o">(</span><span class="n">lead</span><span class="o">.</span><span class="na">id</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">and</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">le</span><span class="o">(</span><span class="err">&#39;</span><span class="n">dateCreated</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">daysAgo</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">submissions</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">buyerLogs</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">inList</span><span class="o">(</span><span class="err">&#39;</span><span class="n">leadBuyer</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">buyerNames</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">projections</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">rowCount</span><span class="o">()</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">(</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thanks to schmolly159 on the #grails freenode IRC channel for the examples and continued help.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -371,228 +557,6 @@ are human. Here is a screenshot of my implementation:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2010/10/12/uploading-files-in-grails/">Uploading Files in Grails</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-12T00:00:00-06:00" pubdate data-updated="true">Oct 12<span>th</span>, 2010</time>
-        
-         | <a href="/blog/2010/10/12/uploading-files-in-grails/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Here&#8217;s the slides from a presentation I did at the
-<a href="http://groups.google.com/group/uggug">UGGUG</a> in May 2010. I
-found that I needed to use it again today so I posted it.</p>
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/4000139" width="565" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
-
-
-<p>Here is the source code for the uploader service I created:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span>
-</span><span class='line'>      <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">destinationDirectory</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="n">destinationDirectory</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>        <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Store file</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>A tip that you may enjoy is the way I implemented this uploader into a real world application. I wanted to be able to upload files into a folder within the web-app folder for development, but in production, I wanted to put it in a folder that is served via Tomcat directly. So on our production server, I created a folder at /opt/assets and created a symbolic link in the $TOMCAT_ROOT/webapps/assets to point to it. I modified the service as follows:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">berry</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.codehaus.groovy.grails.web.context.ServletContextHolder</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">grails.util.GrailsUtil</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">class</span> <span class="nc">FileUploadService</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kt">boolean</span> <span class="n">transactional</span> <span class="o">=</span> <span class="kc">true</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">def</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">String</span> <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">GrailsUtil</span><span class="o">.</span><span class="na">environment</span> <span class="o">==</span> <span class="s">&quot;production&quot;</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="s">&quot;/opt/assets&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">def</span> <span class="n">servletContext</span> <span class="o">=</span> <span class="n">ServletContextHolder</span><span class="o">.</span><span class="na">servletContext</span>
-</span><span class='line'>      <span class="n">storagePath</span> <span class="o">=</span> <span class="n">servletContext</span><span class="o">.</span><span class="na">getRealPath</span><span class="o">(</span><span class="err">&#39;</span><span class="n">assets</span><span class="err">&#39;</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Create storage path directory if it does not exist</span>
-</span><span class='line'>    <span class="n">def</span> <span class="n">storagePathDirectory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storagePath</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;CREATING DIRECTORY ${storagePath}: &quot;</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">storagePathDirectory</span><span class="o">.</span><span class="na">mkdirs</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;SUCCESS&quot;</span>
-</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">println</span> <span class="s">&quot;FAILED&quot;</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Store file</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">file</span><span class="o">.</span><span class="na">transferTo</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;${storagePath}/${name}&quot;</span><span class="o">))</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;Saved file: ${storagePath}/${name}&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="s">&quot;${storagePath}/${name}&quot;</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">println</span> <span class="s">&quot;File ${file.inspect()} was empty!&quot;</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">null</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I then create a folder in my web-app folder named &#8216;assets&#8217;, being sure to add it to my ignore list for the repository. So once I upload the file, it will save to the correct location.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;${resource(dir:&#39;assets&#39;, file: &#39;myfile.jpg&#39;)}&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This now will work in both DEVELOPMENT and PRODUCTION enviroments.</p>
-
-<p><a href="http://github.com/cavneb/FileUploader">http://github.com/cavneb/FileUploader</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/9/">&larr; Older</a>
@@ -617,6 +581,10 @@ found that I needed to use it again today so I posted it.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub&#8217;s Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
       </li>
     
@@ -630,10 +598,6 @@ found that I needed to use it again today so I posted it.</p>
     
       <li class="post">
         <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/20/using-flash-messages-with-emberjs/">Using Flash Messages With EmberJS</a>
       </li>
     
   </ul>
