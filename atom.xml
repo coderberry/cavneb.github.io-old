@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-19T12:27:38-06:00</updated>
+  <updated>2013-07-19T12:55:25-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -22,109 +22,24 @@
 
 <p>GitHub recently <a href="http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/">replaced the copy and paste functionality</a> with <a href="http://jonrohan.github.com/ZeroClipboard/">ZeroClipboard</a>, a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.</p>
 
-<p>I wanted to integrate this functionality into an app that I am writing for <a href="http://www.instructure.com">Instructure</a> and have been able to do so using very little code. Here&#8217;s how I did it.</p>
+<p>I wanted to integrate this functionality into an app that I am writing for <a href="http://www.instructure.com">Instructure</a> and have been able to do so using very little code.</p>
 
-<figure class='code'><figcaption><span>app.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">ApplicationController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;This is the text that should be copied&#39;</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helper</span><span class="p">(</span><span class="s1">&#39;zeroClipboard&#39;</span><span class="p">,</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">tagName</span><span class="o">:</span> <span class="s1">&#39;button&#39;</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">classNames</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;btn&#39;</span><span class="p">],</span>
-</span><span class='line'>  <span class="nx">attributeBindings</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;data-clipboard-text&#39;</span><span class="p">],</span>
-</span><span class='line'>  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Copy to clipboard&#39;</span><span class="p">,</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">clip</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ZeroClipboard</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(),</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">moviePath</span><span class="o">:</span> <span class="s2">&quot;/ZeroClipboard.swf&quot;</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">clip</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Copied &quot;&#39;</span> <span class="o">+</span> <span class="nx">args</span><span class="p">.</span><span class="nx">text</span> <span class="o">+</span> <span class="s1">&#39;&quot; to clipboard&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}));</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>Here&#8217;s how I did it originally using Handlebars helpers:</p>
+
+<iframe width="100%" height="500" src="http://jsfiddle.net/cavneb/GSF8Q/2/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 
-<p>and the HTML:</p>
-
-<figure class='code'><figcaption><span>index.html</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;html&gt;</span>
-</span><span class='line'><span class="nt">&lt;head&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://code.jquery.com/jquery-1.9.1.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.4/handlebars.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://builds.emberjs.com.s3.amazonaws.com/ember-1.0.0-rc.6.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'><span class="nt">&lt;/head&gt;</span>
-</span><span class='line'><span class="nt">&lt;body&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/x-handlebars&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>    <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;container&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;input-append&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">span</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;span4 uneditable-input&quot;</span><span class="o">&gt;</span><span class="p">{{</span><span class="nx">message</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/span&gt;</span>
-</span><span class='line'>        <span class="p">{{</span><span class="err">#</span><span class="nx">zeroClipboard</span> <span class="nx">data</span><span class="o">-</span><span class="nx">clipboard</span><span class="o">-</span><span class="nx">textBinding</span><span class="o">=</span><span class="s2">&quot;message&quot;</span><span class="p">}}</span><span class="nx">Copy</span><span class="p">{{</span><span class="err">/zeroClipboard}}</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>    <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/script&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;ZeroClipboard.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;app.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'><span class="nt">&lt;/body&gt;</span>
-</span><span class='line'><span class="nt">&lt;/html&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
 
 
-<p>I would have used JSBin to share this code, however I couldn&#8217;t use a SWF file on it, so instead you can download the code:</p>
+<p>This is awesome, however I would like to take this a step farther and create a <span style="text-decoration: line-through;">directive</span> Ember web component instead.</p>
 
-<p><a href="http://coderberry.me/assets/posts/zeroclipboard-ember.zip">zeroclipboard-ember.zip</a></p>
+
+
+
+<iframe width="100%" height="450" src="http://jsfiddle.net/cavneb/XbDEM/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>Ahh.. I feel very good about where <a href="http://emberjs.com/api/classes/Ember.Component.html">Ember Components</a> are going.</p>
 ]]></content>
   </entry>
   
