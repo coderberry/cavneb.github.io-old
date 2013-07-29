@@ -935,6 +935,10 @@ Monitoring:  public/javascripts
 <span class='line-number'>60</span>
 <span class='line-number'>61</span>
 <span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'><span class="kd">var</span> <span class="nx">AuthManager</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
@@ -969,9 +973,13 @@ Monitoring:  public/javascripts
 </span><span class='line'>
 </span><span class='line'>  <span class="c1">// Log out the user</span>
 </span><span class='line'>  <span class="nx">reset</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
-</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer none&#39;</span> <span class="p">}</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">__container__</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span><span class="s2">&quot;route:application&quot;</span><span class="p">).</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;sessions.new&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">Ember</span><span class="p">.</span><span class="nx">run</span><span class="p">.</span><span class="nx">sync</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">Ember</span><span class="p">.</span><span class="nx">run</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;apiKey&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">$</span><span class="p">.</span><span class="nx">ajaxSetup</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">&#39;Authorization&#39;</span><span class="o">:</span> <span class="s1">&#39;Bearer none&#39;</span> <span class="p">}</span>
+</span><span class='line'>      <span class="p">});</span>
 </span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
