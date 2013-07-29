@@ -261,9 +261,13 @@ var AuthManager = Ember.Object.extend({
 
   // Log out the user
   reset: function() {
-    this.set('apiKey', null);
-    $.ajaxSetup({
-      headers: { 'Authorization': 'Bearer none' }
+    App.__container__.lookup("route:application").transitionTo('sessions.new');
+    Ember.run.sync();
+    Ember.run.next(this, function(){
+      this.set('apiKey', null);
+      $.ajaxSetup({
+        headers: { 'Authorization': 'Bearer none' }
+      });
     });
   },
 
