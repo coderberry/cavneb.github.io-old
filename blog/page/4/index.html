@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="<div style="width: 242px; height: 388px; margin: 10px 30px 10px 0; float: left; background: transparent url(/images/posts/angular-yeoman.png) top &hellip;">
+  <meta name="description" content="RubyMine has become awesomer and awesomer over the years and is now my primary development tool for Rails development. One thing I&#8217;ve found &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,68 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/">What Is the Best Memory Config for RubyMine?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-20T08:30:00-07:00" pubdate data-updated="true">Feb 20<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/02/20/rubymine-memory-config-vmoptions/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>RubyMine has become <em>awesomer</em> and <em>awesomer</em> over the years and is now my primary development tool for Rails development. One thing I&#8217;ve found frustrating however is that there is very little documentation on the best memory settings for your computer.</p>
+
+<p>I&#8217;d like to get a thread going here with people identifying their computer, CPU, memory and config settings for RubyMine.</p>
+
+<p>The config file can be located in the <code>bin</code> folder of your application. On my mac, the file is <code>/Applications/RubyMine/bin/idea.vmoptions</code>. If it doesn&#8217;t exist you may need to create it.</p>
+
+<p>So here are my computer specs and vmoptions:</p>
+
+<p>MacBook Pro Retina 2.6 GHz Intel Core i7 with 16 GB memory</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-Xms128m
+</span><span class='line'>-Xmx2048m
+</span><span class='line'>-XX:MaxPermSize=500m
+</span><span class='line'>-XX:ReservedCodeCacheSize=128m
+</span><span class='line'>-XX:+UseCodeCacheFlushing
+</span><span class='line'>-XX:+UseCompressedOops</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Please feel free to post yours in the comments below. I believe this will help others optimize their RubyMine experience.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -547,165 +609,6 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/">Airbrake Exception Logging in Your Grails Application</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-09-11T14:34:00-06:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it simple to pass session / request data to Airbrake. I also found that the backtrace is somewhat jumbled when viewing it on Airbrake. <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> wrote an excellent plugin to enhance the library. I have recently published an <a href="https://github.com/cavneb/airbrake-grails">updated version</a> of the plugin (with Phuong&#8217;s consent) to the <a href="http://grails.org/plugin/airbrake">Grails plugin repository</a>.</p>
-
-<p>Let&#8217;s take a look at how simple it is to use.</p>
-
-<h3>Installation</h3>
-
-<p>Installation is very simple. Simply add the plugin to your <code>BuildConfig.groovy</code> file:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>plugins {
-</span><span class='line'>    runtime ":airbrake:0.4"
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Next time your app compiles, the plugin should be installed and ready to go.</p>
-
-<h3>Integration</h3>
-
-<p>It&#8217;s nearly as simple to integrate the notification process into your Grails application. This is done by adding a log4j appender into your <code>Config.groovy</code> file. Make sure that you update the appender config with the correct project API key from Airbrake.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
-</span><span class='line'>
-</span><span class='line'>log4j = {
-</span><span class='line'>  // Example of changing the log pattern for the default console appender:
-</span><span class='line'>  appenders {
-</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
-</span><span class='line'>      name: 'airbrake', 
-</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
-</span><span class='line'>      env: (isProd ? 'production' : 'development'),
-</span><span class='line'>      enabled: true
-</span><span class='line'>    )
-</span><span class='line'>    ...</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After the appender is in place, you need to let your Grails app know to use it as a global appender. Add <code>'airbrake'</code> to your root <code>debug</code> node:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
-</span><span class='line'>
-</span><span class='line'>log4j = {
-</span><span class='line'>  // Example of changing the log pattern for the default console appender:
-</span><span class='line'>  appenders {
-</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
-</span><span class='line'>      name: 'airbrake', 
-</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
-</span><span class='line'>      env: (isProd ? 'production' : 'development'),
-</span><span class='line'>      enabled: true
-</span><span class='line'>    )
-</span><span class='line'>    ...
-</span><span class='line'>  }
-</span><span class='line'>
-</span><span class='line'>  root {
-</span><span class='line'>    debug 'stdout', 'airbrake' // This can be added to any log level, not only 'debug'
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once this is all in place, you should be able to test it out.</p>
-
-<h3>Testing</h3>
-
-<p>To test the Airbrake exception notification, an exception must be thrown in your application when running. The plugin offers a simple way to generate an exception without mucking around with your code.</p>
-
-<p>To force an exception, run your application and visit <a href="http://localhost:8080/airbrakeTest/simulateError">http://localhost:8080/airbrakeTest/throwException</a>. You should see a page similar to this:</p>
-
-<div style="padding: 20px; 
-      background: white; 
-      margin-top: 10px;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;">
-  <img src="/images/posts/airbrake-grails-exception.png" style="display: block;"/>
-</div>
-
-
-<p>Now log into Airbrake.io and you should see your exception listed.</p>
-
-<div style="padding: 20px; 
-      background: #DADADA; 
-      margin-top: 10px;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;">
-  <img src="/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
-  <img src="/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
-</div>
-
-
-<p>As you can see, not only is the stacktrace available, but also the request parameters and the session data.</p>
-
-<p>I wanted to thank <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> for his hard work on this. I also appreciate the Grails community, especially the core contributors for the hard work they do to keep us all happy developers.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/5/">&larr; Older</a>
@@ -731,6 +634,10 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub&#8217;s Copy to Clipboard With Ember</a>
       </li>
     
@@ -744,10 +651,6 @@ rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I 
     
       <li class="post">
         <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
       </li>
     
   </ul>

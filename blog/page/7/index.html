@@ -9,7 +9,7 @@
   <meta name="author" content="Eric Berry">
 
   
-  <meta name="description" content="Recently I was asked to implement Redis/Resque into an existing project that already had Redis up and running with another Redis server. This ended &hellip;">
+  <meta name="description" content="For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations. ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/10/18/groovy-and-grails-want-to-know-more/">Groovy &amp; Grails - Want to Know More?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-10-18T00:00:00-06:00" pubdate data-updated="true">Oct 18<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/10/18/groovy-and-grails-want-to-know-more/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>
+
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/ahRMgvKbVLI" frameborder="0" allowfullscreen></iframe>
+
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/ILL2TXAF04k" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/3379277" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+
+
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/3261710" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -346,100 +403,6 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/">How to Fix the Iconv Require Error in Ruby 1.9 and RVM</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-05-17T00:00:00-06:00" pubdate data-updated="true">May 17<span>th</span>, 2011</time>
-        
-         | <a href="/blog/2011/05/17/how-to-fix-the-iconv-require-error-in-ruby-1-dot-9-and-rvm/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><em>This post was copied from <a href="http://exceptionz.wordpress.com/2010/02/03/how-to-fix-the-iconv-require-error-in-ruby-1-9/">exceptions.wordpress.com</a> with minor updates.</em></p>
-
-<p>So you are working with RVM / Rails 3 / Ruby 1.9.2 and you keep on getting the following error:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>'require': no such file to load – iconv (LoadError)</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>To fix the issue, perform the following steps:</strong></p>
-
-<ol>
-<li>Install readline using rvm: rvm install readline rvm package install readline</li>
-<li>Now install iconv by executing: rvm install iconv rvm package install iconv</li>
-<li>If you already have a version of Ruby 1.9 installed, we need to remove it by executing:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm remove 1.9.2</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>The final step is to re-install the version of ruby:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install --trace 1.9.2 -C --with-iconv-dir=$HOME/.rvm/usr</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>Now to test that it worked:</strong></p>
-
-<ol>
-<li>Change to the ruby version you installed: <em>rvm use 1.9.2</em></li>
-<li>Check you are on the right version of ruby:</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
-</span><span class='line'>ruby 1.9.2p180 (2011-02-18 revision 30909) [x86_64-darwin10.6.0]</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>Start a new irb session</li>
-<li>Now you should be able to require &#8216;iconv&#8217; and get a &#8216;true&#8217; result</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ruby-1.9.2-p180 :001 &gt; require 'iconv'
-</span><span class='line'>=&gt; true</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you should be good to go!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/8/">&larr; Older</a>
@@ -465,6 +428,10 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub&#8217;s Copy to Clipboard With Ember</a>
       </li>
     
@@ -478,10 +445,6 @@ vagrant@lucid32:~$ sudo apt-get install rabbitmq-server
     
       <li class="post">
         <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/07/07/useful-functions-in-the-ember-namespace/">Useful Functions in the Ember Namespace</a>
       </li>
     
   </ul>

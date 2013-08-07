@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Authentication | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/authentication/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-07-31T08:46:39-06:00</updated>
+  <updated>2013-08-07T07:53:33-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -136,7 +136,7 @@ Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</
 
 <p>Bootstrapping users and roles is similar to how it's done with the <a href="http://grails.org/plugin/spring-security-core">Spring Security Core plugin</a>. Let's create a couple of roles and users to go with them.</p>
 
-<p>File /Users/eberry/Personal/cavneb.github.io/source/downloads/code/BootStrap.groovy could not be found</p>
+<p>File /Users/eberry/Projects/Personal/cavneb.github.io/source/downloads/code/BootStrap.groovy could not be found</p>
 
 <p>On line 5, we include the Shiro Security Service. This is necessary for us to encode the password into a password hash for the user.</p>
 
