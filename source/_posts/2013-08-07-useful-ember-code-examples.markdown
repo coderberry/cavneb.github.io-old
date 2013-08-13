@@ -96,5 +96,13 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
       <td><a href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/">Blog Post</a></td>
     </tr>
+    <!--
+    <tr>
+      <td><a href="http://jsfiddle.net/ZqGbz/2/">Sorted Filters</a></td>
+      <td>ArrayController</td>
+      <td><a href="http://stackoverflow.com/users/1480306/alive-developer">Alive Developer</a></td>
+      <td><a href="http://stackoverflow.com/questions/16648334/ember-js-combine-search-and-filter">StackOverflow</a></td>
+    </tr>
+    -->
   </tbody>
 </table>

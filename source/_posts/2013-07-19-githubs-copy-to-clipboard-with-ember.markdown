@@ -9,7 +9,7 @@ categories:
 
 {% img /images/posts/zeroclipboard-video.gif %}
 
-GitHub recently [replaced the copy and paste functionality](http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/) with [ZeroClipboard](http://jonrohan.github.com/ZeroClipboard/), a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.
+GitHub recently [replaced the copy and paste functionality](http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/) with [ZeroClipboard](http://zeroclipboard.github.io/ZeroClipboard/), a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.
 
 I wanted to integrate this functionality into an app that I am writing for [Instructure](http://www.instructure.com) and have been able to do so using very little code.
 
