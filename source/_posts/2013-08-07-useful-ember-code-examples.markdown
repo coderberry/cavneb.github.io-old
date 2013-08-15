@@ -7,9 +7,9 @@ categories:
 - EmberJS
 ---
 
-Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep track of them. Here is a list of useful Ember code examples. Please feel free to contribute by forking [this post](https://github.com/cavneb/cavneb.github.io/blob/source/source/_posts/2013-08-07-useful-ember-code-examples.markdown) and submitting a PR. Or in the comments. Whatever's clever.
+Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep track of them. Here is a list of useful Ember code examples.
 
-<table style="width: 100%;">
+<table style="width: 100%; margin-bottom: 15px;">
   <thead>
     <tr>
       <th>Description</th>
@@ -99,3 +99,5 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
     </tr>
   </tbody>
 </table>
+
+ Please feel free to contribute by forking [this post](https://github.com/cavneb/cavneb.github.io/blob/source/source/_posts/2013-08-07-useful-ember-code-examples.markdown) and submitting a PR. Or in the comments. Whatever's clever.
