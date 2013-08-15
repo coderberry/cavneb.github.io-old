@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-08-13T10:00:04-06:00</updated>
+  <updated>2013-08-15T10:30:33-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -18,9 +18,9 @@
     <link href="http://coderberry.me/blog/2013/08/07/useful-ember-code-examples/"/>
     <updated>2013-08-07T07:14:00-06:00</updated>
     <id>http://coderberry.me/blog/2013/08/07/useful-ember-code-examples</id>
-    <content type="html"><![CDATA[<p>Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep track of them. Here is a list of useful Ember code examples. Please feel free to contribute by forking <a href="https://github.com/cavneb/cavneb.github.io/blob/source/source/_posts/2013-08-07-useful-ember-code-examples.markdown">this post</a> and submitting a PR. Or in the comments. Whatever&#8217;s clever.</p>
+    <content type="html"><![CDATA[<p>Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep track of them. Here is a list of useful Ember code examples.</p>
 
-<table style="width: 100%;">
+<table style="width: 100%; margin-bottom: 15px;">
   <thead>
     <tr>
       <th>Description</th>
@@ -108,17 +108,11 @@
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
       <td><a href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/">Blog Post</a></td>
     </tr>
-    <!--
-    <tr>
-      <td><a href="http://jsfiddle.net/ZqGbz/2/">Sorted Filters</a></td>
-      <td>ArrayController</td>
-      <td><a href="http://stackoverflow.com/users/1480306/alive-developer">Alive Developer</a></td>
-      <td><a href="http://stackoverflow.com/questions/16648334/ember-js-combine-search-and-filter">StackOverflow</a></td>
-    </tr>
-    &#8211;>
   </tbody>
 </table>
 
+
+<p> Please feel free to contribute by forking <a href="https://github.com/cavneb/cavneb.github.io/blob/source/source/_posts/2013-08-07-useful-ember-code-examples.markdown">this post</a> and submitting a PR. Or in the comments. Whatever&#8217;s clever.</p>
 ]]></content>
   </entry>
   
