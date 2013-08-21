@@ -99,8 +99,14 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
     </tr>
     <tr>
       <td><a href="http://jsbin.com/iMaj/1/edit">Syntax Highlighter</a></td>
-      <td>tips</td>
+      <td>components</td>
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/IkaS/1/edit">Em.RSVP.Promise</a></td>
+      <td>tips</td>
+      <td><a href="https://twitter.com/ryanflorence">@ryanflorence</a></td>
       <td></td>
     </tr>
   </tbody>
