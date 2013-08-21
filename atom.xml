@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-08-21T09:19:13-06:00</updated>
+  <updated>2013-08-21T10:13:03-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -119,6 +119,12 @@
       <td>tips</td>
       <td><a href="https://twitter.com/ryanflorence">@ryanflorence</a></td>
       <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/iXih/1/edit">Sortable Tables</a></td>
+      <td>controllers</td>
+      <td><a href="https://twitter.com/adman65">@adman65</a></td>
+      <td><a href="http://hawkins.io/2013/07/table-sorting-with-ember/">Blog Post</a></td>
     </tr>
   </tbody>
 </table>
