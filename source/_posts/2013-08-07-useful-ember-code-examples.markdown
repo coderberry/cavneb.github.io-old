@@ -115,6 +115,12 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
       <td><a href="https://twitter.com/adman65">@adman65</a></td>
       <td><a href="http://hawkins.io/2013/07/table-sorting-with-ember/">Blog Post</a></td>
     </tr>
+    <tr>
+      <td><a href="http://jsbin.com/IHIyEF/1/edit?html,js,output">Ember.debugObj</a></td>
+      <td>debugging, tips</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
 
