@@ -121,6 +121,12 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
       <td></td>
     </tr>
+    <tr>
+      <td><a href="http://jsbin.com/EwUPUla/3/edit">Time on Page</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/stv_kn">@stv_kn</a></td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
 
