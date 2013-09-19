@@ -38,6 +38,12 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
       <td><a href="http://heyjinjs.us/post/57158250642/reusable-d3-charts-with-ember-js-components">Blog Post</a></td>
     </tr>
     <tr>
+      <td><a href="http://jsbin.com/number-counter-component/1/edit">Number Counter</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/heyjinkim">@heyjinkim</a></td>
+      <td></td>
+    </tr>
+    <tr>
       <td><a href="http://jsbin.com/upogic/1/edit">Share Buttons</a></td>
       <td>components</td>
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
