@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Airbrake exception logging in your Grails application - coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Airbrake Exception Logging in Your Grails Application</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-11T14:34:00-06:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it simple to pass session / request data to Airbrake. I also found that the backtrace is somewhat jumbled when viewing it on Airbrake. <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> wrote an excellent plugin to enhance the library. I have recently published an <a href="https://github.com/cavneb/airbrake-grails">updated version</a> of the plugin (with Phuong&#8217;s consent) to the <a href="http://grails.org/plugin/airbrake">Grails plugin repository</a>.</p>
+
+<p>Let&#8217;s take a look at how simple it is to use.</p>
+
+<h3>Installation</h3>
+
+<p>Installation is very simple. Simply add the plugin to your <code>BuildConfig.groovy</code> file:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>plugins {
+</span><span class='line'>    runtime ":airbrake:0.4"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next time your app compiles, the plugin should be installed and ready to go.</p>
+
+<h3>Integration</h3>
+
+<p>It&#8217;s nearly as simple to integrate the notification process into your Grails application. This is done by adding a log4j appender into your <code>Config.groovy</code> file. Make sure that you update the appender config with the correct project API key from Airbrake.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
+</span><span class='line'>
+</span><span class='line'>log4j = {
+</span><span class='line'>  // Example of changing the log pattern for the default console appender:
+</span><span class='line'>  appenders {
+</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
+</span><span class='line'>      name: 'airbrake', 
+</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
+</span><span class='line'>      env: (isProd ? 'production' : 'development'),
+</span><span class='line'>      enabled: true
+</span><span class='line'>    )
+</span><span class='line'>    ...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the appender is in place, you need to let your Grails app know to use it as a global appender. Add <code>'airbrake'</code> to your root <code>debug</code> node:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
+</span><span class='line'>
+</span><span class='line'>log4j = {
+</span><span class='line'>  // Example of changing the log pattern for the default console appender:
+</span><span class='line'>  appenders {
+</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
+</span><span class='line'>      name: 'airbrake', 
+</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
+</span><span class='line'>      env: (isProd ? 'production' : 'development'),
+</span><span class='line'>      enabled: true
+</span><span class='line'>    )
+</span><span class='line'>    ...
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  root {
+</span><span class='line'>    debug 'stdout', 'airbrake' // This can be added to any log level, not only 'debug'
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once this is all in place, you should be able to test it out.</p>
+
+<h3>Testing</h3>
+
+<p>To test the Airbrake exception notification, an exception must be thrown in your application when running. The plugin offers a simple way to generate an exception without mucking around with your code.</p>
+
+<p>To force an exception, run your application and visit <a href="http://localhost:8080/airbrakeTest/simulateError">http://localhost:8080/airbrakeTest/throwException</a>. You should see a page similar to this:</p>
+
+<div style="padding: 20px; 
+      background: white; 
+      margin-top: 10px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;">
+  <img src="/images/posts/airbrake-grails-exception.png" style="display: block;"/>
+</div>
+
+
+<p>Now log into Airbrake.io and you should see your exception listed.</p>
+
+<div style="padding: 20px; 
+      background: #DADADA; 
+      margin-top: 10px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;">
+  <img src="/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
+  <img src="/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
+</div>
+
+
+<p>As you can see, not only is the stacktrace available, but also the request parameters and the session data.</p>
+
+<p>I wanted to thank <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> for his hard work on this. I also appreciate the Grails community, especially the core contributors for the hard work they do to keep us all happy developers.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-11T14:34:00-06:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/grails/'>Grails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/05/24/tools-i-use-as-a-developer/" title="Previous Post: Tools I use as a developer">&laquo; Tools I use as a developer</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/" title="Next Post: Simple fix for pagination with Twitter Bootstrap">Simple fix for pagination with Twitter Bootstrap &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/me" alt="About Me">About Me</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub's Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/';
+        var disqus_url = 'http://coderberry.me/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

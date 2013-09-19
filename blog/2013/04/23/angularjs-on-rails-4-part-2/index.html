@@ -1,0 +1,1072 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>AngularJS on Rails 4 - Part 2 - coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="Let&#8217;s pick up where we left off. If you haven&#8217;t already, make sure you go through Part 1 to create your base Rails app with the API setup &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">AngularJS on Rails 4 - Part 2</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-23T07:35:00-06:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Let&#8217;s pick up where we left off. If you haven&#8217;t already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
+
+<p>You can either continue using the code you have created on part 1 or you can catch up by checking out the tagged code:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/angular_casts
+$ cd angular_casts
+$ git checkout step-1
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+$ rake screencast_sync:railscasts
+</code></pre>
+
+<h2>Add Angular Libraries</h2>
+
+<p>There are a couple of different ways we can add Angular into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="https://github.com/hiravgandhi/angularjs-rails">angular-rails gem</a>. Even though this is an excellent gem which is well maintained, it&#8217;s good to know how to do this without a gem.</p>
+
+<p>In our app we are going to link our scripts using a <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a>. We can find the CDN for Angular at <a href="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js">https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js</a>. We will also be adding Angular Resource via the CDN as well.</p>
+
+<p>Update your layout file:</p>
+
+<figure class='code'><figcaption><span>app/views/layouts/application.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span>Angular Casts<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= stylesheet_link_tag &quot;application&quot;, media: &quot;all&quot; %&gt;
+</span><span class='line'>  <span class="err">&lt;</span>%= csrf_meta_tags %&gt;
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">&lt;</span>%= yield %&gt;
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= javascript_include_tag &quot;application&quot; %&gt;
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Setup the Javascript Folders</h3>
+
+<p>We want to keep our code organized by placing our Angular controllers, filters, services, directives, etc. in the app/assets/javascripts folder. Create the following directories:</p>
+
+<ul>
+<li>app/assets/javascripts/angular/controllers</li>
+<li>app/assets/javascripts/angular/directives</li>
+<li>app/assets/javascripts/angular/services</li>
+</ul>
+
+
+<p>Here&#8217;s a shortcut to do this:</p>
+
+<pre><code>$ mkdir -p app/assets/javascripts/angular/controllers \
+           app/assets/javascripts/angular/directives \
+           app/assets/javascripts/angular/services
+</code></pre>
+
+<p>Now let&#8217;s create the main javascript file which will drive our Angular application.</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/app.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nv">App = </span><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s">&#39;AngularCasts&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;ngResource&#39;</span><span class="p">])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>window.App</code>. We also add the dependency of <code>ngResource</code> which provides simple REST client functionality.</p>
+
+<p>Next, we need to update our JavaScript manifest to include our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/application.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">//= require app</span>
+</span><span class='line'><span class="c1">//= require_tree ./angular</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is quite a change from what exists in the manifest already. We will add jQuery later, but via CDN. You&#8217;ll see why later in this post.</p>
+
+<h2>Add the View</h2>
+
+<p>Next, we need to create a controller. This will allow us to set up a route to a view.</p>
+
+<pre><code>$ rails g controller home index
+</code></pre>
+
+<p>This set up the <em>HomeController</em> and added the action <em>index</em>. Before we modify this view, let&#8217;s update our layout to acts as an Angular app. This is done by adding the directive <code>ng-app</code> to our <code>&lt;html&gt;</code> tag:</p>
+
+<figure class='code'><figcaption><span>app/views/layouts/application.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html</span> <span class="na">ng-app</span><span class="nt">&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&#8217;s update our index view with some simple Angular code:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;label&gt;</span>Name:<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;yourName&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;Enter a name here&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;hr&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h1&gt;</span>Hello {{yourName}}!<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Update your routes file to use this view as the root.</p>
+
+<figure class='code'><figcaption><span>config/routes.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">AngularCasts</span><span class="p">:</span><span class="ss">:Application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:api</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">get</span> <span class="s2">&quot;/screencasts(.:format)&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;screencasts#index&quot;</span>
+</span><span class='line'>    <span class="n">get</span> <span class="s2">&quot;/screencasts/:id(.:format)&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;screencasts#show&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">root</span> <span class="ss">to</span><span class="p">:</span> <span class="s2">&quot;home#index&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note that the line <code>get 'home#index'</code> was removed. This is not needed because the root path directs to it.</em></p>
+
+<p>Start up your server and open up <a href="http://localhost:3000">http://localhost:3000</a>. Type in your name into the text field. If the content changes as you type, it worked! You now have a functional Angular application!</p>
+
+<p><img src="/images/posts/angular_casts_1.gif"></p>
+
+<h6>If you are using Rails 3, you will need to delete the file <em>public/index.html</em></h6>
+
+<h2>Now the fun begins!</h2>
+
+<p>In order for us to tell the page that it should use the <em>App</em> module, we need to add the module name to the <code>ng-app</code> <em>directive</em>. Set the value of the attribute to <em>AngularCasts</em>:</p>
+
+<figure class='code'><figcaption><span>app/views/layouts/application.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">&quot;AngularCasts&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span>Angular Casts<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= stylesheet_link_tag &quot;application&quot;, media: &quot;all&quot; %&gt;
+</span><span class='line'>  <span class="err">&lt;</span>%= csrf_meta_tags %&gt;
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;header&gt;</span>
+</span><span class='line'>    Angular Casts
+</span><span class='line'>  <span class="nt">&lt;/header&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">&lt;</span>%= yield %&gt;
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= javascript_include_tag &quot;application&quot; %&gt;
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now our view knows to use the AngularCasts module.</p>
+
+<h6>On lines 9-11 we have added the <code>&lt;header&gt;</code> content. Make sure you have this in your layout as well.</h6>
+
+<h2>Create an Angular Controller</h2>
+
+<p>Let&#8217;s create a controller that will be used to list out the episodes. Create a new coffeescript file at <em>app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee</em></p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;ScreencastsCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;$scope&#39;</span><span class="p">,</span> <span class="nf">($scope) -&gt;</span>
+</span><span class='line'>  <span class="nv">$scope.message = </span><span class="s">&quot;Angular Rocks!&quot;</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On line 1, we create a new Angular controller belonging to <em>App</em> named <em>ScreencastsCtrl</em>. The controller will be referenced in our view as <em>ScreencastsCtrl</em>. For more information on Angular controllers, read <a href="http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller">http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller</a>.</p>
+
+<p>Let&#8217;s update our view to display the message.</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;ScreencastsCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h1&gt;</span>Message: {{message}}<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we have bound the contents of the <em>div</em> to the controller <em>ScreencastsCtrl</em>. Refresh the browser and you should see &#8216;Message: Angular Rocks!&#8217;.</p>
+
+<h2>Make it Pretty!</h2>
+
+<p>Lets add the much needed CSS to our application. Copy the following into <em>app/assets/stylesheets/home.css.scss</em>.</p>
+
+<figure class='code'><figcaption><span>app/assets/stylesheets/home.css.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="nt">body</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">font-size</span><span class="o">:</span> <span class="mi">12</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">font-family</span><span class="o">:</span> <span class="n">Helvetica</span><span class="o">,</span> <span class="no">sans-serif</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="mh">#ddd</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">margin</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">header</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="mh">#4F4F4F</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="mh">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">position</span><span class="o">:</span> <span class="no">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">height</span><span class="o">:</span> <span class="mi">36</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">top</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">left</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">right</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">font-size</span><span class="o">:</span> <span class="mi">18</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">line-height</span><span class="o">:</span> <span class="mi">36</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">font-weight</span><span class="o">:</span> <span class="no">bold</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">padding-left</span><span class="o">:</span> <span class="mi">15</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nn">#screencast-ctrl</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="mh">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">position</span><span class="o">:</span> <span class="no">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">top</span><span class="o">:</span> <span class="mi">37</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">width</span><span class="o">:</span> <span class="mi">100</span><span class="kt">%</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">bottom</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">overflow</span><span class="o">:</span> <span class="no">auto</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nn">#screencast-list-container</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="mh">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">position</span><span class="o">:</span> <span class="no">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">min-height</span><span class="o">:</span> <span class="mi">700</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">width</span><span class="o">:</span> <span class="mi">300</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">top</span><span class="o">:</span> <span class="mi">37</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">left</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">bottom</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">overflow</span><span class="o">:</span> <span class="no">auto</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-webkit-overflow-scrolling</span><span class="o">:</span> <span class="n">touch</span><span class="p">;</span>
+</span><span class='line'>  <span class="nt">ul</span> <span class="p">{</span>
+</span><span class='line'>    <span class="na">margin</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>    <span class="na">list-style</span><span class="o">:</span> <span class="no">none</span><span class="p">;</span>
+</span><span class='line'>    <span class="na">padding</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>    <span class="nt">li</span> <span class="p">{</span>
+</span><span class='line'>      <span class="na">cursor</span><span class="o">:</span> <span class="no">pointer</span><span class="p">;</span>
+</span><span class='line'>      <span class="na">border-bottom</span><span class="o">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="no">solid</span> <span class="mh">#ddd</span><span class="p">;</span>
+</span><span class='line'>      <span class="na">padding</span><span class="o">:</span> <span class="mi">0</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nt">h3</span> <span class="p">{</span>
+</span><span class='line'>    <span class="na">font-size</span><span class="o">:</span> <span class="mi">14</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>    <span class="nt">small</span> <span class="p">{</span>
+</span><span class='line'>      <span class="na">font-size</span><span class="o">:</span> <span class="mi">12</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>      <span class="na">color</span><span class="o">:</span> <span class="mh">#ccc</span><span class="p">;</span>
+</span><span class='line'>      <span class="na">font-weight</span><span class="o">:</span> <span class="no">normal</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">&amp;</span><span class="nc">.active</span> <span class="p">{</span>
+</span><span class='line'>      <span class="na">color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nn">#screencast-view-container</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">position</span><span class="o">:</span> <span class="no">absolute</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">border-left</span><span class="o">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="no">solid</span> <span class="mh">#d0d0d0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">top</span><span class="o">:</span> <span class="mi">37</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">left</span><span class="o">:</span> <span class="mi">300</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">right</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">bottom</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="mh">#fff</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">min-height</span><span class="o">:</span> <span class="mi">700</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">padding</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span> <span class="mi">25</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nn">#player</span> <span class="p">{</span>
+</span><span class='line'>    <span class="na">border</span><span class="o">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="no">solid</span> <span class="mh">#000</span><span class="p">;</span>
+</span><span class='line'>    <span class="na">max-width</span><span class="o">:</span> <span class="mi">800</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh the browser. Ooooh!</p>
+
+<h2>Start with the Service</h2>
+
+<p>Our Angular controller is going to access the data from our API using <a href="http://docs.angularjs.org/api/ngResource.$resource">ngResource</a>. <em>ngResource</em> enables interation with RESTful server-side data sources.</p>
+
+<p>Angular services are singletons that carry out specific tasks common to web apps. Services are commonly used to perform the XHR interaction with the server. To learn about the differences between services and factories, <a href="http://stackoverflow.com/questions/14324451/angular-service-vs-angular-factory">read this</a>. Let&#8217;s start off by creating a service at <em>screencast.js.coffee</em>:</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/angular/services/screencast.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">factory</span> <span class="s">&#39;Screencast&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;$resource&#39;</span><span class="p">,</span> <span class="nf">($resource) -&gt;</span>
+</span><span class='line'>  <span class="nx">$resource</span> <span class="s">&#39;/api/screencasts/:id&#39;</span><span class="p">,</span> <span class="nv">id: </span><span class="s">&#39;@id&#39;</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now tell the controller to use this service:</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/controllers/screencasts_ctrl.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;ScreencastsCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;$scope&#39;</span><span class="p">,</span> <span class="s">&#39;Screencast&#39;</span><span class="p">,</span> <span class="nf">($scope, Screencast) -&gt;</span>
+</span><span class='line'>  <span class="nv">$scope.screencasts = </span><span class="nx">Screencast</span><span class="p">.</span><span class="nx">query</span><span class="p">()</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Update the index view with the following:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;ScreencastsCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-list-container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;screencast in screencasts&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>{{screencast.title}} <span class="nt">&lt;small&gt;</span>({{screencast.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now refresh the page. If all worked well, you should see a list of screencasts on the left side. When we reloaded the page, a <em>GET</em> request was sent to <em>/api/screencasts</em>, populating the <em>screencasts</em> attribute in our scope. This is the power of Angular ngResource.</p>
+
+<h2>Now What?</h2>
+
+<p>We are doing great! Now we have a list of screencasts on the side which are clickable. However, we don&#8217;t do anything when they are clicked. What we want to do is show the screencast in the main section along with some additional screencast information.</p>
+
+<p>Start off by adding the HTML code which will be used to display the main content. This is done inside the <em>index.html.erb</em> file:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;ScreencastsCtrl&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-list-container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;screencast in screencasts&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>{{screencast.title}} <span class="nt">&lt;small&gt;</span>({{screencast.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-view-container&quot;</span> <span class="na">ng-show=</span><span class="s">&quot;selectedScreencast&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h2&gt;</span>{{selectedScreencast.title}}<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>{{selectedScreencast.summary}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>      Published at {{selectedScreencast.published_at | date: &#39;mediumDate&#39;}}
+</span><span class='line'>      - <span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">&quot;{{selectedScreencast.link}}&quot;</span><span class="nt">&gt;</span>{{selectedScreencast.link}}<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On lines 10-17, we have added a div which shows the screencast title and summary. On line 10, we use the <a href="http://docs.angularjs.org/api/ng.directive:ngShow">ng-show</a> directive which only displays the div if <em>selectedScreencast</em> exists.</p>
+
+<p>Go ahead and refresh the page. You should not see any changes. Click on a screencast. Still no changes.</p>
+
+<h3>Click and Show</h3>
+
+<p>In order for us to show the main content with the screencast information, we need to do a few things. The first thing we need to do is add an <a href="http://docs.angularjs.org/api/ng.directive:ngClick">ng-click</a> directive to our screencast list:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-list-container&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;screencast in screencasts&quot;</span>
+</span><span class='line'>          <span class="na">ng-click=</span><span class="s">&quot;showScreencast(screencast)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>{{screencast.title}} <span class="nt">&lt;small&gt;</span>({{screencast.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when the list item is clicked the function <em>showScreencast</em> will be triggered with the screencast being passed in to it. Now let&#8217;s update our controller with this function:</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;ScreencastsCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;$scope&#39;</span><span class="p">,</span> <span class="s">&#39;Screencast&#39;</span><span class="p">,</span> <span class="nf">($scope, Screencast) -&gt;</span>
+</span><span class='line'>  <span class="c1"># Attributes accessible on the view</span>
+</span><span class='line'>  <span class="nv">$scope.screencasts        = </span><span class="nx">Screencast</span><span class="p">.</span><span class="nx">query</span><span class="p">()</span>
+</span><span class='line'>  <span class="nv">$scope.selectedScreencast = </span><span class="kc">null</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Set the selected screencast to the one which was clicked</span>
+</span><span class='line'>  <span class="nv">$scope.showScreencast = </span><span class="nf">(screencast) -&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedScreencast = </span><span class="nx">screencast</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh your browser and click on a screencast. As my wife would incorrectly say: <strong>&#8220;Waalah!&#8221;</strong></p>
+
+<h2>Show the Screencast</h2>
+
+<p>After doing a bit of looking around, I found that <a href="http://flowplayer.org">Flow Player</a> offered the easiest and cleanest way to show videos. Let&#8217;s add the dependent scripts and css links to our layout:</p>
+
+<figure class='code'><figcaption><span>app/views/layouts/application.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html</span> <span class="na">ng-app=</span><span class="s">&quot;AngularCasts&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span>Angular Casts<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;//releases.flowplayer.org/5.4.0/skin/minimalist.css&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= stylesheet_link_tag &quot;application&quot;, media: &quot;all&quot; %&gt;
+</span><span class='line'>  <span class="err">&lt;</span>%= csrf_meta_tags %&gt;
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;header&gt;</span>
+</span><span class='line'>    Angular Casts
+</span><span class='line'>  <span class="nt">&lt;/header&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">&lt;</span>%= yield %&gt;
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//releases.flowplayer.org/5.4.0/flowplayer.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="err">&lt;</span>%= javascript_include_tag &quot;application&quot; %&gt;
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember how we removed jQuery from our Gemfile and javascript manifest? The reason is because we didn&#8217;t want it concatenated with the other scripts. FlowPlayer depends on jQuery and so jQuery needs to be available prior to Flow Player being loaded. We also can load it via CDN. Good times for all.</p>
+
+<h3>Create the FlowPlayer Directive</h3>
+
+<p>FlowPlayer requires triggering a function <em>flowplayer()</em> to show the video. We could add this into our controller, but we love to learn. Let&#8217;s create a directive which listens to the controller and triggers the <em>flowplayer</em> function when <em>showScreencast</em> is called.</p>
+
+<p>Create the directive at <em>app/assets/javascripts/angular/directives/flow_player.js.coffee</em></p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/angular/directives/flow_player.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">directive</span> <span class="s">&#39;flowPlayer&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span><span class='line'>  <span class="nf">(scope, element, attrs) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Trigger when the selectedScreencast function is called</span>
+</span><span class='line'>    <span class="c1"># with a screencast</span>
+</span><span class='line'>    <span class="nx">scope</span><span class="p">.</span><span class="nx">$watch</span> <span class="s">&#39;selectedScreencast&#39;</span><span class="p">,</span> <span class="nf">(screencast) -&gt;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">screencast</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1"># See http://flowplayer.org/docs/</span>
+</span><span class='line'>        <span class="nx">element</span><span class="p">.</span><span class="nx">flowplayer</span>
+</span><span class='line'>          <span class="nv">playlist: </span><span class="p">[[</span><span class="nv">mp4: </span><span class="nx">screencast</span><span class="p">.</span><span class="nx">video_url</span><span class="p">]]</span>
+</span><span class='line'>          <span class="nv">ratio: </span><span class="mi">9</span> <span class="o">/</span> <span class="mi">14</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now add the directive into our view:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-view-container&quot;</span> <span class="na">ng-show=</span><span class="s">&quot;selectedScreencast&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h2&gt;</span>{{selectedScreencast.title}}<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>{{selectedScreencast.summary}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">flow-player=</span><span class="s">&quot;&quot;</span> <span class="na">id=</span><span class="s">&quot;player&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>      Published at {{selectedScreencast.published_at | date: &#39;mediumDate&#39;}}
+</span><span class='line'>      - <span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">&quot;{{selectedScreencast.link}}&quot;</span><span class="nt">&gt;</span>{{selectedScreencast.link}}<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh your browser and go nuts!</p>
+
+<h2>Extra Goodies</h2>
+
+<p>One final thing that I would like to see is some sort of indicator which lets us know which video is playing on the screencast list. This can be done via CSS and some simple code.</p>
+
+<p>In our CSS file, we have already added some style for an active screencast. Any <em>H3</em> tag on the side with the class of <em>active</em> will show as red. Try it out by adding the class to our view:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-list-container&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;screencast in screencasts&quot;</span>
+</span><span class='line'>          <span class="na">ng-click=</span><span class="s">&quot;showScreencast(screencast)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3</span> <span class="na">class=</span><span class="s">&quot;active&quot;</span><span class="nt">&gt;</span>{{screencast.title}} <span class="nt">&lt;small&gt;</span>({{screencast.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Refresh the page. You should now see that every screencast link on the left is red.</p>
+
+<p>For us to make it show for the active screencast only we have to make a few changes to our view and controller. Update the view to use the <a href="http://docs.angularjs.org/api/ng.directive:ngClass">ng-class</a> directive:</p>
+
+<figure class='code'><figcaption><span>app/views/home/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;screencast-list-container&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li</span> <span class="na">ng-repeat=</span><span class="s">&quot;screencast in screencasts&quot;</span>
+</span><span class='line'>          <span class="na">ng-click=</span><span class="s">&quot;showScreencast(screencast, $index)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3</span> <span class="na">ng-class=</span><span class="s">&quot;{active: $index == selectedRow}&quot;</span><span class="nt">&gt;</span>{{screencast.title}}
+</span><span class='line'>          <span class="nt">&lt;small&gt;</span>({{screencast.duration}})<span class="nt">&lt;/small&gt;&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that on line 5 we added the 2nd attribute <em>&amp;index</em>. This is available via the <em>ng-repeat</em> directive and is the index value of the array (integer). We also modified line 6 to use the <em>ng-class</em> directive which only shows &#8220;active&#8221; if the <em>$index</em> is equal to <em>$scope.selectedRow</em>.</p>
+
+<p>Now update the controller to work with these changes:</p>
+
+<figure class='code'><figcaption><span>app/assets/javascripts/controllers/screencasts_ctrl.js.coffee</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">controller</span> <span class="s">&#39;ScreencastsCtrl&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;$scope&#39;</span><span class="p">,</span> <span class="s">&#39;Screencast&#39;</span><span class="p">,</span> <span class="nf">($scope, Screencast) -&gt;</span>
+</span><span class='line'>  <span class="c1"># Attributes accessible on the view</span>
+</span><span class='line'>  <span class="nv">$scope.selectedScreencast = </span><span class="kc">null</span>
+</span><span class='line'>  <span class="nv">$scope.selectedRow        = </span><span class="kc">null</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Gather the screencasts and set the selected one to the first on success</span>
+</span><span class='line'>  <span class="nv">$scope.screencasts = </span><span class="nx">Screencast</span><span class="p">.</span><span class="nx">query</span> <span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedScreencast = </span><span class="nx">$scope</span><span class="p">.</span><span class="nx">screencasts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>    <span class="nv">$scope.selectedRow = </span><span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Set the selected screencast to the one which was clicked</span>
+</span><span class='line'>  <span class="nv">$scope.showScreencast = </span><span class="nf">(screencast, row) -&gt;</span>
+</span><span class='line'>    <span class="nv">$scope.selectedScreencast = </span><span class="nx">screencast</span>
+</span><span class='line'>    <span class="nv">$scope.selectedRow = </span><span class="nx">row</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have added the new param <em>row</em> to the <em>showScreencast</em> function and set this to <em>$scope.selectedRow</em>. Refresh your browser and see how things have changed.</p>
+
+<h2>Completed Project</h2>
+
+<p>View the working app at <a href="http://angular-casts.herokuapp.com/">http://angular-casts.herokuapp.com/</a>.</p>
+
+<h2>Final Thoughts</h2>
+
+<p>I know there are no front-end tests for this tutorial. This was intentional. They were too hard. I spent hours upon hours trying to get the tests working with <em>$httpBackend</em> and service testing, etc. I tried <em>karma</em> and <em>testem</em>. Too much time. Too little benefit. If you are better at this stuff than I am please send me an email or pull request or something with the changes you&#8217;ve made to include the tests. I can always add a <em>Part 3</em> which is about nothing other than testing the frontend.</p>
+
+<p>Thank you all who have patiently waited for me to finish this post. I learned never to release a post before it has been proofread and run through several times. Next time I&#8217;m going to do a screencast.. just like the <a href="http://www.teachmetocode.com">old days</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-23T07:35:00-06:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angular/'>Angular</a>, <a class='category' href='/blog/categories/javascript/'>JavaScript</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/04/22/angularjs-on-rails-4-part-1/" title="Previous Post: AngularJS on Rails 4 - Part 1">&laquo; AngularJS on Rails 4 - Part 1</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/06/20/using-flash-messages-with-emberjs/" title="Next Post: Using Flash Messages with EmberJS">Using Flash Messages with EmberJS &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/me" alt="About Me">About Me</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub's Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/';
+        var disqus_url = 'http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

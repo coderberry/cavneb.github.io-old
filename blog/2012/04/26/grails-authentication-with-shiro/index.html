@@ -1,0 +1,1087 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Grails Authentication with Shiro - coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="Source code for the example project can be found at https://github.com/cavneb/grails-shiro-example. Shiro is a security framework that is meant to &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Grails Authentication With Shiro</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-26T18:03:00-06:00" pubdate data-updated="true">Apr 26<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Source code for the example project can be found at <a href="https://github.com/cavneb/grails-shiro-example">https://github.com/cavneb/grails-shiro-example</a>.</p></blockquote>
+
+<p><a href="http://shiro.apache.org">Shiro</a> is a security framework that is meant to make life easier. The goal of it is to allow the developer to perform <em>authentication, authorization, cryptography</em> and <em>session management</em>. After reading over the <a href="http://shiro.apache.org/10-minute-tutorial.html">10 minute tutorial</a>, I trust that it is an excellent option to use in my Grails application. It should be also noted that the <a href="http://www.grails.org">Grails.org</a> website also uses Shiro for all authentication.</p>
+
+<p>My goal for this article is to help people understand how to implement the Shiro plugin into their Grails application as simply as possible. I will also cover some common usages of the plugin for reference.</p>
+
+<h2>A bit more about Shiro</h2>
+
+<p>I strongly suggest going through the <a href="http://shiro.apache.org/documentation.html">documentation</a> for Shiro before continuing. If not, there are a couple of tidbits that will help you understand how it works.</p>
+
+<p>First, a term that Shiro uses for a <em>User</em> is <em>Subject</em>. Anytime the <em>Subject</em> is referenced, it is referring to Shiro&#8217;s version of a User class.</p>
+
+<p>Second, there is always a <em>Subject</em> that represents the current user. The <em>Subject</em> can be handled prior to authentication. This means that if someone was to visit your site without any authentication, there is already an instanciated class that represents them. In Java, you can obtain the <em>Subject</em> with the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Subject</span> <span class="n">currentUser</span> <span class="o">=</span> <span class="n">SecurityUtils</span><span class="o">.</span><span class="na">getSubject</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To authenticate the user, you must create a <code>UserPasswordToken</code> and call <code>login</code> on the instanciated <em>Subject</em>. The success or failure of the login are returned via <a href="http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authc/AuthenticationException.html">exceptions</a>. Here is an example of code that may be used when logging in a user.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span> <span class="o">!</span><span class="n">currentUser</span><span class="o">.</span><span class="na">isAuthenticated</span><span class="o">()</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">UsernamePasswordToken</span> <span class="n">token</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UsernamePasswordToken</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">,</span> <span class="s">&quot;bar&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">token</span><span class="o">.</span><span class="na">setRememberMe</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span> <span class="c1">// Use remember me if desired - all built in!</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Attempt to authenticate. If no exception thrown, the login was successful</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">currentUser</span><span class="o">.</span><span class="na">login</span><span class="o">(</span> <span class="n">token</span> <span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Username wasn&#39;t in the system</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">UnknownAccountException</span> <span class="n">uae</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Password didn&#39;t match</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">IncorrectCredentialsException</span> <span class="n">ice</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Account with username is locked</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">LockedAccountException</span> <span class="n">lae</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Unexpected error      </span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span> <span class="n">AuthenticationException</span> <span class="n">ae</span> <span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cool! Now we have a bit of knowledge to help us know what we are doing in our Grails implementation.</p>
+
+<h2>Installation</h2>
+
+<p>Let&#8217;s start by creating a new Grails application. I am using version 2.0.3. In the code samples to follow, anything that starts with a $ means that it is a shell command.</p>
+
+<pre><code>$ grails create-app shiro-example
+$ cd shiro-example</code></pre>
+
+
+<p>The <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> can be installed by using the dependency in your <code>BuildConfig.groovy</code>. Even though the plugin page shows version 1.1.4, we will use the latest snapshot release:</p>
+
+<figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="n">runtime</span> <span class="s">&quot;:shiro:1.2.0-SNAPSHOT&quot;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you have the dependency setup in the <code>BuildConfig.groovy</code> file, you must compile the app to make sure the dependencies are installed.</p>
+
+<pre><code>$ grails compile</code></pre>
+
+
+<p>Let&#8217;s kickstart our app now by using the <code>shiro-quick-start</code> command. I am using the optional <code>--prefix=[package]</code>. Make sure you have a dot at the end if you are using the prefix.</p>
+
+<pre><code>$ grails shiro-quick-start --prefix=com.example.
+| Created file grails-app/domain/com/example/User.groovy
+| Created file grails-app/domain/com/example/Role.groovy
+| Created file grails-app/realms/com/example/DbRealm.groovy
+| Created file grails-app/controllers/com/example/AuthController.groovy
+| Created file grails-app/views/auth/login.gsp
+| Created file grails-app/conf/com/example/SecurityFilters.groovy</code></pre>
+
+
+<p>Whoa! What just happened? As you can see, you now have created some files:</p>
+
+<p><code>domain/../User.groovy</code> is the <em>domain class</em> for your user.</p>
+
+<p><code>domain/../Role.groovy</code> is the <em>domain class</em> for your user roles.</p>
+
+<p><code>realms/../DbRealm.groovy</code> is the class Shiro uses to handle authentication and permissions.</p>
+
+<p><code>controllers/../AuthController.groovy</code> and <code>views/auth/login.gsp</code> are the user-facing controller and view meant to handle login.</p>
+
+<p><code>config/../SecurityFilters.groovy</code> adds a <a href="http://grails.org/doc/2.0.3/ref/Controllers/beforeInterceptor.html">beforeInterceptor</a> to all url&#8217;s. This blocks/redirects users from accessing pages they are not authorized to visit (based on their roles).</p>
+
+<blockquote><p><strong>What is a realm?</strong><br/>
+Shiro can use different <em>realms</em> for authenticating a user. A <em>realm</em> is basically a resource Shiro should use to authenticate a user. Further explanation can be found <a href="http://www.brucephillips.name/blog/index.cfm/2009/4/5/An-Introduction-to-Ki-formerly-JSecurity--A-Beginners--Tutorial-Part-2">here</a>.</p></blockquote>
+
+<h2>Configuration</h2>
+
+<h2>Bootstrapping</h2>
+
+<p>Bootstrapping users and roles is similar to how it&#8217;s done with the <a href="http://grails.org/plugin/spring-security-core">Spring Security Core plugin</a>. Let&#8217;s create a couple of roles and users to go with them.</p>
+
+<p>File /Users/eberry/Projects/Personal/cavneb.github.io/source/downloads/code/BootStrap.groovy could not be found</p>
+
+<p>On line 5, we include the Shiro Security Service. This is necessary for us to encode the password into a password hash for the user.</p>
+
+<p>On lines 9-15, the admin and user roles are created.</p>
+
+<p>On lines 17-21, the admin user is either loaded from the database or is created. Here is where we use the Shiro Security Service for encoding the password.</p>
+
+<p>On lines 23-26, the roles <em>ADMIN_ROLE</em> and <em>USER_ROLE</em> are assigned to the admin user. Note that we add both roles to this user. This allows the admin user to act as a normal user as well. This may or may not be appropriate, depending on the application.</p>
+
+<p>Lines 28-36 are similar to 23-26, but for the standard user role instead of the admin role.</p>
+
+<h2>Kick the Tires</h2>
+
+<p>Now that we have the default users created, let&#8217;s run the app and test to make sure the login works. Start up the application with the <code>run-app</code> command:</p>
+
+<pre><code>$ grails run-app</code></pre>
+
+
+<p>Once it&#8217;s running, open up the browser and go to <a href="http://localhost:8080/shiro-example/" target="_blank">http://localhost:8080/shiro-example/</a>.</p>
+
+<p><img src="/images/posts/shiro-example-1.png"></p>
+
+<p>Click on the link <em>com.example.AuthController</em> and login as the admin user (username: &#8216;admin&#8217;, password: &#8216;password&#8217;).</p>
+
+<p><img src="/images/posts/shiro-example-2.png"></p>
+
+<p>If you successfully logged in, you will be redirected back to the first page. This doesn&#8217;t help us very much.</p>
+
+<h2>Adding Security</h2>
+
+<p>Now that we&#8217;ve figured out how to authenticate users with the login form, we need to create some pages that require being authenticated. Pay attention.. this is really the core of the plugin.. and the part that was most difficult for me to figure out.</p>
+
+<p>Let&#8217;s start off by creating a controller with three actions: <code>index</code>, <code>secured</code> and <code>admin</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Home</code></pre>
+
+
+<p>Create three actions in the controller:</p>
+
+<figure class='code'><figcaption><span>grails-app/controllers/com/example/HomeController.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">HomeController</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">index</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">render</span> <span class="s">&quot;This page is not secured&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">secured</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">render</span> <span class="s">&quot;This page requires a user to be logged in&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">admin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>       <span class="n">render</span> <span class="s">&quot;This page requires the logged in user to be an administrator&quot;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, the three actions <em>should</em> have different security levels. <code>index</code> will allow anyone to be able to view the page. <code>secured</code> requires that a user be logged in. <code>admin</code> requries that the user logged in must have the <em>ROLE_ADMIN</em> role assigned to them.</p>
+
+<p>Try out the URL&#8217;s to the new actions created. Notice that they all lead you back to the login page if you haven&#8217;t logged in. Stranger yet is that once you log in, you should see this;</p>
+
+<p><img src="/images/posts/shiro-example-3.png"></p>
+
+<p>Don&#8217;t worry though. This is expected and can be resolved easily by updating <code>SecurityFilters.groovy</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Generated by the Shiro plugin. This filters class protects all URLs</span>
+</span><span class='line'><span class="cm"> * via access control by convention.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">SecurityFilters</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Array of controller/action combinations which will be skipped from authentication</span>
+</span><span class='line'><span class="cm">     * if the controller and action names match. The action value can also be &#39;*&#39; if it</span>
+</span><span class='line'><span class="cm">     * encompasses all actions within the controller.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">nonAuthenticatedActions</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Array of controller/action combinations that will be authenticated against the user&#39;s</span>
+</span><span class='line'><span class="cm">     * role. The map also includes the roles which the controller/action pair will match</span>
+</span><span class='line'><span class="cm">     * against.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">authenticatedActions</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">secured</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">roles:</span> <span class="o">[</span><span class="err">&#39;</span><span class="n">ROLE_ADMIN</span><span class="err">&#39;</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">ROLE_USER</span><span class="err">&#39;</span><span class="o">]],</span>
+</span><span class='line'>            <span class="o">[</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">admin</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">roles:</span> <span class="o">[</span><span class="err">&#39;</span><span class="n">ROLE_ADMIN</span><span class="err">&#39;</span><span class="o">]]</span>
+</span><span class='line'>    <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="n">filters</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">all</span><span class="o">(</span><span class="nl">controller:</span> <span class="sc">&#39;*&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">before</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Determine if the controller/action belongs is not to be authenticated</span>
+</span><span class='line'>                <span class="n">def</span> <span class="n">needsAuth</span> <span class="o">=</span> <span class="o">!</span><span class="n">nonAuthenticatedActions</span><span class="o">.</span><span class="na">find</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">controller</span> <span class="o">==</span> <span class="n">controllerName</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>                            <span class="o">((</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="n">actionName</span><span class="o">))</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">needsAuth</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Get the map within the authenticated actions which pertain to the current</span>
+</span><span class='line'>                    <span class="c1">// controller and view.</span>
+</span><span class='line'>                    <span class="n">def</span> <span class="n">authRoles</span> <span class="o">=</span> <span class="n">authenticatedActions</span><span class="o">.</span><span class="na">find</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">controller</span> <span class="o">==</span> <span class="n">controllerName</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>                                <span class="o">((</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="sc">&#39;*&#39;</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">action</span> <span class="o">==</span> <span class="n">actionName</span><span class="o">))</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">authRoles</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="c1">// Perform the access control for each of the roles provided in the authRoles</span>
+</span><span class='line'>                        <span class="n">accessControl</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">authRoles</span><span class="o">.</span><span class="na">roles</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">roleName</span> <span class="o">-&gt;</span>
+</span><span class='line'>                                <span class="n">role</span><span class="o">(</span><span class="n">roleName</span><span class="o">)</span>
+</span><span class='line'>                            <span class="o">}</span>
+</span><span class='line'>                        <span class="o">}</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Skip authentication if the authRoles was not found</span>
+</span><span class='line'>                    <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Skip authentication if no auth is needed</span>
+</span><span class='line'>                <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="kc">true</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This may be a lot to take in but the only sections that are really important are lines 14-16 and 23-26. Here we are establishing which controller/action combinations are not to be authenticated, and which are to be authenticated against the provided roles.</p>
+
+<p>Now when you access the pages, the expected security should be in place. Give it a shot.</p>
+
+<blockquote><p><strong>Confused?</strong><br/>
+This can be a confusing topic, and moreso a confusing portion of the topic. Please feel free to ask any questions in the comments section and I will do my best to help out.*</p></blockquote>
+
+<h2>Creating Users</h2>
+
+<p>The <code>shiro-quick-start</code> command did create the login page and authentication controller, but it didn&#8217;t help us a bit on creating users. Good thing it&#8217;s pretty easy to do.</p>
+
+<p>We could create a controller called <em>Users</em> to handle the signup process, however, I don&#8217;t want to do that. The reason is because I would like to eventually have a <em>Users</em> controller that will perform all the CRUD operations for the users and would only be accessible by administrators.</p>
+
+<p>Instead, let&#8217;s create a new controller for handling the signup process. Let&#8217;s call it <code>Signup</code>.</p>
+
+<pre><code>$ grails create-controller com.example.Signup
+| Created file grails-app/controllers/com/example/SignupController.groovy
+| Created file grails-app/views/signup
+| Created file test/unit/com/example/SignupControllerTests.groovy</code></pre>
+
+
+<p>Update your SignupController as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.shiro.authc.UsernamePasswordToken</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.shiro.SecurityUtils</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">SignupController</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">shiroSecurityService</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">index</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">()</span>
+</span><span class='line'>        <span class="o">[</span><span class="nl">user:</span> <span class="n">user</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="nf">register</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Check to see if the username already exists</span>
+</span><span class='line'>        <span class="n">def</span> <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="na">findByUsername</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">username</span><span class="o">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;User already exists with the username &#39;${params.username}&#39;&quot;</span>
+</span><span class='line'>            <span class="n">render</span><span class="o">(</span><span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// User doesn&#39;t exist with username. Let&#39;s create one</span>
+</span><span class='line'>        <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Make sure the passwords match</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">password</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="na">password2</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">flash</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="s">&quot;Passwords do not match&quot;</span>
+</span><span class='line'>                <span class="n">render</span><span class="o">(</span><span class="err">&#39;</span><span class="n">index</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Passwords match. Let&#39;s attempt to save the user</span>
+</span><span class='line'>            <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// Create user</span>
+</span><span class='line'>                <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span>
+</span><span class='line'>                        <span class="nl">username:</span> <span class="n">params</span><span class="o">.</span><span class="na">username</span><span class="o">,</span>
+</span><span class='line'>                        <span class="nl">passwordHash:</span> <span class="n">shiroSecurityService</span><span class="o">.</span><span class="na">encodePassword</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">password</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">save</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Add USER role to new user</span>
+</span><span class='line'>                    <span class="n">user</span><span class="o">.</span><span class="na">addToRoles</span><span class="o">(</span><span class="n">Role</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="err">&#39;</span><span class="n">ROLE_USER</span><span class="err">&#39;</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Login user</span>
+</span><span class='line'>                    <span class="n">def</span> <span class="n">authToken</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UsernamePasswordToken</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">username</span><span class="o">,</span> <span class="n">params</span><span class="o">.</span><span class="na">password</span><span class="o">)</span>
+</span><span class='line'>                    <span class="n">SecurityUtils</span><span class="o">.</span><span class="na">subject</span><span class="o">.</span><span class="na">login</span><span class="o">(</span><span class="n">authToken</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">redirect</span><span class="o">(</span><span class="nl">controller:</span> <span class="err">&#39;</span><span class="n">home</span><span class="err">&#39;</span><span class="o">,</span> <span class="nl">action:</span> <span class="err">&#39;</span><span class="n">secured</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the code above, there are two actions: <code>index</code> and <code>register</code>. The <code>index</code> action is what contains the form (view). The <code>register</code> action performs the user registration and responds/redirects according to the results.</p>
+
+<p>Paste this into your <code>/grails-app/views/home/index.gsp</code> view:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="err">&lt;</span>%@ page contentType=&quot;text/html;charset=UTF-8&quot; %&gt;
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&quot;Content-Type&quot;</span> <span class="na">content=</span><span class="s">&quot;text/html; charset=UTF-8&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;title&gt;</span>Register<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;layout&quot;</span> <span class="na">content=</span><span class="s">&quot;main&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;h1&gt;</span>Signup<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:if</span> <span class="na">test=</span><span class="s">&quot;${flash.message}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;alert alert-info&quot;</span><span class="nt">&gt;</span>${flash.message}<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:if&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:hasErrors</span> <span class="na">bean=</span><span class="s">&quot;${user}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;alert alert-error&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:renderErrors</span> <span class="na">bean=</span><span class="s">&quot;${user}&quot;</span> <span class="na">as=</span><span class="s">&quot;list&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:hasErrors&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;g:form</span> <span class="na">action=</span><span class="s">&quot;register&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;username&quot;</span><span class="nt">&gt;</span>Username<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:textField</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;${user.username}&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:passwordField</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Confirm Password<span class="nt">&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:passwordField</span> <span class="na">name=</span><span class="s">&quot;password2&quot;</span> <span class="na">value=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;g:submitButton</span> <span class="na">name=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Submit&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'><span class="nt">&lt;/g:form&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Go ahead and try the signup by going to <a href="http://localhost:8080/shiro-example/signup">http://localhost:8080/shiro-example/signup</a>.</p>
+
+<p><img src="/images/posts/shiro-example-4.png"></p>
+
+<p>If the signup is successful, you will see a page like this:</p>
+
+<p><img src="/images/posts/shiro-example-5.png"></p>
+
+<p>Congrats! You now have a full circle authenticated app using <strong>Shiro</strong>!</p>
+
+<h2>Tag Lib Reference</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:isLoggedIn&gt;</span>Body<span class="nt">&lt;/shiro:isLoggedIn&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:isNotLoggedIn&gt;</span>Body<span class="nt">&lt;/shiro:isNotLoggedIn&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is NOT logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:authenticated</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+A synonym for &#8216;isLoggedIn&#8217;. This is the same name as used by the standard Shiro tag library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notAuthenticated</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A synonym for &#8216;isNotLoggedIn&#8217;. This is the same name as used by the standard Shiro tag library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:user&gt;</span>Body<span class="nt">&lt;/shiro:user&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is either logged in or remembered from a previous session (via the &#8220;remember me&#8221; cookie).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notUser&gt;</span>Body<span class="nt">&lt;/shiro:notUser&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user is neither logged in nor remembered from a previous session (via the &#8220;remember me&#8221; cookie).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:remembered&gt;</span>Body<span class="nt">&lt;/shiro:remembered&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user is remembered from a previous session (via the &#8220;remember me&#8221; cookie) but not currently logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:notRemembered&gt;</span>Body<span class="nt">&lt;/shiro:notRemembered&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user is not remembered from a previous session (via the &#8220;remember me&#8221; cookie). This is the case if they are a guest user or logged in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:principal</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span> <span class="na">property=</span><span class="s">&quot;property&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputs the string form of the current user&#8217;s identity. By default this assumes that the subject has only one principal; its string representation is written to the page.</p>
+
+<p>The <strong><em>type</em></strong> is the species the type or class of the principal to use.</p>
+
+<p>The <strong><em>property</em></strong> value specifies the name of the property on the principal to use as the string representation, e.g. <code>firstName</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasRole</span> <span class="na">name=</span><span class="s">&quot;role_name&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user has the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksRole</span> <span class="na">name=</span><span class="s">&quot;role_name&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user does not have the given role.</p>
+
+<p>The <strong><em>name</em></strong> property is a the <em>String</em> name of the role, e.g. <code>ROLE_USER</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasAllRoles</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasAllRoles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has all the given roles (inversion of lacksAnyRole).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksAllRoles</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksAllRoles&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This tag only writes its body to the output if the current user doesn&#8217;t have all of the given roles (inversion of hasAllRoles).
+The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasAnyRole</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasAnyRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has any of the given roles (inversion of lacksAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:lacksAnyRole</span> <span class="na">in=</span><span class="s">&quot;roles&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:lacksAnyRole&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has none of the given roles (inversion of hasAllRoles).</p>
+
+<p>The <strong><em>in</em></strong> property is a <em>List<String></em> of roles, e.g. <code>['ROLE_ADMIN', 'ROLE_USER']</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                     <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                     <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                     <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has the given permission.</p>
+
+<p>The <strong><em>type</em></strong> property is the permission type.</p>
+
+<p>The <strong><em>permission</em></strong> is the permission name. Either <em>type</em> or <em>permission</em> must be used.</p>
+
+<p>The <strong><em>actions</em></strong> must be present if the <em>type</em> is present.</p>
+
+<p>The <em>target</em> is optional and will be defaulted to &#8217;<em>&#8217; if not provided. It is also only applicable for when the </em>type* attribute is available.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                     <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                     <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                     <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user has the given permission. Attribute descriptions are the same as found on <code>hasPermissions</code> above.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;shiro:hasPermission</span> <span class="na">type=</span><span class="s">&quot;type&quot;</span>
+</span><span class='line'>                      <span class="na">permission=</span><span class="s">&quot;permission&quot;</span>
+</span><span class='line'>                      <span class="na">actions=</span><span class="s">&quot;actions&quot;</span>
+</span><span class='line'>                      <span class="na">target=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;</span>Body<span class="nt">&lt;/shiro:hasPermission&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This tag only writes its body to the output if the current user does not have the given permission. Attribute descriptions are the same as found on <code>hasPermissions</code> above.</p>
+
+<h2>Notes</h2>
+
+<p>I did not cover topics such as permissions. For more information on this, please refer to the <a href="http://shiro.apache.org/documentation.html">Shiro documentation</a> and the <a href="http://grails.org/plugin/shiro">Shiro Plugin</a> source code.</p>
+
+<p><a href="https://github.com/gavinhogan">Gavin Hogan</a> has forked the grails-shiro plugin and has done some excellent work on updating the documentation. His fork can be found at <a href="https://github.com/gavinhogan/grails-shiro/">https://github.com/gavinhogan/grails-shiro/</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-26T18:03:00-06:00" pubdate data-updated="true">Apr 26<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/authentication/'>Authentication</a>, <a class='category' href='/blog/categories/grails/'>Grails</a>, <a class='category' href='/blog/categories/shiro/'>Shiro</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/04/24/asset-pipeline-for-dummies/" title="Previous Post: Asset Pipeline for Dummies">&laquo; Asset Pipeline for Dummies</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/" title="Next Post: Stupid Simple POST/GET with Groovy HTTPBuilder">Stupid Simple POST/GET with Groovy HTTPBuilder &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/me" alt="About Me">About Me</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub's Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/';
+        var disqus_url = 'http://coderberry.me/blog/2012/04/26/grails-authentication-with-shiro/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

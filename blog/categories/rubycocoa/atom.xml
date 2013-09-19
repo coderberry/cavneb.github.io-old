@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: RubyCocoa | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/rubycocoa/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RubyCocoa and NSTables De-Mystified]]></title>
+    <link href="http://coderberry.me/blog/2008/10/16/rubycocoa-and-nstables-de-mystified/"/>
+    <updated>2008-10-16T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2008/10/16/rubycocoa-and-nstables-de-mystified</id>
+    <content type="html"><![CDATA[<p>I spent a good 3 hours today trying to figure out exactly how to get NSTables working while using RubyCocoa. Now that I finally figured it out (to a minimum extent), I wanted to share the wealth.</p>
+
+<p>Here's a screencast I made. There's no audio on it, but the video should be good enough to understand what's going on. This screencast how to create a RubyCocoa application which pulls search results from Amazon using their Web API and populates a table.</p>
+
+<iframe width="640" height="390" src="http://www.youtube.com/embed/w3dC5Gx5xUs" frameborder="0" allowfullscreen></iframe>
+
+]]></content>
+  </entry>
+  
+</feed>

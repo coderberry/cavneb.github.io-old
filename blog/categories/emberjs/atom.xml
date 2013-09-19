@@ -1,0 +1,1729 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: EmberJS | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/emberjs/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Useful Ember Code Examples]]></title>
+    <link href="http://coderberry.me/blog/2013/08/07/useful-ember-code-examples/"/>
+    <updated>2013-08-07T07:14:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/08/07/useful-ember-code-examples</id>
+    <content type="html"><![CDATA[<p>Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep track of them. Here is a list of useful Ember code examples.</p>
+
+<table style="width: 100%; margin-bottom: 15px;">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Tags</th>
+      <th>Author</th>
+      <th>Extra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="http://jsbin.com/edunuh/1/edit">Truncate Helper</a></td>
+      <td>helpers</td>
+      <td><a href="https://twitter.com/heyjinkim">@heyjinkim</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/d3ember-barchart/13/edit">Reusable D3 charts</a></td>
+      <td>components, d3</td>
+      <td><a href="https://twitter.com/heyjinkim">@heyjinkim</a></td>
+      <td><a href="http://heyjinjs.us/post/57158250642/reusable-d3-charts-with-ember-js-components">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/donuts/1/edit">Donut Charts</a></td>
+      <td>components, d3</td>
+      <td><a href="https://twitter.com/heyjinkim">@heyjinkim</a></td>
+      <td><a href="http://heyjinjs.us/post/57158250642/reusable-d3-charts-with-ember-js-components">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/upogic/1/edit">Share Buttons</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/asogaq/1/edit">Mini Stars</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/enudur/6/edit">Stars</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://plnkr.co/edit/QbhyrcXZ6LbGzVFfEzD4?p=preview">Gravatar</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/ehafun/2/edit">Em.CollectionView Callback</a></td>
+      <td>views, tips</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td><a href="http://stackoverflow.com/questions/16112035/emberjs-view-detect-if-all-children-views-have-been-rendered/16127198#16127198">StackOverflow</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsfiddle.net/cavneb/XbDEM/embedded/#JavaScript">Copy to Clipboard</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td><a href="http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/ifuvow/3/edit">Two Models, One Route</a></td>
+      <td>routes, tips</td>
+      <td><a href="https://github.com/mmun">Martin Muñoz</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/omagiq/1/edit">Toggle Switches</a></td>
+      <td>views</td>
+      <td><a href="http://twitter.com/adman65/">@adman65</a></td>
+      <td><a href="http://hawkins.io/2013/07/ember-toggle-switch/">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/ijoqom/6/edit">Pagination</a></td>
+      <td>tips</td>
+      <td><a href="http://twitter.com/adman65/">@adman65</a></td>
+      <td><a href="http://hawkins.io/2013/07/pagination-with-ember/">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/olurim/5/edit">Flash Messages</a></td>
+      <td>tips</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td><a href="http://coderberry.me/blog/2013/06/20/using-flash-messages-with-emberjs/">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/iMaj/1/edit">Syntax Highlighter</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/IkaS/1/edit">Em.RSVP.Promise</a></td>
+      <td>tips</td>
+      <td><a href="https://twitter.com/ryanflorence">@ryanflorence</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/iXih/1/edit">Sortable Tables</a></td>
+      <td>controllers</td>
+      <td><a href="https://twitter.com/adman65">@adman65</a></td>
+      <td><a href="http://hawkins.io/2013/07/table-sorting-with-ember/">Blog Post</a></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/IHIyEF/1/edit?html,js,output">Ember.debugObj</a></td>
+      <td>debugging, tips</td>
+      <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/EwUPUla/3/edit">Time on Page</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/stv_kn">@stv_kn</a></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p> Please feel free to contribute by forking <a href="https://github.com/cavneb/cavneb.github.io/blob/source/source/_posts/2013-08-07-useful-ember-code-examples.markdown">this post</a> and submitting a PR. Or in the comments. Whatever's clever.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[GitHub's Copy to Clipboard with Ember]]></title>
+    <link href="http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/"/>
+    <updated>2013-07-19T10:36:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/19/githubs-copy-to-clipboard-with-ember</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/zeroclipboard-video.gif"></p>
+
+<p>GitHub recently <a href="http://techcrunch.com/2013/01/02/github-replaces-copy-and-paste-with-zeroclipboard/">replaced the copy and paste functionality</a> with <a href="http://zeroclipboard.github.io/ZeroClipboard/">ZeroClipboard</a>, a library for copying text to the clipboard that uses an invisible Adobe Flash movie through a JavaScript interface.</p>
+
+<p>I wanted to integrate this functionality into an app that I am writing for <a href="http://www.instructure.com">Instructure</a> and have been able to do so using very little code.</p>
+
+<p>Here's how I did it originally using Handlebars helpers:</p>
+
+<iframe width="100%" height="500" src="http://jsfiddle.net/cavneb/GSF8Q/2/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+
+
+<p>This is awesome, however I would like to take this a step farther and create a <span style="text-decoration: line-through;">directive</span> Ember web component instead.</p>
+
+
+
+
+<iframe width="100%" height="450" src="http://jsfiddle.net/cavneb/XbDEM/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>Ahh.. I feel very good about where <a href="http://emberjs.com/api/classes/Ember.Component.html">Ember Components</a> are going.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 3]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/"/>
+    <updated>2013-07-08T19:39:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3</id>
+    <content type="html"><![CDATA[<p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a> and <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Part 2</a>, I recommend you do. You can check out the code up to this point with the following:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/simple-auth.git simple_auth
+$ cd simple_auth
+$ git checkout part-2-completed
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+</code></pre>
+
+<p>Also, make sure you run <code>./bin/ember_build.sh</code> in a separate tab.</p>
+
+<h2>What's Left?</h2>
+
+<p>So far, we have created an Ember application with a RailsAPI backend and can register, login and logout. There are a few more things that we want to be able to do before we can call it a wrap on this series.</p>
+
+<ol>
+<li>Pass the access token with each request to the backend and require authorization for some data to return.</li>
+<li>Force the user to the login page when they try to access a page which requires authentication.</li>
+<li>Add validation to our registration form.</li>
+</ol>
+
+
+<h2>Access Token In Each Request</h2>
+
+<p>Believe it or not, this is already happening. If you look at <em>auth_manager.js</em>, you will see that in the <em>authenticate</em> function, we add the headers to each AJAX request with the access token.</p>
+
+<p>Let's test this.</p>
+
+<p>Open up the <em>top_secret</em> route and load place the user list into the controllers model:</p>
+
+<p>```javascript public/javascripts/routes/top_secret_route.js
+var User = require('../models/user');</p>
+
+<p>var TopSecretRoute = Ember.Route.extend({
+  model: function() {</p>
+
+<pre><code>return User.find();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = TopSecretRoute;
+```</p>
+
+<p>Now update the <em>top_secret</em> template with the following:</p>
+
+<p>
+```html public/javascripts/templates/top_secret.hbs</p>
+
+<h2>Users (Top Secret Stuff)</h2>
+
+
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Username</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each controller}}
+    <tr>
+      <td>{{name}}</td>
+      <td>{{email}}</td>
+      <td>{{username}}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+
+
+<p>```
+</p>
+
+<p>Refresh the browser and click on the <em>Top Secret</em> nav item. <strong>If you haven't already registered and/or logged in, do it first.</strong></p>
+
+<p><img src="/images/posts/simple-auth-ss-6.png"></p>
+
+<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn't there, we would not be able to see a list of users. Click 'Logout' and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>.</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">If you still see the users list, it is because they are cached. Refresh the page.</div>
+
+
+<h2>Hide Pages Which Require Authorization</h2>
+
+<p>It seems rather silly for us to be able to click on the <em>Top Secret</em> nav item and see an empty list of users. Let's require the user to be authenticated in order to view that page.</p>
+
+<p>The easiest way to do this is to create a base route which can be extended by routes which require authentication.  Create a new route called <em>authenticated</em>.</p>
+
+<pre><code>$ ember generate -r authenticated
+</code></pre>
+
+<p>```javascript public/javascripts/routes/authenticated_route.js
+var AuthenticatedRoute = Ember.Route.extend({
+  beforeModel: function(transition) {</p>
+
+<pre><code>if (!App.AuthManager.isAuthenticated()) {
+  this.redirectToLogin(transition);
+}
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Redirect to the login page and store the current transition so we can
+  // run it again after login
+  redirectToLogin: function(transition) {</p>
+
+<pre><code>var sessionNewController = this.controllerFor('sessions.new');
+sessionNewController.set('attemptedTransition', transition);
+this.transitionTo('sessions.new');
+</code></pre>
+
+<p>  },</p>
+
+<p>  events: {</p>
+
+<pre><code>error: function(reason, transition) {
+  this.redirectToLogin(transition);
+}
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = AuthenticatedRoute;
+```</p>
+
+<p>Now modify the <em>sessions/new</em> controller and redirect to the <em>attemptedTransition</em> if available:</p>
+
+<p>```javascript public/javascripts/controllers/sessions/new_controller.js
+var SessionsNewController = Ember.ObjectController.extend({</p>
+
+<p>  attemptedTransition: null,</p>
+
+<p>  loginUser: function() {</p>
+
+<pre><code>var self = this;
+var router = this.get('target');
+var data = this.getProperties('username_or_email', 'password');
+var attemptedTrans = this.get('attemptedTransition');
+
+$.post('/session', data, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  if (attemptedTrans) {
+    attemptedTrans.retry();
+    self.set('attemptedTransition', null);
+  } else {
+    router.transitionTo('index');
+  }
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewController;
+```</p>
+
+<p>Finally, update the <em>top_secret</em> route to extend the new AuthenticatedRoute:</p>
+
+<p>```javascript public/javascripts/routes/top_secret_route.js
+var AuthenticatedRoute = require('./authenticated_route');
+var User = require('../models/user');</p>
+
+<p>var TopSecretRoute = AuthenticatedRoute.extend({
+  model: function() {</p>
+
+<pre><code>return User.find();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = TopSecretRoute;
+```</p>
+
+<p>Refresh your browser and click on the <em>Top Secret</em> nav item. You should be redirected to the login page. Now log in and it should redirect you right back to the top secret page.</p>
+
+<h2>Form Validation</h2>
+
+<p>The final thing I am going to cover (briefly) is performing form validation. This is very simple considering our backend is already giving us what we need. Open up the <em>user.js</em> model and add 'errors' as an attribute:</p>
+
+<p>```javascript public/javascripts/models/user.js
+var User = DS.Model.extend({
+  name:     DS.attr('string'),
+  email:    DS.attr('string'),
+  username: DS.attr('string'),</p>
+
+<p>  errors: {}
+});</p>
+
+<p>module.exports = User;
+```</p>
+
+<p>Now open up the <em>users/new</em> controller and capture the errors on a failed registration and place them into the errors hash:</p>
+
+<p>```javascript public/javascripts/controllers/users/new_controller.js
+var UsersNewController = Ember.ObjectController.extend({
+  createUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('name', 'email', 'username', 'password', 'password_confirmation')
+var user = this.get('model');
+
+$.post('/users', { user: data }, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+
+}).fail(function(jqxhr, textStatus, error ) {
+  if (jqxhr.status === 422) {
+    errs = JSON.parse(jqxhr.responseText)
+    user.set('errors', errs.errors);
+  }
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewController;
+```</p>
+
+<p>Finally, update the registration template:</p>
+
+<p>
+```html public/javascripts/templates/users/new.hbs</p>
+
+<h2>Register</h2>
+
+
+<p><form {{action "createUser" on="submit"}}>
+  <div {{bindAttr class=":controls errors.name:error"}}></p>
+
+<pre><code>&lt;label&gt;Full Name&lt;/label&gt;
+{{input type="text" value=name placeholder="Full Name"}}
+&lt;small class="below"&gt;{{errors.name}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.email:error"}}></p>
+
+<pre><code>&lt;label&gt;Email Address&lt;/label&gt;
+{{input type="email" value=email placeholder="Email Address"}}
+&lt;small class="below"&gt;{{errors.email}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.username:error"}}></p>
+
+<pre><code>&lt;label&gt;Username&lt;/label&gt;
+{{input type="text" value=username placeholder="Username"}}
+&lt;small class="below"&gt;{{errors.username}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.password:error"}}></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+&lt;small class="below"&gt;{{errors.password}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.password_confirmation:error"}}></p>
+
+<pre><code>&lt;label&gt;Confirm Password&lt;/label&gt;
+{{input type="password" value=password_confirmation placeholder="Confirm Password"}}
+&lt;small class="below"&gt;{{errors.password_confirmation}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh the browser and play around with the form. You should see error messages on submit if they are invalid. These errors are provided by Rails on the backend and are returned via the API.</p>
+
+<p><img src="/images/posts/simple-auth-ss-7.png"></p>
+
+<h2>Done!</h2>
+
+<p>Thanks for sticking through this with me. The final code can be found at <a href="https://github.com/cavneb/simple_auth">https://github.com/cavneb/simple_auth</a>.</p>
+
+<p>I especially want to thank all those who are taking the time to teach Ember via blogs, screencasts and live presentations. I find myself struggling less and less every day because new content comes out from all of you. Thanks!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 2]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2/"/>
+    <updated>2013-07-08T17:36:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2</id>
+    <content type="html"><![CDATA[<p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a>, I recommend you do. You can check out the code up to this point with the following:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/simple-auth.git simple_auth
+$ cd simple_auth
+$ git checkout part-1-completed
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+</code></pre>
+
+<h2>Add Ember using Ember Tools!</h2>
+
+<p>I have created Ember applications using a variety of shortcuts (<a href="https://github.com/yeoman/generator-ember">Yeoman</a>, <a href="https://github.com/emberjs/ember-rails">ember-rails</a>) but have found that <a href="https://github.com/rpflorence/ember-tools">Ember Tools</a> is by far the best option available. It allows me to skip the <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">Asset Pipeline</a> completely and work directly in my public folder.</p>
+
+<p>To get started, install Ember Tools using <em>npm</em>.</p>
+
+<pre><code>$ npm install -g ember-tools
+</code></pre>
+
+<p>Once this is installed, you will be able to use the console command <em>ember</em>. Try it out:</p>
+
+<pre><code>$ ember -V
+0.2.4
+</code></pre>
+
+<p>Excellent. Now create our Ember app in our public directory with the following command:</p>
+
+<pre><code>$ ember create --js-path public/javascripts
+   skipped: .
+   created: ./public/javascripts
+   created: ./public/javascripts/vendor
+   created: ./public/javascripts/config
+   created: ./public/javascripts/controllers
+   created: ./public/javascripts/helpers
+   created: ./public/javascripts/models
+   created: ./public/javascripts/routes
+   created: ./public/javascripts/templates
+   created: ./public/javascripts/views
+   created: ./public/javascripts/mixins
+   created: ./ember.json
+   created: ./public/javascripts/config/app.js
+   created: ./public/javascripts/config/store.js
+   created: ./public/javascripts/config/routes.js
+   created: ./public/javascripts/templates/application.hbs
+   created: ./public/javascripts/templates/index.hbs
+   created: ./index.html
+   created: ./public/javascripts/vendor/ember-data.js
+   created: ./public/javascripts/vendor/ember.js
+   created: ./public/javascripts/vendor/handlebars.js
+   created: ./public/javascripts/vendor/jquery.js
+   created: ./public/javascripts/vendor/localstorage_adapter.js
+All done! Start with `config/routes.js` to add routes to your app.
+</code></pre>
+
+<p>With that simple command we now have a <em>nearly</em> functional Ember application. Let's move the generated <em>index.html</em> file into the public folder and modify it a tiny bit.</p>
+
+<pre><code>$ mv index.html public/.
+</code></pre>
+
+<p><code>html public/index.html
+&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta http-equiv="Content-type" content="text/html; charset=utf-8"&gt;
+  &lt;title&gt;Ember App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script src="javascripts/application.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></p>
+
+<p>Note that the only thing that changed in this file is the path to the application.js file. Go ahead and start up your Rails application and visit <a href="http://localhost:3000">http://localhost:3000</a>.</p>
+
+<pre><code>$ rails s
+</code></pre>
+
+<p>You shouldn't see anything come up and will likely see an error in the server logs. This is because the page is trying to load application.js when it does not exist. To create the file, run (in another terminal tab within the same root directory):</p>
+
+<pre><code>$ ember build
+   created: public/javascripts/templates.js
+   created: public/javascripts/index.js
+   created: public/javascripts/application.js
+build time: 358 ms
+</code></pre>
+
+<p>This created three files: templates.js, index.js and application.js. The two former are used temporarily to create the latter. Now refresh your browser and you should see the starter app:</p>
+
+<p><img src="/images/posts/simple-auth-ss-1.png"></p>
+
+<p>Running <em>ember build</em> can get very tedious, so let's create a script which will monitor the file structure and run the command when needed. You will need to have <em>fsmonitor</em> installed if you don't already:</p>
+
+<pre><code>$ npm install -g fsmonitor
+</code></pre>
+
+<p>Create the file bin/ember_build:</p>
+
+<p>```bash bin/ember_build.sh</p>
+
+<h1>!/bin/bash</h1>
+
+<p>fsmonitor -p -d public/javascripts '!index.js' '!templates.js' '!application.js' ember build -d
+```</p>
+
+<p>Now in a separate tab, make the file executable and run it:</p>
+
+<pre><code>$ chmod a+x bin/ember_build.sh
+$ ./bin/ember_build.sh
+
+Monitoring:  public/javascripts
+    filter:  **/ !**/index.js/** !**/templates.js/** !**/application.js/**
+    action:  ember build
+
+...
+</code></pre>
+
+<p>Now whenever we change our Ember app, the code will re-compile.</p>
+
+<h2>Generate, Generate, Generate!</h2>
+
+<p>Ember Tools comes with generators, which I LOVE! Let's create some files using the generators and fill out our layout page.</p>
+
+<p>Start by creating the route, handlebars template and <strong>object</strong> controller for <em>users/new</em>. This will be where we register.</p>
+
+<pre><code>$ ember generate -rtc users/new
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: o
+   created: public/javascripts/controllers/users/new_controller.js
+   created: public/javascripts/templates/users/new.hbs
+   created: public/javascripts/routes/users/new_route.js
+</code></pre>
+
+<p>Now create the route, handlebars template and <strong>object</strong> controller for <em>sessions/new</em>. This will be where we login.</p>
+
+<pre><code>$ ember generate -rtc sessions/new
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: o
+   created: public/javascripts/controllers/sessions/new_controller.js
+   created: public/javascripts/templates/sessions/new.hbs
+   created: public/javascripts/routes/sessions/new_route.js
+</code></pre>
+
+<p>Finally, create a page which is <strong>TOP SECRET</strong> and will require authentication to access. Let's use an <strong>array</strong> controller so we can list the users.</p>
+
+<pre><code>$ ember generate -rtc top_secret
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: a
+   created: public/javascripts/controllers/top_secret_controller.js
+   created: public/javascripts/templates/top_secret.hbs
+   created: public/javascripts/routes/top_secret_route.js
+</code></pre>
+
+<p>Update the application handlebars template to show links to the different pages.</p>
+
+<p>
+```html public/javascripts/templates/application.hbs</p>
+
+<div class="container">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#">Simple Auth</a>
+      <ul class="nav">
+        <li>{{#linkTo 'index'}}Home{{/linkTo}}</li>
+        <li>{{#linkTo 'top_secret'}}Top Secret{{/linkTo}}</li>
+        <li>{{#linkTo 'users.new'}}Register{{/linkTo}}</li>
+        <li>{{#linkTo 'sessions.new'}}Login{{/linkTo}}</li>
+      </ul>
+    </div>
+  </div>
+
+  {{outlet}}
+</div>
+
+
+<p>```
+</p>
+
+<p>Before these links will work we need to add the routes to the config/routes.js file:</p>
+
+<p>```javascript public/javascripts/config/routes.js
+var App = require('./app');</p>
+
+<p>App.Router.map(function() {
+  this.resource('sessions', function() {</p>
+
+<pre><code>this.route('new');
+</code></pre>
+
+<p>  });
+  this.resource('users', function() {</p>
+
+<pre><code>this.route('new');
+</code></pre>
+
+<p>  })
+  this.route('top_secret');
+});
+```</p>
+
+<p>Refresh the browser and you should see something like this:</p>
+
+<p><img src="/images/posts/simple-auth-ss-2.png"></p>
+
+<p>Add some style with <a href="http://www.bootstrapcdn.com/">twitter bootstrap</a> by adding the CSS link in your <em>index.html</em> page:</p>
+
+<p><code>html public/index.html
+&lt;head&gt;
+  ...
+  &lt;link href="http://coderberry.me//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+</code></p>
+
+<p>Refresh. You can click on the links as well and you should see the correct pages load.</p>
+
+<p><img src="/images/posts/simple-auth-ss-3.png"></p>
+
+<h2>Update to the Latest Ember Data</h2>
+
+<p>At the moment, Ember Tools does not provide the <a href="http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js">latest version</a> of Ember Data, so we will need to add this manually. Save the following file to the path <em>public/javascripts/vendor</em>:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js
+</code></pre>
+
+<p>Now update a your main application config file to make sure we are using the latest:</p>
+
+<p>```javascript public/javascripts/config/app.js
+require('../vendor/jquery');
+require('../vendor/handlebars');
+require('../vendor/ember');
+require('../vendor/ember-data-latest');</p>
+
+<p>var App = window.App = Ember.Application.create();
+App.Store = require('./store');</p>
+
+<p>module.exports = App;
+```</p>
+
+<h2>Auth Manager</h2>
+
+<p>On the blog post found at * <a href="http://log.simplabs.com/post/53016599611/authentication-in-ember-js">http://log.simplabs.com/post/53016599611/authentication-in-ember-js</a>
+, Marco Otte-Witte (<a href="https://twitter.com/simplabs">@simplabs</a>) created a simple <strong>AuthManager</strong> which stores and handles authentication. It is very elegant and once I found this post, I got very excited. I made some minor tweaks to the code, but it is still largely intact.</p>
+
+<p>Create a file in your <em>public/javascripts/config</em> folder called <em>auth_manager.js</em>:</p>
+
+<p>```javascript public/javascripts/config/auth_manager.js
+var User = require('../models/user');</p>
+
+<p>var AuthManager = Ember.Object.extend({</p>
+
+<p>  // Load the current user if the cookies exist and is valid
+  init: function() {</p>
+
+<pre><code>this._super();
+var accessToken = $.cookie('access_token');
+var authUserId  = $.cookie('auth_user');
+if (!Ember.isEmpty(accessToken) &amp;&amp; !Ember.isEmpty(authUserId)) {
+  this.authenticate(accessToken, authUserId);
+}
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Determine if the user is currently authenticated.
+  isAuthenticated: function() {</p>
+
+<pre><code>return !Ember.isEmpty(this.get('apiKey.accessToken')) &amp;&amp; !Ember.isEmpty(this.get('apiKey.user'));
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Authenticate the user. Once they are authenticated, set the access token to be submitted with all
+  // future AJAX requests to the server.
+  authenticate: function(accessToken, userId) {</p>
+
+<pre><code>$.ajaxSetup({
+  headers: { 'Authorization': 'Bearer ' + accessToken }
+});
+var user = User.find(userId);
+this.set('apiKey', App.ApiKey.create({
+  accessToken: accessToken,
+  user: user
+}));
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Log out the user
+  reset: function() {</p>
+
+<pre><code>App.__container__.lookup("route:application").transitionTo('sessions.new');
+Ember.run.sync();
+Ember.run.next(this, function(){
+  this.set('apiKey', null);
+  $.ajaxSetup({
+    headers: { 'Authorization': 'Bearer none' }
+  });
+});
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Ensure that when the apiKey changes, we store the data in cookies in order for us to load
+  // the user when the browser is refreshed.
+  apiKeyObserver: function() {</p>
+
+<pre><code>if (Ember.isEmpty(this.get('apiKey'))) {
+  $.removeCookie('access_token');
+  $.removeCookie('auth_user');
+} else {
+  $.cookie('access_token', this.get('apiKey.accessToken'));
+  $.cookie('auth_user', this.get('apiKey.user.id'));
+}
+</code></pre>
+
+<p>  }.observes('apiKey')
+});</p>
+
+<p>// Reset the authentication if any ember data request returns a 401 unauthorized error
+DS.rejectionHandler = function(reason) {
+  if (reason.status === 401) {</p>
+
+<pre><code>App.AuthManager.reset();
+</code></pre>
+
+<p>  }
+  throw reason;
+};</p>
+
+<p>module.exports = AuthManager;
+```</p>
+
+<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js
+</code></pre>
+
+<p>```javascript public/javascripts/config/app.js
+require('../vendor/jquery');
+require('../vendor/jquery.cookie');
+require('../vendor/handlebars');
+require('../vendor/ember');
+require('../vendor/ember-data-latest');</p>
+
+<p>var App = window.App = Ember.Application.create();
+App.Store = require('./store');</p>
+
+<p>module.exports = App;
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 7 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+
+
+<p>Now create the application router and add the AuthManager to the App in the <em>init</em> function. The reason it goes here is because it's the first thing that gets run after all the code has been loaded.</p>
+
+<pre><code>$ ember generate -r application
+</code></pre>
+
+<p>```javascript public/javascripts/routes/application_route.js
+var AuthManager = require('../config/auth_manager');</p>
+
+<p>var ApplicationRoute = Ember.Route.extend({
+  init: function() {</p>
+
+<pre><code>this._super();
+App.AuthManager = AuthManager.create();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = ApplicationRoute;
+```</p>
+
+<h2>Registration</h2>
+
+<p>Let's create the parts of our app which will allow a user to register. We want to start off by creating a user model which uses Ember Data:</p>
+
+<pre><code>$ ember generate -m user
+</code></pre>
+
+<p>```javascript public/javascripts/models/user.js
+var User = DS.Model.extend({
+  name:     DS.attr('string'),
+  email:    DS.attr('string'),
+  username: DS.attr('string')
+});</p>
+
+<p>module.exports = User;
+```</p>
+
+<p>While we're here, let's also create the model for <em>api_key</em>:</p>
+
+<pre><code>$ ember generate -m api_key
+</code></pre>
+
+<p>```javascript public/javascripts/models/api_key.js
+// Ember.Object instead of DS.Model because this will never persist to or query the server
+var ApiKey = Ember.Object.extend({
+  access_token: '',
+  user: null
+});</p>
+
+<p>module.exports = ApiKey;
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;"><strong>Important:</strong> I changed the type of object for ApiKey from <em>DS.Model</em> to <em>Ember.Object</em>. I did this because we will never persist to or query the server for API keys.</div>
+
+
+<p>For us to use Ember Data, we need to enable it. By default with Ember Tools, the localstorage adapter is enabled by default. Let's remove that and set the adapter to the REST adapter. Open up <em>config/store.js</em> and make the following changes:</p>
+
+<p><code>javascript public/javascripts/config/store.js
+module.exports = DS.Store.extend({
+  adapter: DS.RESTAdapter.create()
+});
+</code></p>
+
+<p>Open up our route for new users and set the model to be a new User record:</p>
+
+<p>```javascript public/javascripts/routes/users/new_route.js
+var User = require('../../models/user');</p>
+
+<p>var UsersNewRoute = Ember.Route.extend({
+  setupController: function(controller, model) {</p>
+
+<pre><code>this.controller.set('model', User.createRecord());
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewRoute;
+```</p>
+
+<p>Modify the users/new controller with the following:</p>
+
+<p>```javascript public/javascripts/controllers/users/new_controller.js
+var UsersNewController = Ember.ObjectController.extend({
+  createUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('name', 'email', 'username', 'password', 'password_confirmation')
+var user = this.get('model');
+
+$.post('/users', { user: data }, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewController;
+```</p>
+
+<p>Now let's update the handlebars template to show the registration form:</p>
+
+<p>
+```html public/javascripts/templates/users/new.hbs</p>
+
+<h2>Register</h2>
+
+
+<p><form {{action "createUser" on="submit"}}>
+  <div></p>
+
+<pre><code>&lt;label&gt;Full Name&lt;/label&gt;
+{{input type="text" value=name placeholder="Full Name"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Email Address&lt;/label&gt;
+{{input type="email" value=email placeholder="Email Address"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Username&lt;/label&gt;
+{{input type="text" value=username placeholder="Username"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Confirm Password&lt;/label&gt;
+{{input type="password" value=password_confirmation placeholder="Confirm Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh your browser and fill out the registration form and hit submit. You should be logged in and redirected to the index page.</p>
+
+<p><img src="/images/posts/simple-auth-ss-4.png"></p>
+
+<p>In your JavaScript console, you can view the currently logged in user with the following:</p>
+
+<pre><code>&gt; App.AuthManager.get('apiKey.user.name')
+  "Eric Berry"
+&gt; App.AuthManager.isAuthenticated()
+  true
+</code></pre>
+
+<h2>Current User in Nav Bar</h2>
+
+<p>We're doing great. We now have created an account. However, the UI hasn't changed. We want to be told that we are logged in and be given the option to log out.</p>
+
+<p>Let's create an <em>application</em> controller with some computed properties which we will use in the template:</p>
+
+<pre><code>$ ember generate -c application
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: n
+   created: public/javascripts/controllers/application_controller.js
+</code></pre>
+
+<p>```javascript public/javascripts/controllers/application_controller.js
+var ApplicationController = Ember.Controller.extend({
+  currentUser: function() {</p>
+
+<pre><code>return App.AuthManager.get('apiKey.user')
+</code></pre>
+
+<p>  }.property('App.AuthManager.apiKey'),</p>
+
+<p>  isAuthenticated: function() {</p>
+
+<pre><code>return App.AuthManager.isAuthenticated()
+</code></pre>
+
+<p>  }.property('App.AuthManager.apiKey')
+});</p>
+
+<p>module.exports = ApplicationController;
+```</p>
+
+<p>Now modify the application handlebars template to show the menu based on whether the user is authenticated or not:</p>
+
+<p>
+```html public/javascripts/templates/application.hbs</p>
+
+<div class="container">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#">Simple Auth</a>
+      <ul class="nav">
+        <li>{{#linkTo 'index'}}Home{{/linkTo}}</li>
+        <li>{{#linkTo 'top_secret'}}Top Secret{{/linkTo}}</li>
+
+        {{#if isAuthenticated}}
+          <li><a href="#">{{currentUser.email}}</a></li>
+          <li><a href="#" {{action 'logout'}}>Logout</a></li>
+        {{else}}
+          <li>{{#linkTo 'users.new'}}Register{{/linkTo}}</li>
+          <li>{{#linkTo 'sessions.new'}}Login{{/linkTo}}</li>
+        {{/if}}
+      </ul>
+    </div>
+  </div>
+
+  {{outlet}}
+</div>
+
+
+<p>```
+</p>
+
+<p>Now when we reload the browser it will show our email address when we are logged in with a link to log out. Try it out.</p>
+
+<h2>Logout</h2>
+
+<p>We have an action set up in our application template to log out, but we don't have an event to handle it yet. Let's put this in the application route.</p>
+
+<p>```javascript public/javascripts/routers/application_route.js
+var AuthManager = require('../config/auth_manager');</p>
+
+<p>var ApplicationRoute = Ember.Route.extend({
+  init: function() {</p>
+
+<pre><code>this._super();
+App.AuthManager = AuthManager.create();
+</code></pre>
+
+<p>  },</p>
+
+<p>  events: {</p>
+
+<pre><code>logout: function() {
+  App.AuthManager.reset();
+  this.transitionTo('index');
+}
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = ApplicationRoute;
+```</p>
+
+<p>Refresh your browser and click 'Logout'. Works? YAY!!!</p>
+
+<h2>Login</h2>
+
+<p>Let's start by updating our the session/new route to assign an Ember Object as the controller's model:</p>
+
+<p>```javascript public/javascripts/routes/sessions/new_route.js
+var SessionsNewRoute = Ember.Route.extend({
+  model: function() {</p>
+
+<pre><code>return Ember.Object.create();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewRoute;
+```</p>
+
+<p>Now update the sessions/new controller to perform the login:</p>
+
+<p>```javascript public/javascripts/controllers/sessions/new_controller.js
+var SessionsNewController = Ember.ObjectController.extend({
+  loginUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('username_or_email', 'password');
+
+$.post('/session', data, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewController;
+```</p>
+
+<p>Finally, update the handlebars template to show the login form:</p>
+
+<p>
+```html public/javascripts/templates/sessions/new.hbs</p>
+
+<h2>Login</h2>
+
+
+<p><form {{action "loginUser" on="submit"}}>
+  <div></p>
+
+<pre><code>&lt;label&gt;Username or Email&lt;/label&gt;
+{{input type="text" value=username_or_email placeholder="Username or Email Address"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh your browser and log in. On success, you should be redirected to the index page and the nav bar should indicate you are logged in.</p>
+
+<p><img src="/images/posts/simple-auth-ss-5.png"></p>
+
+<h3><a href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/">Continue to Part 3</a></h3>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 1]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-1/"/>
+    <updated>2013-07-08T15:24:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-1</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/keymaster.jpg"></p>
+
+<p>Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of <a href="http://ember101.com">Ryan Florence</a> and <a href="https://github.com/wbhumphrey">Brad Humphrey</a>, I have finally been able to understand how it should work and also have built a <a href="https://github.com/cavneb/simple-auth">simple application</a> which uses it.</p>
+
+<p>My goal in this article will be to build a simple Ember application with a RESTful backend (in Rails) which provides authentication and user registration. We will also set all requests to pass the access token to our backend for authorization.</p>
+
+<p>Here are a couple of the resources I used to build this app:</p>
+
+<ul>
+<li><a href="https://github.com/rpflorence/ember-tools">Ember Tools</a></li>
+<li><a href="http://www.embercasts.com/episodes/client-side-authentication-part-1">http://www.embercasts.com</a></li>
+<li><a href="https://github.com/heartsentwined/ember-auth">https://github.com/heartsentwined/ember-auth</a></li>
+<li><a href="http://log.simplabs.com/post/53016599611/authentication-in-ember-js">http://log.simplabs.com/post/53016599611/authentication-in-ember-js</a></li>
+</ul>
+
+
+<h2>Create a Rails API application</h2>
+
+<p>Our application is going to be using the <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>)gem. By using this gem, we limit our Rails app to include only things necessary for API-driven apps. We will also be using Rails 4.0.</p>
+
+<pre><code>$ gem install rails-api
+$ rails-api new simple_auth --skip-bundle
+$ cd simple_auth
+</code></pre>
+
+<p>We are going to use the active_model_serializers gem to format our JSON responses to be Ember-friendly. We will also use <em>has_secure_password</em> so let's uncomment the 'bcrypt' gem in our Gemfile:</p>
+
+<p>```ruby Gemfile
+source 'https://rubygems.org'</p>
+
+<p>gem 'rails', '4.0.0'
+gem 'rails-api'
+gem 'sqlite3'
+gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'active_model_serializers'
+```</p>
+
+<p>Now install the gems:</p>
+
+<pre><code>$ bundle install
+</code></pre>
+
+<h2>Create and test your models</h2>
+
+<p>We are going to have two models in our application: <strong>user</strong> and <strong>api_key</strong>. The user will contain the user information including the encrypted password and the api_key will contain the access token and expiration date. The reason we have separated these two tables is to allow a user to have multiple <em>sessions</em> at a time.</p>
+
+<p>Create the resources.</p>
+
+<pre><code>$ rails g resource user name username:string:uniq email:string:uniq password_digest
+...
+$ rails g resource api_key user:references access_token:string:uniq scope expired_at:datetime created_at:datetime --timestamps=false
+</code></pre>
+
+<p>Run your migrations:</p>
+
+<pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
+</code></pre>
+
+<p>Because we are using the Active Model Serializers gem, serializers are created automatically for our models. However, we want to limit what they return to only the parts which are useful. Update the serializers as follows:</p>
+
+<p><code>ruby app/serializers/user_serializer.rb
+class UserSerializer &lt; ActiveModel::Serializer
+  attributes :id, :name, :username, :email
+end
+</code></p>
+
+<p>```ruby app/serializers/api_key_serializer.rb
+class ApiKeySerializer &lt; ActiveModel::Serializer
+  attributes :id, :access_token</p>
+
+<p>  has_one :user, embed: :id
+end</p>
+
+<p>```</p>
+
+<p>Now let's add a couple of tests for our models. Update the fixtures for users so we have a user to work with:</p>
+
+<p>```yaml test/fixtures/users.yml
+joe:
+  name: Joe User
+  username: joe_user
+  email: joe_user@example.com
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'</p>
+
+<p>jane:
+  name: Jane User
+  username: jane_user
+  email: jane_user@example.com
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'
+```</p>
+
+<p>We also want to add a couple of fixtures for the api keys:</p>
+
+<p>```yaml test/fixtures/api_keys.yml
+joe_session:
+  user: joe
+  access_token: &lt;%= SecureRandom.hex %>
+  scope: 'session'
+  expired_at: &lt;%= 4.hours.from_now %></p>
+
+<p>jane_api:
+  user: jane
+  access_token: &lt;%= SecureRandom.hex %>
+  scope: 'api'
+  expired_at: &lt;%= 30.days.from_now %>
+```</p>
+
+<p>Add a test to ensure the api_key generates an access token when created.</p>
+
+<p>```ruby test/models/api_key_test.rb
+require 'test_helper'
+require 'minitest/mock'</p>
+
+<p>class ApiKeyTest &lt; ActiveSupport::TestCase
+  test "generates access token" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = ApiKey.create(scope: 'session', user_id: joe.id)
+assert !api_key.new_record?
+assert api_key.access_token =~ /\S{32}/
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "sets the expired_at properly for 'session' scope" do</p>
+
+<pre><code>Time.stub :now, Time.at(0) do
+  joe = users(:joe)
+  api_key = ApiKey.create(scope: 'session', user_id: joe.id)
+
+  assert api_key.expired_at == 4.hours.from_now
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "sets the expired_at properly for 'api' scope" do</p>
+
+<pre><code>Time.stub :now, Time.at(0) do
+  joe = users(:joe)
+  api_key = ApiKey.create(scope: 'api', user_id: joe.id)
+
+  assert api_key.expired_at == 30.days.from_now
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>For this to pass, we need to update the api_key model:</p>
+
+<p>```ruby app/models/api_key.rb
+class ApiKey &lt; ActiveRecord::Base
+  validates :scope, inclusion: { in: %w( session api ) }
+  before_create :generate_access_token, :set_expiry_date
+  belongs_to :user</p>
+
+<p>  scope :session, -> { where(scope: 'session') }
+  scope :api,     -> { where(scope: 'api') }
+  scope :active,  -> { where("expired_at >= ?", Time.now) }</p>
+
+<p>  private</p>
+
+<p>  def set_expiry_date</p>
+
+<pre><code>self.expired_at = if self.scope == 'session'
+                    4.hours.from_now
+                  else
+                    30.days.from_now
+                  end
+</code></pre>
+
+<p>  end</p>
+
+<p>  def generate_access_token</p>
+
+<pre><code>begin
+  self.access_token = SecureRandom.hex
+end while self.class.exists?(access_token: access_token)
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Run your tests and they should pass:</p>
+
+<pre><code>$ rake
+...
+Finished tests in 0.066920s, 44.8296 tests/s, 59.7729 assertions/s.
+3 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<p>Now let's add a test to our user and the accompanying code to make it work:</p>
+
+<p>```ruby test/models/user_test.rb
+require 'test_helper'</p>
+
+<p>class UserTest &lt; ActiveSupport::TestCase
+  test "#session" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = joe.session_api_key
+assert api_key.access_token =~ /\S{32}/
+assert api_key.user_id == joe.id
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>```ruby app/models/user.rb
+class User &lt; ActiveRecord::Base
+  has_secure_password
+  has_many :api_keys</p>
+
+<p>  validates :email, presence: true, uniqueness: true
+  validates :username, presence: true, uniqueness: true
+  validates :name, presence: true</p>
+
+<p>  def session_api_key</p>
+
+<pre><code>api_keys.active.session.first_or_create
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Tests still pass?</p>
+
+<pre><code>$ rake
+...
+Finished tests in 0.080250s, 49.8442 tests/s, 74.7664 assertions/s.
+4 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<h2>API Endpoints</h2>
+
+<p>Now that we have our database set up how we want it, let's make it accessible via an API. Here are the parts we want to be able to accomplish:</p>
+
+<ul>
+<li>Create a new user</li>
+<li>Authenticate an existing user</li>
+<li>Ensure the user is authorized to perform a request (via token)</li>
+</ul>
+
+
+<p>Let's start off by adding our authorization layer in our Application controller:</p>
+
+<p>```ruby app/controllers/application_controller
+class ApplicationController &lt; ActionController::API
+  protected</p>
+
+<p>  # Renders a 401 status code if the current user is not authorized
+  def ensure_authenticated_user</p>
+
+<pre><code>head :unauthorized unless current_user
+</code></pre>
+
+<p>  end</p>
+
+<p>  # Returns the active user associated with the access token if available
+  def current_user</p>
+
+<pre><code>api_key = ApiKey.active.where(access_token: token).first
+if api_key
+  return api_key.user
+else
+  return nil
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  # Parses the access token from the header
+  def token</p>
+
+<pre><code>bearer = request.headers["HTTP_AUTHORIZATION"]
+
+# allows our tests to pass
+bearer ||= request.headers["rack.session"].try(:[], 'Authorization')
+
+if bearer.present?
+  bearer.split.last
+else
+  nil
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now let's set up our users controller:</p>
+
+<p>```ruby app/controllers/users_controller.rb
+class UsersController &lt; ApplicationController
+  before_filter :ensure_authenticated_user, only: [:index]</p>
+
+<p>  # Returns list of users. This requires authorization
+  def index</p>
+
+<pre><code>render json: User.all
+</code></pre>
+
+<p>  end</p>
+
+<p>  def show</p>
+
+<pre><code>render json: User.find(params[:id])
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>user = User.create(user_params)
+if user.new_record?
+  render json: { errors: user.errors.messages }, status: 422
+else
+  render json: user.session_api_key, status: 201
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  private</p>
+
+<p>  # Strong Parameters (Rails 4)
+  def user_params</p>
+
+<pre><code>params.require(:user).permit(:name, :username, :email, :password, :password_confirmation)
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now create a <em>session</em> controller and place our code for authenticating an existing user into it.</p>
+
+<pre><code>$ rails g controller session
+</code></pre>
+
+<p>```ruby app/controllers/session_controller.rb
+class SessionController &lt; ApplicationController
+  def create</p>
+
+<pre><code>user = User.where("username = ? OR email = ?", params[:username_or_email], params[:username_or_email]).first
+if user &amp;&amp; user.authenticate(params[:password])
+  render json: user.session_api_key, status: 201
+else
+  render json: {}, status: 401
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Because RailsAPI application controller extends ActionController::API, it doesn't know about ActionController::StrongParameters. Because of this we need to add an initializer:</div>
+
+
+<p>```ruby config/initializers/strong_param_fix_for_rails_api.rb</p>
+
+<h1>The application controllers don't know anything about ActionController::StrongParameters</h1>
+
+<h1>because they're not extending the class ActionController::StrongParameters was included within.</h1>
+
+<h1>This is why the require() method call is not calling the implementation</h1>
+
+<h1>in ActionController::StrongParameters</h1>
+
+<p>#</p>
+
+<h1>see http://stackoverflow.com/questions/13745689/getting-rails-api-and-strong-parameters-to-work-together</h1>
+
+<p>ActionController::API.send :include, ActionController::StrongParameters
+```</p>
+
+<h2>Routes</h2>
+
+<p>Update your routes file to make sure that it reflects our changes:</p>
+
+<p><code>ruby
+SimpleAuth::Application.routes.draw do
+  resources :users, except: [:new, :edit, :destroy]
+  post 'session' =&gt; 'session#create'
+end
+</code></p>
+
+<h2>Testing the API</h2>
+
+<p>Let's write some tests to make sure our API is functioning as we expect it to. First, let's test out our session controller (for authentication):</p>
+
+<p>```ruby test/controllers/session_controller_test.rb
+require 'test_helper'</p>
+
+<p>class SessionControllerTest &lt; ActionController::TestCase
+  test "authenticate with username" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.username, password: pw }
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] == larry.id
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "authenticate with email" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.email, password: pw }
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] == larry.id
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "authenticate with invalid info" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.email, password: 'huh' }
+assert response.status == 401
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now, let's add some tests to our users controller (for registration):</p>
+
+<p>```ruby test/controllers/users_controller_test.rb
+require 'test_helper'</p>
+
+<p>class UsersControllerTest &lt; ActionController::TestCase
+  test "#create" do</p>
+
+<pre><code>post 'create', {
+  user: { 
+    username: 'billy', 
+    name: 'Billy Blowers', 
+    email: 'billy_blowers@example.com', 
+    password: 'secret', 
+    password_confirmation: 'secret' 
+  }
+}
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] &gt; 0
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#create with invalid data" do</p>
+
+<pre><code>post 'create', {
+  user: {
+    username: '',
+    name: '',
+    email: 'foo',
+    password: 'secret',
+    password_confirmation: 'something_else'
+  }
+}
+results = JSON.parse(response.body)
+assert results['errors'].size == 3
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#show" do</p>
+
+<pre><code>joe = users(:joe)
+post 'show', { id: joe.id }
+results = JSON.parse(response.body)
+assert results['user']['id'] == joe.id
+assert results['user']['name'] == joe.name
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index without token in header" do</p>
+
+<pre><code>get 'index'
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with invalid token" do</p>
+
+<pre><code>get 'index', {}, { 'Authorization' =&gt; "Bearer 12345" }
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with expired token" do</p>
+
+<pre><code>joe = users(:joe)
+expired_api_key = joe.api_keys.session.create
+expired_api_key.update_attribute(:expired_at, 30.days.ago)
+assert !ApiKey.active.map(&amp;:id).include?(expired_api_key.id)
+get 'index', {}, { 'Authorization' =&gt; "Bearer #{expired_api_key.access_token}" }
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with valid token" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = joe.session_api_key
+get 'index', {}, { 'Authorization' =&gt; "Bearer #{api_key.access_token}" }
+results = JSON.parse(response.body)
+assert results['users'].size == 2
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>That was a lot! Let's run our tests and make sure everything passes.</p>
+
+<pre><code>$ rake
+...........
+Finished tests in 0.229066s, 61.1178 tests/s, 91.6766 assertions/s.
+14 tests, 21 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<h3><a href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2/">Continue to Part 2</a></h3>
+
+]]></content>
+  </entry>
+  
+</feed>

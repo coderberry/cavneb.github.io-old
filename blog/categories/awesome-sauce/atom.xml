@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: awesome-sauce | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/awesome-sauce/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[This is post]]></title>
+    <link href="http://coderberry.me/blog/2011/06/01/this-is-a-test/"/>
+    <updated>2011-06-01T14:44:00-06:00</updated>
+    <id>http://coderberry.me/blog/2011/06/01/this-is-a-test</id>
+    <content type="html"><![CDATA[<p>Booyah!</p>
+]]></content>
+  </entry>
+  
+</feed>

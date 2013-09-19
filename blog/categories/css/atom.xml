@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: CSS | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/css/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to create Tabs with CSS and jQuery from scratch]]></title>
+    <link href="http://coderberry.me/blog/2008/10/11/how-to-create-tabs-with-css-and-jquery-from-scratch/"/>
+    <updated>2008-10-11T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2008/10/11/how-to-create-tabs-with-css-and-jquery-from-scratch</id>
+    <content type="html"><![CDATA[<p>Another feature that is often added to Web 2.0 sites is tabbed content. I'm not talking about tabbed navigation. Tabbed content is when different chunks of HTML are shown depending on what tab is clicked.</p>
+
+<p>I am using this on two sites:</p>
+
+<table>
+    <tr>
+        <td><a href="http://www.partnerfusion.com"><img src="/images/posts/tab-1.png"></a></td>
+        <td><a href="http://www.reservationcounter.com"><img src="/images/posts/tab-2.png"></a></td>
+    </tr>
+</table>
+
+
+<p><strong>Goal:</strong> Create a tabbed content window using CSS and <a href="http://www.jquery.com/">jQuery</a></p>
+
+<p>If you don't know about jQuery yet, let me have the pleasure to introduce you to it. It's a very easy-to-use JavaScript library that offers easy DOM manipulation, effects and a ton more. You can find out more on jQuery at their website: <a href="http://www.jquery.com">http://www.jquery.com</a>.</p>
+
+<p><em>Note: you can also use standard JavaScript or <a href="http://www.prototypejs.org/">Prototype</a> when doing this as well. I just really like jQuery (can you tell?)</em></p>
+
+<h3>Step 1. Get jQuery</h3>
+
+<p>In this example, we are going to use the jQuery core library found <a href="http://jqueryjs.googlecode.com/files/jquery-1.2.6.min.js">here</a>.</p>
+
+<h3>Step 2. Create your HTML page</h3>
+
+<p>I'm going to create a file called <code>myapp.html</code>. I'll put it in the same location that I placed my jQuery library at.</p>
+
+<p>```html
+<html>
+  <head></p>
+
+<pre><code>&lt;title&gt;Tabbed Content with CSS and jQuery&lt;/title&gt;
+&lt;link href="myapp.css" rel="stylesheet" type="text/css" /&gt;
+&lt;script type="text/javascript" src="jquery-1.2.6.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="myapp.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>  </head></p>
+
+<p>  <body></p>
+
+<pre><code>&lt;!-- This is the box that all of the tabs and contents of 
+     the tabs will reside --&gt;
+&lt;div id="tabs_container"&gt;
+
+  &lt;!-- These are the tabs --&gt;
+  &lt;ul class="tabs"&gt;
+    &lt;li class="active"&gt;
+      &lt;a href="#" rel="#tab_1_contents" class="tab"&gt;Tab 1&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li&gt;&lt;a href="#" rel="#tab_2_contents" class="tab"&gt;Tab 2&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#" rel="#tab_3_contents" class="tab"&gt;Tab 3&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+
+  &lt;!-- This is used so the contents don't appear to the 
+       right of the tabs --&gt;
+  &lt;div class="clear"&gt;&lt;/div&gt;
+
+  &lt;!-- This is a div that hold all the tabbed contents --&gt;
+  &lt;div class="tab_contents_container"&gt;
+
+    &lt;!-- Tab 1 Contents --&gt;
+    &lt;div id="tab_1_contents" class="tab_contents tab_contents_active"&gt;
+      I'm Good Enough!
+    &lt;/div&gt;
+
+    &lt;!-- Tab 2 Contents --&gt;
+    &lt;div id="tab_2_contents" class="tab_contents"&gt;
+      I'm Smart Enough!
+    &lt;/div&gt;
+
+    &lt;!-- Tab 3 Contents --&gt;
+    &lt;div id="tab_3_contents" class="tab_contents"&gt;
+      And Doggone It, People Like Me!
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>  </body>
+</html>
+```</p>
+
+<p>Notice that at the top of the HTML page, we are including three files. The first is a stylesheet that we will use to stylize the tabs and contents. The second is the jQuery library that we downloaded. The third is a small JavaScript file that I included to keep things clean. It's always good practice to separate out your scripts from your HTML pages when possible.</p>
+
+<h3>Step 3. Create your CSS file</h3>
+
+<p>Let's create the CSS file that's included in the HTML above. We'll call it <code>myapp.css</code></p>
+
+<p>```css
+a:active {
+  outline: none;
+}
+a:focus {
+  -moz-outline-style: none;
+}</p>
+
+<h1>tabs_container {</h1>
+
+<p>  width: 400px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}</p>
+
+<h1>tabs_container ul.tabs {</h1>
+
+<p>  list-style: none;
+  border-bottom: 1px solid #ccc;
+  height: 21px;
+  margin: 0;
+}</p>
+
+<h1>tabs_container ul.tabs li {</h1>
+
+<p>  float: left;
+}</p>
+
+<h1>tabs_container ul.tabs li a {</h1>
+
+<p>  padding: 3px 10px;
+  display: block;
+  border-left: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  margin-right: 2px;
+  text-decoration: none;
+  background-color: #efefef;
+}</p>
+
+<h1>tabs_container ul.tabs li.active a {</h1>
+
+<p>  background-color: #fff;
+  padding-top: 4px;
+}
+div.tab_contents_container {
+  border: 1px solid #ccc;
+  border-top: none;
+  padding: 10px;
+}
+div.tab_contents {
+  display: none;
+}
+div.tab_contents_active {
+  display: block;
+}
+div.clear {
+  clear: both;
+}
+```</p>
+
+<p>Lines 1-6 remove the dotted outline that Firefox puts around the clicked tabs.</p>
+
+<p>Lines 7-11 set the width and style properties of the whole container.</p>
+
+<p>Lines 12-17 sets the styles for the tab container. Notice that on line 15, we set a height of 21 pixels. This coincides with the font size set on line 10. If you were to increase or decrease the font size, you will also want to do the same for the height.</p>
+
+<p>Lines 18-20 make it so that all the items in the unordered list (ul tag) appear next to each other instead of on top of each other.</p>
+
+<p>Lines 21-30 sets the tab styles. You can use backgrounds instead of just colors here if desired.</p>
+
+<p>Lines 31-34 sets the style for the active tab. Notice that the top padding is 4 pixels instead of 3. By doing this, we are able to make the bottom of the tab appear white making it look like it's part of the contents below.</p>
+
+<p>Lines 35-39 sets up the style for the contents container. Notice that there is a border set for the right, bottom, and left. This is because our top border is already set on line 14.</p>
+
+<p>Lines 40-42 set the non-active tab contents to be invisible.</p>
+
+<p>Lines 43-45 set the active tab to be visible.</p>
+
+<p>Lines 46-48 are used to clear out any floats that appear above it. (see lines 24-26 in the HTML above)</p>
+
+<h3>Step 4. Create your onLoad JavaScript file</h3>
+
+<p>As we did with the CSS file, we are going to create a .js file which contains our custom JavaScript code. We'll put it into <code>myapp.js</code>.</p>
+
+<p>```javascript
+// Load this script when page loads
+$(document).ready(function(){</p>
+
+<p> // Set up a listener so that when anything with a class of 'tab'
+ // is clicked, this function is run.
+ $('.tab').click(function () {</p>
+
+<p>  // Remove the 'active' class from the active tab.
+  $('#tabs_container > .tabs > li.active')</p>
+
+<pre><code>.removeClass('active');
+</code></pre>
+
+<p>  // Add the 'active' class to the clicked tab.
+  $(this).parent().addClass('active');</p>
+
+<p>  // Remove the 'tab_contents_active' class from the visible tab contents.
+  $('#tabs_container > .tab_contents_container > div.tab_contents_active')</p>
+
+<pre><code>.removeClass('tab_contents_active');
+</code></pre>
+
+<p>  // Add the 'tab_contents_active' class to the associated tab contents.
+  $(this.rel).addClass('tab_contents_active');</p>
+
+<p> });
+});
+```</p>
+
+<p>Hopefully my notes in the .js file itself explains how it works well enough.</p>
+
+<p>That should do it. Once you're done, your app should look something like this:</p>
+
+<p><img src="/images/posts/tab-3.png"></p>
+
+<p>You can download my sample code <a href="/files/myapp.zip">here</a>.</p>
+
+<h3>But Wait, There's More!</h3>
+
+<p>Sometimes it doesn't make sense to write this stuff from scratch when there are so many other resources out there to use.</p>
+
+<p>Two that I have used in the past are <a href="http://www.barelyfitz.com/projects/tabber/index.php">JavaScript Tabifier</a> by Patrick Fitzgerald and <a href="http://developer.yahoo.com/yui/tabview/">Yahoo UI Tabs</a>.</p>
+
+<p>I hope you like this post. If you have any suggestions on future how-to topics you would like me to cover, please email me at cavneb@gmail.com.</p>
+]]></content>
+  </entry>
+  
+</feed>

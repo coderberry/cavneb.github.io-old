@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Tips | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/tips/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Simple fix for pagination with Twitter Bootstrap]]></title>
+    <link href="http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap/"/>
+    <updated>2012-10-09T16:40:00-06:00</updated>
+    <id>http://coderberry.me/blog/2012/10/09/simple-fix-for-pagination-with-twitter-bootstrap</id>
+    <content type="html"><![CDATA[<p>As a Rails guy, I always perform my table pagination using mislav's <a href="https://github.com/mislav/will_paginate">will_paginate</a> gem. However, when I use it combined with Twitter Bootstrap, I get an undesired result:</p>
+
+<p><img src="/images/posts/pagination-bad.png"></p>
+
+<p>There is a very simple fix for this which doesn't require using an <a href="https://github.com/yrgoldteeth/bootstrap-will_paginate">additional gem</a>.</p>
+
+<p>Add the following CSS to your application:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>assets/stylesheets/pagination_fix.css </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">pre</span><span class="o">&gt;&lt;</span><span class="nt">code</span><span class="o">&gt;//</span><span class="nt">-------------------------------------------------------------------------------</span>
+</span><span class='line'><span class="o">//</span>   <span class="nt">Pagination</span> <span class="nt">fix</span> <span class="nt">for</span> <span class="nt">will_paginate</span> <span class="nt">and</span> <span class="nt">bootstrap</span>
+</span><span class='line'><span class="o">//</span><span class="nt">-------------------------------------------------------------------------------</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.pagination</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">span</span><span class="o">.</span><span class="n">disabled</span> <span class="err">{</span>
+</span><span class='line'>    <span class="k">color</span><span class="o">:</span> <span class="m">#aaa</span> <span class="cp">!important</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nt">em</span><span class="nc">.current</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">float</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">padding</span><span class="o">:</span> <span class="m">0</span> <span class="m">14px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">line-height</span><span class="o">:</span> <span class="m">38px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">text-decoration</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#DDD</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border-left-width</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nc">.previous_page</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">border-left</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#ddd</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="nt">code</span><span class="o">&gt;&lt;/</span><span class="nt">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Refresh your page and the pagination issues should be resolved:</p>
+
+<p><img src="/images/posts/pagination-good.png"></p>
+
+<p>Hope this helps!</p>
+
+<h4>Update (Dec 4, 2012):</h4>
+
+<p>I recently attempted to use the will_paginate gem with the latest version of Bootstrap (v2.2.1) and the pagination no longer
+rendered using the <code>&lt;li&gt;..&lt;/li&gt;</code> elements. To fix this I added the following into an initializer:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>config/initializers/will_paginate.rb </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="n">defined?</span><span class="p">(</span><span class="no">WillPaginate</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">WillPaginate</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;module ActionView</span>
+</span><span class='line'><span class="sr">  def will_paginate(collection = nil, options = {})</span>
+</span><span class='line'><span class="sr">    options[:renderer] ||= BootstrapLinkRenderer</span>
+</span><span class='line'><span class="sr">    super.try :html_safe</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">  class BootstrapLinkRenderer &amp;lt; LinkRenderer</span>
+</span><span class='line'><span class="sr">    protected</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def html_container(html)</span>
+</span><span class='line'><span class="sr">      tag :div, tag(:ul, html), container_attributes</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def page_number(page)</span>
+</span><span class='line'><span class="sr">      tag :li, link(page, page, :rel =&amp;gt; rel_value(page)), :class =&amp;gt; (&#39;active&#39; if page == current_page)</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def previous_or_next_page(page, text, classname)</span>
+</span><span class='line'><span class="sr">      tag :li, link(text, page || &#39;#&#39;), :class =&amp;gt; [classname[0..3], classname, (&#39;disabled&#39; unless page)].join(&#39; &#39;)</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">    def gap</span>
+</span><span class='line'><span class="sr">      tag :li, link(super, &#39;#&#39;), :class =&amp;gt; &#39;disabled&#39;</span>
+</span><span class='line'><span class="sr">    end</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This tip was provided by <a href="https://github.com/houen">Søren Houen</a> and found on the <a href="http://railscasts.com/episodes/329-more-on-twitter-bootstrap?view=comments">Railscasts comments</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tools I use as a developer]]></title>
+    <link href="http://coderberry.me/blog/2012/05/24/tools-i-use-as-a-developer/"/>
+    <updated>2012-05-24T15:48:00-06:00</updated>
+    <id>http://coderberry.me/blog/2012/05/24/tools-i-use-as-a-developer</id>
+    <content type="html"><![CDATA[<p><img src="http://coderberry.me/images/posts/swiss_army_knife.jpg" class="fleft" align="top" />
+Like any craftsman, a developer has a toolbox filled with items that helps him perform his craft. At a recent 'Tech Talk' at <a href="http://1on1.com">One on One</a>, I presented a few tools that I use in my day-to-day workings. At their request, I have compiled a list of each tool in my toolbox.</p>
+
+<p>I would love it if you would also add in the comments the tools that you use. I'm sure there are plenty out there that would make my life easier!</p>
+
+<div style="clear: both;"></div>
+
+
+<h2>Text Editors &amp; IDE's</h2>
+
+<p>Depending on the language and framework I am working with I usually bounce between two choices: Sublime Text 2 and IntelliJ IDEA.</p>
+
+<ul>
+<li><p><a href="http://www.sublimetext.com/2">Sublime Text 2</a> is an excellent editor that meets my needs much more than <a href="http://macromates.com">TextMate</a>. I use this exclusively for all of my Ruby and Rails development. I enjoy how quick navigating between files is and how I can perform auto-alignment for hashes. The plugins are extremely simple to install using their plugin installer.</p></li>
+<li><p><a href="http://www.jetbrains.com/idea/">IntelliJ IDEA</a> is my editor of choice for anything Java or Groovy related. I have used it for a long long time with my Grails projects and I couldn't be happier. It is amazing how intuitive the IDE is and the code completion makes it so I have built-in helpers in my code. Excellent app!</p></li>
+</ul>
+
+
+<h2>Browser Extensions</h2>
+
+<p>I usually only develop using the <a href="http://www.google.com/chrome">Chrome</a> browser. It seems to be the most suited for developers with their <em>Developer Tools</em>. I am constantly right clicking elements and selecting <em>Inspect Element</em> to view the source code, javascript console and CSS stylings for elements.</p>
+
+<p>Here are a couple of the plugins I use with Chrome:</p>
+
+<ul>
+<li><p><a href="https://chrome.google.com/webstore/detail/chklaanhfefbnpoihckbnefhakgolnmc">JSON View</a> - performs a 'pretty print' of your JSON in the browser with the ability to open and close nodes. Priceless!</p></li>
+<li><p><a href="https://chrome.google.com/webstore/detail/oiaejidbmkiecgbjeifoejpgmdaleoha">Stylebot</a> - allows you to quickly manipulate the appearance of any website (using custom CSS). This was insanely helpful when I wanted to iteratively change the CSS on an existing site. Check it out!</p></li>
+</ul>
+
+
+<h2>Design Tools</h2>
+
+<ul>
+<li><p><a href="http://adobe.com/photoshop">Adobe Photoshop</a> - I like it better than Pixelmator.</p></li>
+<li><p><a href="http://www.colorschemer.com/">Color Schemer Studio 2</a> - I use this all the time for trying to pick colors for my applications. I am colorblind so it is extra helpful because it choses complementary colors for me.</p></li>
+<li><p><a href="http://colorsnapper.com/">ColorSnapper</a> - This is a lightweight picker that let's me pick a color on the screen and places the hex directly into the clipboard. It also keeps track of the last 5 colors I've chosen. I use this most of the time.</p></li>
+</ul>
+
+
+<h2>Menu Bar Utilities</h2>
+
+<ul>
+<li><p><a href="http://www.lightheadsw.com/caffeine/">Caffeine</a> - When I go to meetings and bring my laptop I hate having my screen go to sleep (or even go darker). By clicking on this it keeps the laptop alive and awake.</p></li>
+<li><p><a href="http://www.growlvoice.com/">GrowlVoice</a> - This let's me chat with my wife over google voice text messaging :D Not related to developing but it let's me be more productive.</p></li>
+<li><p><a href="http://itunes.apple.com/us/app/flycut-clipboard-manager/id442160987?mt=12">Flycut (Clipboard Manager)</a> - Keeps the clipboard history in the menu bar.</p></li>
+<li><p><a href="http://skitch.com/">Skitch</a> - This isn't exactly a menu bar app, but it does have a menu bar icon and trigger. I use this app ALL THE TIME when taking and sharing screenshots. It let's you write on the screenshots as well.</p></li>
+</ul>
+
+
+<h2>Education</h2>
+
+<ul>
+<li><a href="http://railscasts.com/">Railscasts.com</a> - Ryan Bates taught me Rails. I'll leave it at that.</li>
+</ul>
+
+
+<h2>Bookmarks</h2>
+
+<p>Over the years I have collected a bunch of useful websites that help me get stuff done.</p>
+
+<ul>
+<li><p><a href="http://www.webcreme.com/">WebCreme</a> - Web design inspiration.</p></li>
+<li><p><a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> - Simple and flexible HTML, CSS, and Javascript for popular user interface components and interactions.</p></li>
+<li><p><a href="http://rubular.com/">Rubular</a> - a [Not Just]Ruby regular expression editor (however it is useful with any language)</p></li>
+<li><p><a href="">Groovy Console</a> - Online Groovy console. Very handy!</p></li>
+<li><p><a href="http://pastie.org">Pastie.org</a> - Paste and share code snippets (private or public)</p></li>
+<li><p><a href="http://border-radius.com/">CSS3 Border Radius Gemerator</a> - Simple and easy to use.</p></li>
+<li><p><a href="http://html-ipsum.com/">HTML Ipsum</a> - Different types of 'lorem ipsum' data that can be used mocking up stuff.</p></li>
+<li><p><a href="http://scriptsrc.net/">ScriptSrc.net</a> - "Tired of hunting down the script tag for the latest version of your Javascript Library of choice? Yeah we were too, so we built this page for you. Bookmark it man!"</p></li>
+<li><p><a href="http://copypastecharacter.com/">ℂ◉℗⒴ ℘ⓐṨͲℰ Ⓒℌ◭ℝ◬ℂ⒯℮ℛ</a> - A web and iPhone application for copying the ‘hidden’ characters that comes with the computer’s typefaces, to be pasted into emails, tweets, text documents, forums and whatever else you might need to spice up with an extra ♔, ฿ or, ❒.</p></li>
+<li><p><a href="http://css-tricks.com/examples/ButtonMaker/">Button Maker</a> - Nice little app to design a button with CSS and then copy the code.</p></li>
+<li><p><a href="https://irccloud.com">IRC Cloud</a> - Online IRC client. It stays online even if I'm not so I can view conversations I missed. Find me on #grails.</p></li>
+<li><p><a href="http://www.colorzilla.com/gradient-editor/">Ultimate CSS Gradient Generator</a> - A powerful Photoshop-like CSS gradient editor from ColorZilla.</p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

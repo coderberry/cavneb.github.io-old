@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: GORM | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/gorm/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Multi-Associative GORM Criteria with Projections]]></title>
+    <link href="http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/"/>
+    <updated>2011-03-29T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2011/03/29/multi-associative-gorm-criteria-with-projections</id>
+    <content type="html"><![CDATA[<p>I have three domain classes: Lead, Submission and BuyerLog:</p>
+
+<p>``` java
+class Lead {
+  static hasMany = [ submissions: Submission ]
+  Date dateCreated
+  // ...
+}</p>
+
+<p>class Submission {
+  static belongsTo = [ lead: Lead ]
+  static hasMany = [ buyerLogs: BuyerLog ]
+  Lead lead
+  // ...
+}</p>
+
+<p>class BuyerLog {
+  static belongsTo = [ submission: Submission ]
+  Submission submission
+  String leadBuyer
+  // ...
+}
+```</p>
+
+<p>I have a need to get the number of duplicate leads which share the same leadBuyer (in the BuyerLog domain class). Here is the SQL:</p>
+
+<p>``` sql
+SELECT count(l.id)
+  FROM lead AS l, submission AS s, buyerLog as bl</p>
+
+<pre><code>WHERE l.id = s.leadId
+  AND s.id = bl.submissionId
+  AND bl.leadBuyer = $buyerName
+  AND l.id != $lead.id
+  AND l.dateCreated::date &gt; $daysAgo
+</code></pre>
+
+<p>```</p>
+
+<p>I want to do this using GORM / Criteria Builder. Here's my final code:</p>
+
+<p>``` java
+/<em>*
+ * Count duplicate submissions within 45 days
+ * SELECT count(l.id)
+ *      FROM lead AS l, submission AS s, buyerLog as bl
+ *      WHERE l.id = s.leadId
+ *          AND s.id = bl.submissionId
+ *          AND bl.leadBuyer = $buyerName
+ *          AND l.id != $lead.id
+ *          AND l.dateCreated::date > $daysAgo
+ </em>/
+protected def Boolean isDuplicateSubmission(Lead lead, ArrayList<String> buyerNames) {
+  def isDuplicate = false
+  def daysAgo = new Date() - 45
+  def cnt = Lead.withCriteria {</p>
+
+<pre><code>not {
+  idEq(lead.id)
+}
+and {
+  le('dateCreated', daysAgo)
+  submissions {
+    buyerLogs {
+      inList('leadBuyer', buyerNames)
+    }
+  }
+}
+projections {
+  rowCount()
+}
+</code></pre>
+
+<p>  }
+  return (cnt > 0)
+}
+```</p>
+
+<p>Thanks to schmolly159 on the #grails freenode IRC channel for the examples and continued help.</p>
+]]></content>
+  </entry>
+  
+</feed>

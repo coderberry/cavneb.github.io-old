@@ -1,0 +1,2602 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rails | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 3]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/"/>
+    <updated>2013-07-08T19:39:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3</id>
+    <content type="html"><![CDATA[<p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a> and <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Part 2</a>, I recommend you do. You can check out the code up to this point with the following:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/simple-auth.git simple_auth
+$ cd simple_auth
+$ git checkout part-2-completed
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+</code></pre>
+
+<p>Also, make sure you run <code>./bin/ember_build.sh</code> in a separate tab.</p>
+
+<h2>What's Left?</h2>
+
+<p>So far, we have created an Ember application with a RailsAPI backend and can register, login and logout. There are a few more things that we want to be able to do before we can call it a wrap on this series.</p>
+
+<ol>
+<li>Pass the access token with each request to the backend and require authorization for some data to return.</li>
+<li>Force the user to the login page when they try to access a page which requires authentication.</li>
+<li>Add validation to our registration form.</li>
+</ol>
+
+
+<h2>Access Token In Each Request</h2>
+
+<p>Believe it or not, this is already happening. If you look at <em>auth_manager.js</em>, you will see that in the <em>authenticate</em> function, we add the headers to each AJAX request with the access token.</p>
+
+<p>Let's test this.</p>
+
+<p>Open up the <em>top_secret</em> route and load place the user list into the controllers model:</p>
+
+<p>```javascript public/javascripts/routes/top_secret_route.js
+var User = require('../models/user');</p>
+
+<p>var TopSecretRoute = Ember.Route.extend({
+  model: function() {</p>
+
+<pre><code>return User.find();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = TopSecretRoute;
+```</p>
+
+<p>Now update the <em>top_secret</em> template with the following:</p>
+
+<p>
+```html public/javascripts/templates/top_secret.hbs</p>
+
+<h2>Users (Top Secret Stuff)</h2>
+
+
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Username</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each controller}}
+    <tr>
+      <td>{{name}}</td>
+      <td>{{email}}</td>
+      <td>{{username}}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+
+
+<p>```
+</p>
+
+<p>Refresh the browser and click on the <em>Top Secret</em> nav item. <strong>If you haven't already registered and/or logged in, do it first.</strong></p>
+
+<p><img src="/images/posts/simple-auth-ss-6.png"></p>
+
+<p>If you view the console when loading this page, you will see the network request made to <em>/users</em>. In this request, you can see the headers sent out, one of which is the <em>Authorization</em> header. If this wasn't there, we would not be able to see a list of users. Click 'Logout' and then go to the Top Secret page again. See? You get a <strong>401 Unauthorized</strong> response from <em>/users</em>.</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">If you still see the users list, it is because they are cached. Refresh the page.</div>
+
+
+<h2>Hide Pages Which Require Authorization</h2>
+
+<p>It seems rather silly for us to be able to click on the <em>Top Secret</em> nav item and see an empty list of users. Let's require the user to be authenticated in order to view that page.</p>
+
+<p>The easiest way to do this is to create a base route which can be extended by routes which require authentication.  Create a new route called <em>authenticated</em>.</p>
+
+<pre><code>$ ember generate -r authenticated
+</code></pre>
+
+<p>```javascript public/javascripts/routes/authenticated_route.js
+var AuthenticatedRoute = Ember.Route.extend({
+  beforeModel: function(transition) {</p>
+
+<pre><code>if (!App.AuthManager.isAuthenticated()) {
+  this.redirectToLogin(transition);
+}
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Redirect to the login page and store the current transition so we can
+  // run it again after login
+  redirectToLogin: function(transition) {</p>
+
+<pre><code>var sessionNewController = this.controllerFor('sessions.new');
+sessionNewController.set('attemptedTransition', transition);
+this.transitionTo('sessions.new');
+</code></pre>
+
+<p>  },</p>
+
+<p>  events: {</p>
+
+<pre><code>error: function(reason, transition) {
+  this.redirectToLogin(transition);
+}
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = AuthenticatedRoute;
+```</p>
+
+<p>Now modify the <em>sessions/new</em> controller and redirect to the <em>attemptedTransition</em> if available:</p>
+
+<p>```javascript public/javascripts/controllers/sessions/new_controller.js
+var SessionsNewController = Ember.ObjectController.extend({</p>
+
+<p>  attemptedTransition: null,</p>
+
+<p>  loginUser: function() {</p>
+
+<pre><code>var self = this;
+var router = this.get('target');
+var data = this.getProperties('username_or_email', 'password');
+var attemptedTrans = this.get('attemptedTransition');
+
+$.post('/session', data, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  if (attemptedTrans) {
+    attemptedTrans.retry();
+    self.set('attemptedTransition', null);
+  } else {
+    router.transitionTo('index');
+  }
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewController;
+```</p>
+
+<p>Finally, update the <em>top_secret</em> route to extend the new AuthenticatedRoute:</p>
+
+<p>```javascript public/javascripts/routes/top_secret_route.js
+var AuthenticatedRoute = require('./authenticated_route');
+var User = require('../models/user');</p>
+
+<p>var TopSecretRoute = AuthenticatedRoute.extend({
+  model: function() {</p>
+
+<pre><code>return User.find();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = TopSecretRoute;
+```</p>
+
+<p>Refresh your browser and click on the <em>Top Secret</em> nav item. You should be redirected to the login page. Now log in and it should redirect you right back to the top secret page.</p>
+
+<h2>Form Validation</h2>
+
+<p>The final thing I am going to cover (briefly) is performing form validation. This is very simple considering our backend is already giving us what we need. Open up the <em>user.js</em> model and add 'errors' as an attribute:</p>
+
+<p>```javascript public/javascripts/models/user.js
+var User = DS.Model.extend({
+  name:     DS.attr('string'),
+  email:    DS.attr('string'),
+  username: DS.attr('string'),</p>
+
+<p>  errors: {}
+});</p>
+
+<p>module.exports = User;
+```</p>
+
+<p>Now open up the <em>users/new</em> controller and capture the errors on a failed registration and place them into the errors hash:</p>
+
+<p>```javascript public/javascripts/controllers/users/new_controller.js
+var UsersNewController = Ember.ObjectController.extend({
+  createUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('name', 'email', 'username', 'password', 'password_confirmation')
+var user = this.get('model');
+
+$.post('/users', { user: data }, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+
+}).fail(function(jqxhr, textStatus, error ) {
+  if (jqxhr.status === 422) {
+    errs = JSON.parse(jqxhr.responseText)
+    user.set('errors', errs.errors);
+  }
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewController;
+```</p>
+
+<p>Finally, update the registration template:</p>
+
+<p>
+```html public/javascripts/templates/users/new.hbs</p>
+
+<h2>Register</h2>
+
+
+<p><form {{action "createUser" on="submit"}}>
+  <div {{bindAttr class=":controls errors.name:error"}}></p>
+
+<pre><code>&lt;label&gt;Full Name&lt;/label&gt;
+{{input type="text" value=name placeholder="Full Name"}}
+&lt;small class="below"&gt;{{errors.name}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.email:error"}}></p>
+
+<pre><code>&lt;label&gt;Email Address&lt;/label&gt;
+{{input type="email" value=email placeholder="Email Address"}}
+&lt;small class="below"&gt;{{errors.email}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.username:error"}}></p>
+
+<pre><code>&lt;label&gt;Username&lt;/label&gt;
+{{input type="text" value=username placeholder="Username"}}
+&lt;small class="below"&gt;{{errors.username}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.password:error"}}></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+&lt;small class="below"&gt;{{errors.password}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div {{bindAttr class=":controls errors.password_confirmation:error"}}></p>
+
+<pre><code>&lt;label&gt;Confirm Password&lt;/label&gt;
+{{input type="password" value=password_confirmation placeholder="Confirm Password"}}
+&lt;small class="below"&gt;{{errors.password_confirmation}}&lt;/small&gt;
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh the browser and play around with the form. You should see error messages on submit if they are invalid. These errors are provided by Rails on the backend and are returned via the API.</p>
+
+<p><img src="/images/posts/simple-auth-ss-7.png"></p>
+
+<h2>Done!</h2>
+
+<p>Thanks for sticking through this with me. The final code can be found at <a href="https://github.com/cavneb/simple_auth">https://github.com/cavneb/simple_auth</a>.</p>
+
+<p>I especially want to thank all those who are taking the time to teach Ember via blogs, screencasts and live presentations. I find myself struggling less and less every day because new content comes out from all of you. Thanks!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 2]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2/"/>
+    <updated>2013-07-08T17:36:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2</id>
+    <content type="html"><![CDATA[<p>If you have not yet gone through <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Part 1</a>, I recommend you do. You can check out the code up to this point with the following:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/simple-auth.git simple_auth
+$ cd simple_auth
+$ git checkout part-1-completed
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+</code></pre>
+
+<h2>Add Ember using Ember Tools!</h2>
+
+<p>I have created Ember applications using a variety of shortcuts (<a href="https://github.com/yeoman/generator-ember">Yeoman</a>, <a href="https://github.com/emberjs/ember-rails">ember-rails</a>) but have found that <a href="https://github.com/rpflorence/ember-tools">Ember Tools</a> is by far the best option available. It allows me to skip the <a href="http://coderberry.me/blog/2012/04/24/asset-pipeline-for-dummies/">Asset Pipeline</a> completely and work directly in my public folder.</p>
+
+<p>To get started, install Ember Tools using <em>npm</em>.</p>
+
+<pre><code>$ npm install -g ember-tools
+</code></pre>
+
+<p>Once this is installed, you will be able to use the console command <em>ember</em>. Try it out:</p>
+
+<pre><code>$ ember -V
+0.2.4
+</code></pre>
+
+<p>Excellent. Now create our Ember app in our public directory with the following command:</p>
+
+<pre><code>$ ember create --js-path public/javascripts
+   skipped: .
+   created: ./public/javascripts
+   created: ./public/javascripts/vendor
+   created: ./public/javascripts/config
+   created: ./public/javascripts/controllers
+   created: ./public/javascripts/helpers
+   created: ./public/javascripts/models
+   created: ./public/javascripts/routes
+   created: ./public/javascripts/templates
+   created: ./public/javascripts/views
+   created: ./public/javascripts/mixins
+   created: ./ember.json
+   created: ./public/javascripts/config/app.js
+   created: ./public/javascripts/config/store.js
+   created: ./public/javascripts/config/routes.js
+   created: ./public/javascripts/templates/application.hbs
+   created: ./public/javascripts/templates/index.hbs
+   created: ./index.html
+   created: ./public/javascripts/vendor/ember-data.js
+   created: ./public/javascripts/vendor/ember.js
+   created: ./public/javascripts/vendor/handlebars.js
+   created: ./public/javascripts/vendor/jquery.js
+   created: ./public/javascripts/vendor/localstorage_adapter.js
+All done! Start with `config/routes.js` to add routes to your app.
+</code></pre>
+
+<p>With that simple command we now have a <em>nearly</em> functional Ember application. Let's move the generated <em>index.html</em> file into the public folder and modify it a tiny bit.</p>
+
+<pre><code>$ mv index.html public/.
+</code></pre>
+
+<p><code>html public/index.html
+&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta http-equiv="Content-type" content="text/html; charset=utf-8"&gt;
+  &lt;title&gt;Ember App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script src="javascripts/application.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></p>
+
+<p>Note that the only thing that changed in this file is the path to the application.js file. Go ahead and start up your Rails application and visit <a href="http://localhost:3000">http://localhost:3000</a>.</p>
+
+<pre><code>$ rails s
+</code></pre>
+
+<p>You shouldn't see anything come up and will likely see an error in the server logs. This is because the page is trying to load application.js when it does not exist. To create the file, run (in another terminal tab within the same root directory):</p>
+
+<pre><code>$ ember build
+   created: public/javascripts/templates.js
+   created: public/javascripts/index.js
+   created: public/javascripts/application.js
+build time: 358 ms
+</code></pre>
+
+<p>This created three files: templates.js, index.js and application.js. The two former are used temporarily to create the latter. Now refresh your browser and you should see the starter app:</p>
+
+<p><img src="/images/posts/simple-auth-ss-1.png"></p>
+
+<p>Running <em>ember build</em> can get very tedious, so let's create a script which will monitor the file structure and run the command when needed. You will need to have <em>fsmonitor</em> installed if you don't already:</p>
+
+<pre><code>$ npm install -g fsmonitor
+</code></pre>
+
+<p>Create the file bin/ember_build:</p>
+
+<p>```bash bin/ember_build.sh</p>
+
+<h1>!/bin/bash</h1>
+
+<p>fsmonitor -p -d public/javascripts '!index.js' '!templates.js' '!application.js' ember build -d
+```</p>
+
+<p>Now in a separate tab, make the file executable and run it:</p>
+
+<pre><code>$ chmod a+x bin/ember_build.sh
+$ ./bin/ember_build.sh
+
+Monitoring:  public/javascripts
+    filter:  **/ !**/index.js/** !**/templates.js/** !**/application.js/**
+    action:  ember build
+
+...
+</code></pre>
+
+<p>Now whenever we change our Ember app, the code will re-compile.</p>
+
+<h2>Generate, Generate, Generate!</h2>
+
+<p>Ember Tools comes with generators, which I LOVE! Let's create some files using the generators and fill out our layout page.</p>
+
+<p>Start by creating the route, handlebars template and <strong>object</strong> controller for <em>users/new</em>. This will be where we register.</p>
+
+<pre><code>$ ember generate -rtc users/new
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: o
+   created: public/javascripts/controllers/users/new_controller.js
+   created: public/javascripts/templates/users/new.hbs
+   created: public/javascripts/routes/users/new_route.js
+</code></pre>
+
+<p>Now create the route, handlebars template and <strong>object</strong> controller for <em>sessions/new</em>. This will be where we login.</p>
+
+<pre><code>$ ember generate -rtc sessions/new
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: o
+   created: public/javascripts/controllers/sessions/new_controller.js
+   created: public/javascripts/templates/sessions/new.hbs
+   created: public/javascripts/routes/sessions/new_route.js
+</code></pre>
+
+<p>Finally, create a page which is <strong>TOP SECRET</strong> and will require authentication to access. Let's use an <strong>array</strong> controller so we can list the users.</p>
+
+<pre><code>$ ember generate -rtc top_secret
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: a
+   created: public/javascripts/controllers/top_secret_controller.js
+   created: public/javascripts/templates/top_secret.hbs
+   created: public/javascripts/routes/top_secret_route.js
+</code></pre>
+
+<p>Update the application handlebars template to show links to the different pages.</p>
+
+<p>
+```html public/javascripts/templates/application.hbs</p>
+
+<div class="container">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#">Simple Auth</a>
+      <ul class="nav">
+        <li>{{#linkTo 'index'}}Home{{/linkTo}}</li>
+        <li>{{#linkTo 'top_secret'}}Top Secret{{/linkTo}}</li>
+        <li>{{#linkTo 'users.new'}}Register{{/linkTo}}</li>
+        <li>{{#linkTo 'sessions.new'}}Login{{/linkTo}}</li>
+      </ul>
+    </div>
+  </div>
+
+  {{outlet}}
+</div>
+
+
+<p>```
+</p>
+
+<p>Before these links will work we need to add the routes to the config/routes.js file:</p>
+
+<p>```javascript public/javascripts/config/routes.js
+var App = require('./app');</p>
+
+<p>App.Router.map(function() {
+  this.resource('sessions', function() {</p>
+
+<pre><code>this.route('new');
+</code></pre>
+
+<p>  });
+  this.resource('users', function() {</p>
+
+<pre><code>this.route('new');
+</code></pre>
+
+<p>  })
+  this.route('top_secret');
+});
+```</p>
+
+<p>Refresh the browser and you should see something like this:</p>
+
+<p><img src="/images/posts/simple-auth-ss-2.png"></p>
+
+<p>Add some style with <a href="http://www.bootstrapcdn.com/">twitter bootstrap</a> by adding the CSS link in your <em>index.html</em> page:</p>
+
+<p><code>html public/index.html
+&lt;head&gt;
+  ...
+  &lt;link href="http://coderberry.me//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+</code></p>
+
+<p>Refresh. You can click on the links as well and you should see the correct pages load.</p>
+
+<p><img src="/images/posts/simple-auth-ss-3.png"></p>
+
+<h2>Update to the Latest Ember Data</h2>
+
+<p>At the moment, Ember Tools does not provide the <a href="http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js">latest version</a> of Ember Data, so we will need to add this manually. Save the following file to the path <em>public/javascripts/vendor</em>:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js
+</code></pre>
+
+<p>Now update a your main application config file to make sure we are using the latest:</p>
+
+<p>```javascript public/javascripts/config/app.js
+require('../vendor/jquery');
+require('../vendor/handlebars');
+require('../vendor/ember');
+require('../vendor/ember-data-latest');</p>
+
+<p>var App = window.App = Ember.Application.create();
+App.Store = require('./store');</p>
+
+<p>module.exports = App;
+```</p>
+
+<h2>Auth Manager</h2>
+
+<p>On the blog post found at * <a href="http://log.simplabs.com/post/53016599611/authentication-in-ember-js">http://log.simplabs.com/post/53016599611/authentication-in-ember-js</a>
+, Marco Otte-Witte (<a href="https://twitter.com/simplabs">@simplabs</a>) created a simple <strong>AuthManager</strong> which stores and handles authentication. It is very elegant and once I found this post, I got very excited. I made some minor tweaks to the code, but it is still largely intact.</p>
+
+<p>Create a file in your <em>public/javascripts/config</em> folder called <em>auth_manager.js</em>:</p>
+
+<p>```javascript public/javascripts/config/auth_manager.js
+var User = require('../models/user');</p>
+
+<p>var AuthManager = Ember.Object.extend({</p>
+
+<p>  // Load the current user if the cookies exist and is valid
+  init: function() {</p>
+
+<pre><code>this._super();
+var accessToken = $.cookie('access_token');
+var authUserId  = $.cookie('auth_user');
+if (!Ember.isEmpty(accessToken) &amp;&amp; !Ember.isEmpty(authUserId)) {
+  this.authenticate(accessToken, authUserId);
+}
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Determine if the user is currently authenticated.
+  isAuthenticated: function() {</p>
+
+<pre><code>return !Ember.isEmpty(this.get('apiKey.accessToken')) &amp;&amp; !Ember.isEmpty(this.get('apiKey.user'));
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Authenticate the user. Once they are authenticated, set the access token to be submitted with all
+  // future AJAX requests to the server.
+  authenticate: function(accessToken, userId) {</p>
+
+<pre><code>$.ajaxSetup({
+  headers: { 'Authorization': 'Bearer ' + accessToken }
+});
+var user = User.find(userId);
+this.set('apiKey', App.ApiKey.create({
+  accessToken: accessToken,
+  user: user
+}));
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Log out the user
+  reset: function() {</p>
+
+<pre><code>App.__container__.lookup("route:application").transitionTo('sessions.new');
+Ember.run.sync();
+Ember.run.next(this, function(){
+  this.set('apiKey', null);
+  $.ajaxSetup({
+    headers: { 'Authorization': 'Bearer none' }
+  });
+});
+</code></pre>
+
+<p>  },</p>
+
+<p>  // Ensure that when the apiKey changes, we store the data in cookies in order for us to load
+  // the user when the browser is refreshed.
+  apiKeyObserver: function() {</p>
+
+<pre><code>if (Ember.isEmpty(this.get('apiKey'))) {
+  $.removeCookie('access_token');
+  $.removeCookie('auth_user');
+} else {
+  $.cookie('access_token', this.get('apiKey.accessToken'));
+  $.cookie('auth_user', this.get('apiKey.user.id'));
+}
+</code></pre>
+
+<p>  }.observes('apiKey')
+});</p>
+
+<p>// Reset the authentication if any ember data request returns a 401 unauthorized error
+DS.rejectionHandler = function(reason) {
+  if (reason.status === 401) {</p>
+
+<pre><code>App.AuthManager.reset();
+</code></pre>
+
+<p>  }
+  throw reason;
+};</p>
+
+<p>module.exports = AuthManager;
+```</p>
+
+<p>For this to work, we will need to add include jquery.cookies into our app. Download <a href="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js</a> into the folder <em>public/javascripts/vendor</em> and update the <em>app.js</em> file:</p>
+
+<pre><code>$ wget -P public/javascripts/vendor/ https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js
+</code></pre>
+
+<p>```javascript public/javascripts/config/app.js
+require('../vendor/jquery');
+require('../vendor/jquery.cookie');
+require('../vendor/handlebars');
+require('../vendor/ember');
+require('../vendor/ember-data-latest');</p>
+
+<p>var App = window.App = Ember.Application.create();
+App.Store = require('./store');</p>
+
+<p>module.exports = App;
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Note: You may have to do what I did on line 7 above by adding setting the application to window.App as well. If you have troubles, this is likely why.</div>
+
+
+<p>Now create the application router and add the AuthManager to the App in the <em>init</em> function. The reason it goes here is because it's the first thing that gets run after all the code has been loaded.</p>
+
+<pre><code>$ ember generate -r application
+</code></pre>
+
+<p>```javascript public/javascripts/routes/application_route.js
+var AuthManager = require('../config/auth_manager');</p>
+
+<p>var ApplicationRoute = Ember.Route.extend({
+  init: function() {</p>
+
+<pre><code>this._super();
+App.AuthManager = AuthManager.create();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = ApplicationRoute;
+```</p>
+
+<h2>Registration</h2>
+
+<p>Let's create the parts of our app which will allow a user to register. We want to start off by creating a user model which uses Ember Data:</p>
+
+<pre><code>$ ember generate -m user
+</code></pre>
+
+<p>```javascript public/javascripts/models/user.js
+var User = DS.Model.extend({
+  name:     DS.attr('string'),
+  email:    DS.attr('string'),
+  username: DS.attr('string')
+});</p>
+
+<p>module.exports = User;
+```</p>
+
+<p>While we're here, let's also create the model for <em>api_key</em>:</p>
+
+<pre><code>$ ember generate -m api_key
+</code></pre>
+
+<p>```javascript public/javascripts/models/api_key.js
+// Ember.Object instead of DS.Model because this will never persist to or query the server
+var ApiKey = Ember.Object.extend({
+  access_token: '',
+  user: null
+});</p>
+
+<p>module.exports = ApiKey;
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;"><strong>Important:</strong> I changed the type of object for ApiKey from <em>DS.Model</em> to <em>Ember.Object</em>. I did this because we will never persist to or query the server for API keys.</div>
+
+
+<p>For us to use Ember Data, we need to enable it. By default with Ember Tools, the localstorage adapter is enabled by default. Let's remove that and set the adapter to the REST adapter. Open up <em>config/store.js</em> and make the following changes:</p>
+
+<p><code>javascript public/javascripts/config/store.js
+module.exports = DS.Store.extend({
+  adapter: DS.RESTAdapter.create()
+});
+</code></p>
+
+<p>Open up our route for new users and set the model to be a new User record:</p>
+
+<p>```javascript public/javascripts/routes/users/new_route.js
+var User = require('../../models/user');</p>
+
+<p>var UsersNewRoute = Ember.Route.extend({
+  setupController: function(controller, model) {</p>
+
+<pre><code>this.controller.set('model', User.createRecord());
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewRoute;
+```</p>
+
+<p>Modify the users/new controller with the following:</p>
+
+<p>```javascript public/javascripts/controllers/users/new_controller.js
+var UsersNewController = Ember.ObjectController.extend({
+  createUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('name', 'email', 'username', 'password', 'password_confirmation')
+var user = this.get('model');
+
+$.post('/users', { user: data }, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = UsersNewController;
+```</p>
+
+<p>Now let's update the handlebars template to show the registration form:</p>
+
+<p>
+```html public/javascripts/templates/users/new.hbs</p>
+
+<h2>Register</h2>
+
+
+<p><form {{action "createUser" on="submit"}}>
+  <div></p>
+
+<pre><code>&lt;label&gt;Full Name&lt;/label&gt;
+{{input type="text" value=name placeholder="Full Name"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Email Address&lt;/label&gt;
+{{input type="email" value=email placeholder="Email Address"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Username&lt;/label&gt;
+{{input type="text" value=username placeholder="Username"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Confirm Password&lt;/label&gt;
+{{input type="password" value=password_confirmation placeholder="Confirm Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh your browser and fill out the registration form and hit submit. You should be logged in and redirected to the index page.</p>
+
+<p><img src="/images/posts/simple-auth-ss-4.png"></p>
+
+<p>In your JavaScript console, you can view the currently logged in user with the following:</p>
+
+<pre><code>&gt; App.AuthManager.get('apiKey.user.name')
+  "Eric Berry"
+&gt; App.AuthManager.isAuthenticated()
+  true
+</code></pre>
+
+<h2>Current User in Nav Bar</h2>
+
+<p>We're doing great. We now have created an account. However, the UI hasn't changed. We want to be told that we are logged in and be given the option to log out.</p>
+
+<p>Let's create an <em>application</em> controller with some computed properties which we will use in the template:</p>
+
+<pre><code>$ ember generate -c application
+-&gt; What kind of controller: object, array, or neither? [o|a|n]: n
+   created: public/javascripts/controllers/application_controller.js
+</code></pre>
+
+<p>```javascript public/javascripts/controllers/application_controller.js
+var ApplicationController = Ember.Controller.extend({
+  currentUser: function() {</p>
+
+<pre><code>return App.AuthManager.get('apiKey.user')
+</code></pre>
+
+<p>  }.property('App.AuthManager.apiKey'),</p>
+
+<p>  isAuthenticated: function() {</p>
+
+<pre><code>return App.AuthManager.isAuthenticated()
+</code></pre>
+
+<p>  }.property('App.AuthManager.apiKey')
+});</p>
+
+<p>module.exports = ApplicationController;
+```</p>
+
+<p>Now modify the application handlebars template to show the menu based on whether the user is authenticated or not:</p>
+
+<p>
+```html public/javascripts/templates/application.hbs</p>
+
+<div class="container">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#">Simple Auth</a>
+      <ul class="nav">
+        <li>{{#linkTo 'index'}}Home{{/linkTo}}</li>
+        <li>{{#linkTo 'top_secret'}}Top Secret{{/linkTo}}</li>
+
+        {{#if isAuthenticated}}
+          <li><a href="#">{{currentUser.email}}</a></li>
+          <li><a href="#" {{action 'logout'}}>Logout</a></li>
+        {{else}}
+          <li>{{#linkTo 'users.new'}}Register{{/linkTo}}</li>
+          <li>{{#linkTo 'sessions.new'}}Login{{/linkTo}}</li>
+        {{/if}}
+      </ul>
+    </div>
+  </div>
+
+  {{outlet}}
+</div>
+
+
+<p>```
+</p>
+
+<p>Now when we reload the browser it will show our email address when we are logged in with a link to log out. Try it out.</p>
+
+<h2>Logout</h2>
+
+<p>We have an action set up in our application template to log out, but we don't have an event to handle it yet. Let's put this in the application route.</p>
+
+<p>```javascript public/javascripts/routers/application_route.js
+var AuthManager = require('../config/auth_manager');</p>
+
+<p>var ApplicationRoute = Ember.Route.extend({
+  init: function() {</p>
+
+<pre><code>this._super();
+App.AuthManager = AuthManager.create();
+</code></pre>
+
+<p>  },</p>
+
+<p>  events: {</p>
+
+<pre><code>logout: function() {
+  App.AuthManager.reset();
+  this.transitionTo('index');
+}
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = ApplicationRoute;
+```</p>
+
+<p>Refresh your browser and click 'Logout'. Works? YAY!!!</p>
+
+<h2>Login</h2>
+
+<p>Let's start by updating our the session/new route to assign an Ember Object as the controller's model:</p>
+
+<p>```javascript public/javascripts/routes/sessions/new_route.js
+var SessionsNewRoute = Ember.Route.extend({
+  model: function() {</p>
+
+<pre><code>return Ember.Object.create();
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewRoute;
+```</p>
+
+<p>Now update the sessions/new controller to perform the login:</p>
+
+<p>```javascript public/javascripts/controllers/sessions/new_controller.js
+var SessionsNewController = Ember.ObjectController.extend({
+  loginUser: function() {</p>
+
+<pre><code>var router = this.get('target');
+var data = this.getProperties('username_or_email', 'password');
+
+$.post('/session', data, function(results) {
+  App.AuthManager.authenticate(results.api_key.access_token, results.api_key.user_id);
+  router.transitionTo('index');
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>module.exports = SessionsNewController;
+```</p>
+
+<p>Finally, update the handlebars template to show the login form:</p>
+
+<p>
+```html public/javascripts/templates/sessions/new.hbs</p>
+
+<h2>Login</h2>
+
+
+<p><form {{action "loginUser" on="submit"}}>
+  <div></p>
+
+<pre><code>&lt;label&gt;Username or Email&lt;/label&gt;
+{{input type="text" value=username_or_email placeholder="Username or Email Address"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <div></p>
+
+<pre><code>&lt;label&gt;Password&lt;/label&gt;
+{{input type="password" value=password placeholder="Password"}}
+</code></pre>
+
+<p>  </div></p>
+
+<p>  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+</p>
+
+<p>Refresh your browser and log in. On success, you should be redirected to the index page and the nav bar should indicate you are logged in.</p>
+
+<p><img src="/images/posts/simple-auth-ss-5.png"></p>
+
+<h3><a href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-3/">Continue to Part 3</a></h3>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Authentication with EmberJS - Part 1]]></title>
+    <link href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-1/"/>
+    <updated>2013-07-08T15:24:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-1</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/keymaster.jpg"></p>
+
+<p>Authentication with Ember is difficult. I have spent a couple of weeks trying out different approaches and failing time and again. With the help of <a href="http://ember101.com">Ryan Florence</a> and <a href="https://github.com/wbhumphrey">Brad Humphrey</a>, I have finally been able to understand how it should work and also have built a <a href="https://github.com/cavneb/simple-auth">simple application</a> which uses it.</p>
+
+<p>My goal in this article will be to build a simple Ember application with a RESTful backend (in Rails) which provides authentication and user registration. We will also set all requests to pass the access token to our backend for authorization.</p>
+
+<p>Here are a couple of the resources I used to build this app:</p>
+
+<ul>
+<li><a href="https://github.com/rpflorence/ember-tools">Ember Tools</a></li>
+<li><a href="http://www.embercasts.com/episodes/client-side-authentication-part-1">http://www.embercasts.com</a></li>
+<li><a href="https://github.com/heartsentwined/ember-auth">https://github.com/heartsentwined/ember-auth</a></li>
+<li><a href="http://log.simplabs.com/post/53016599611/authentication-in-ember-js">http://log.simplabs.com/post/53016599611/authentication-in-ember-js</a></li>
+</ul>
+
+
+<h2>Create a Rails API application</h2>
+
+<p>Our application is going to be using the <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>)gem. By using this gem, we limit our Rails app to include only things necessary for API-driven apps. We will also be using Rails 4.0.</p>
+
+<pre><code>$ gem install rails-api
+$ rails-api new simple_auth --skip-bundle
+$ cd simple_auth
+</code></pre>
+
+<p>We are going to use the active_model_serializers gem to format our JSON responses to be Ember-friendly. We will also use <em>has_secure_password</em> so let's uncomment the 'bcrypt' gem in our Gemfile:</p>
+
+<p>```ruby Gemfile
+source 'https://rubygems.org'</p>
+
+<p>gem 'rails', '4.0.0'
+gem 'rails-api'
+gem 'sqlite3'
+gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'active_model_serializers'
+```</p>
+
+<p>Now install the gems:</p>
+
+<pre><code>$ bundle install
+</code></pre>
+
+<h2>Create and test your models</h2>
+
+<p>We are going to have two models in our application: <strong>user</strong> and <strong>api_key</strong>. The user will contain the user information including the encrypted password and the api_key will contain the access token and expiration date. The reason we have separated these two tables is to allow a user to have multiple <em>sessions</em> at a time.</p>
+
+<p>Create the resources.</p>
+
+<pre><code>$ rails g resource user name username:string:uniq email:string:uniq password_digest
+...
+$ rails g resource api_key user:references access_token:string:uniq scope expired_at:datetime created_at:datetime --timestamps=false
+</code></pre>
+
+<p>Run your migrations:</p>
+
+<pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
+</code></pre>
+
+<p>Because we are using the Active Model Serializers gem, serializers are created automatically for our models. However, we want to limit what they return to only the parts which are useful. Update the serializers as follows:</p>
+
+<p><code>ruby app/serializers/user_serializer.rb
+class UserSerializer &lt; ActiveModel::Serializer
+  attributes :id, :name, :username, :email
+end
+</code></p>
+
+<p>```ruby app/serializers/api_key_serializer.rb
+class ApiKeySerializer &lt; ActiveModel::Serializer
+  attributes :id, :access_token</p>
+
+<p>  has_one :user, embed: :id
+end</p>
+
+<p>```</p>
+
+<p>Now let's add a couple of tests for our models. Update the fixtures for users so we have a user to work with:</p>
+
+<p>```yaml test/fixtures/users.yml
+joe:
+  name: Joe User
+  username: joe_user
+  email: joe_user@example.com
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'</p>
+
+<p>jane:
+  name: Jane User
+  username: jane_user
+  email: jane_user@example.com
+  password_digest: "$2a$10$wJTPdvpGgzDvkXChrcPyqOQrFFawzGu89B1rZze/lVIcJKWiNeAqS" # 'secret'
+```</p>
+
+<p>We also want to add a couple of fixtures for the api keys:</p>
+
+<p>```yaml test/fixtures/api_keys.yml
+joe_session:
+  user: joe
+  access_token: &lt;%= SecureRandom.hex %>
+  scope: 'session'
+  expired_at: &lt;%= 4.hours.from_now %></p>
+
+<p>jane_api:
+  user: jane
+  access_token: &lt;%= SecureRandom.hex %>
+  scope: 'api'
+  expired_at: &lt;%= 30.days.from_now %>
+```</p>
+
+<p>Add a test to ensure the api_key generates an access token when created.</p>
+
+<p>```ruby test/models/api_key_test.rb
+require 'test_helper'
+require 'minitest/mock'</p>
+
+<p>class ApiKeyTest &lt; ActiveSupport::TestCase
+  test "generates access token" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = ApiKey.create(scope: 'session', user_id: joe.id)
+assert !api_key.new_record?
+assert api_key.access_token =~ /\S{32}/
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "sets the expired_at properly for 'session' scope" do</p>
+
+<pre><code>Time.stub :now, Time.at(0) do
+  joe = users(:joe)
+  api_key = ApiKey.create(scope: 'session', user_id: joe.id)
+
+  assert api_key.expired_at == 4.hours.from_now
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "sets the expired_at properly for 'api' scope" do</p>
+
+<pre><code>Time.stub :now, Time.at(0) do
+  joe = users(:joe)
+  api_key = ApiKey.create(scope: 'api', user_id: joe.id)
+
+  assert api_key.expired_at == 30.days.from_now
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>For this to pass, we need to update the api_key model:</p>
+
+<p>```ruby app/models/api_key.rb
+class ApiKey &lt; ActiveRecord::Base
+  validates :scope, inclusion: { in: %w( session api ) }
+  before_create :generate_access_token, :set_expiry_date
+  belongs_to :user</p>
+
+<p>  scope :session, -> { where(scope: 'session') }
+  scope :api,     -> { where(scope: 'api') }
+  scope :active,  -> { where("expired_at >= ?", Time.now) }</p>
+
+<p>  private</p>
+
+<p>  def set_expiry_date</p>
+
+<pre><code>self.expired_at = if self.scope == 'session'
+                    4.hours.from_now
+                  else
+                    30.days.from_now
+                  end
+</code></pre>
+
+<p>  end</p>
+
+<p>  def generate_access_token</p>
+
+<pre><code>begin
+  self.access_token = SecureRandom.hex
+end while self.class.exists?(access_token: access_token)
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Run your tests and they should pass:</p>
+
+<pre><code>$ rake
+...
+Finished tests in 0.066920s, 44.8296 tests/s, 59.7729 assertions/s.
+3 tests, 4 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<p>Now let's add a test to our user and the accompanying code to make it work:</p>
+
+<p>```ruby test/models/user_test.rb
+require 'test_helper'</p>
+
+<p>class UserTest &lt; ActiveSupport::TestCase
+  test "#session" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = joe.session_api_key
+assert api_key.access_token =~ /\S{32}/
+assert api_key.user_id == joe.id
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>```ruby app/models/user.rb
+class User &lt; ActiveRecord::Base
+  has_secure_password
+  has_many :api_keys</p>
+
+<p>  validates :email, presence: true, uniqueness: true
+  validates :username, presence: true, uniqueness: true
+  validates :name, presence: true</p>
+
+<p>  def session_api_key</p>
+
+<pre><code>api_keys.active.session.first_or_create
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Tests still pass?</p>
+
+<pre><code>$ rake
+...
+Finished tests in 0.080250s, 49.8442 tests/s, 74.7664 assertions/s.
+4 tests, 6 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<h2>API Endpoints</h2>
+
+<p>Now that we have our database set up how we want it, let's make it accessible via an API. Here are the parts we want to be able to accomplish:</p>
+
+<ul>
+<li>Create a new user</li>
+<li>Authenticate an existing user</li>
+<li>Ensure the user is authorized to perform a request (via token)</li>
+</ul>
+
+
+<p>Let's start off by adding our authorization layer in our Application controller:</p>
+
+<p>```ruby app/controllers/application_controller
+class ApplicationController &lt; ActionController::API
+  protected</p>
+
+<p>  # Renders a 401 status code if the current user is not authorized
+  def ensure_authenticated_user</p>
+
+<pre><code>head :unauthorized unless current_user
+</code></pre>
+
+<p>  end</p>
+
+<p>  # Returns the active user associated with the access token if available
+  def current_user</p>
+
+<pre><code>api_key = ApiKey.active.where(access_token: token).first
+if api_key
+  return api_key.user
+else
+  return nil
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  # Parses the access token from the header
+  def token</p>
+
+<pre><code>bearer = request.headers["HTTP_AUTHORIZATION"]
+
+# allows our tests to pass
+bearer ||= request.headers["rack.session"].try(:[], 'Authorization')
+
+if bearer.present?
+  bearer.split.last
+else
+  nil
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now let's set up our users controller:</p>
+
+<p>```ruby app/controllers/users_controller.rb
+class UsersController &lt; ApplicationController
+  before_filter :ensure_authenticated_user, only: [:index]</p>
+
+<p>  # Returns list of users. This requires authorization
+  def index</p>
+
+<pre><code>render json: User.all
+</code></pre>
+
+<p>  end</p>
+
+<p>  def show</p>
+
+<pre><code>render json: User.find(params[:id])
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>user = User.create(user_params)
+if user.new_record?
+  render json: { errors: user.errors.messages }, status: 422
+else
+  render json: user.session_api_key, status: 201
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  private</p>
+
+<p>  # Strong Parameters (Rails 4)
+  def user_params</p>
+
+<pre><code>params.require(:user).permit(:name, :username, :email, :password, :password_confirmation)
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now create a <em>session</em> controller and place our code for authenticating an existing user into it.</p>
+
+<pre><code>$ rails g controller session
+</code></pre>
+
+<p>```ruby app/controllers/session_controller.rb
+class SessionController &lt; ApplicationController
+  def create</p>
+
+<pre><code>user = User.where("username = ? OR email = ?", params[:username_or_email], params[:username_or_email]).first
+if user &amp;&amp; user.authenticate(params[:password])
+  render json: user.session_api_key, status: 201
+else
+  render json: {}, status: 401
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<div style="background-color: #FDF6E3; padding: 10px; margin-bottom: 10px;">Because RailsAPI application controller extends ActionController::API, it doesn't know about ActionController::StrongParameters. Because of this we need to add an initializer:</div>
+
+
+<p>```ruby config/initializers/strong_param_fix_for_rails_api.rb</p>
+
+<h1>The application controllers don't know anything about ActionController::StrongParameters</h1>
+
+<h1>because they're not extending the class ActionController::StrongParameters was included within.</h1>
+
+<h1>This is why the require() method call is not calling the implementation</h1>
+
+<h1>in ActionController::StrongParameters</h1>
+
+<p>#</p>
+
+<h1>see http://stackoverflow.com/questions/13745689/getting-rails-api-and-strong-parameters-to-work-together</h1>
+
+<p>ActionController::API.send :include, ActionController::StrongParameters
+```</p>
+
+<h2>Routes</h2>
+
+<p>Update your routes file to make sure that it reflects our changes:</p>
+
+<p><code>ruby
+SimpleAuth::Application.routes.draw do
+  resources :users, except: [:new, :edit, :destroy]
+  post 'session' =&gt; 'session#create'
+end
+</code></p>
+
+<h2>Testing the API</h2>
+
+<p>Let's write some tests to make sure our API is functioning as we expect it to. First, let's test out our session controller (for authentication):</p>
+
+<p>```ruby test/controllers/session_controller_test.rb
+require 'test_helper'</p>
+
+<p>class SessionControllerTest &lt; ActionController::TestCase
+  test "authenticate with username" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.username, password: pw }
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] == larry.id
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "authenticate with email" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.email, password: pw }
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] == larry.id
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "authenticate with invalid info" do</p>
+
+<pre><code>pw = 'secret'
+larry = User.create!(username: 'larry', email: 'larry@example.com', name: 'Larry Moulders', password: pw, password_confirmation: pw)
+post 'create', { username_or_email: larry.email, password: 'huh' }
+assert response.status == 401
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now, let's add some tests to our users controller (for registration):</p>
+
+<p>```ruby test/controllers/users_controller_test.rb
+require 'test_helper'</p>
+
+<p>class UsersControllerTest &lt; ActionController::TestCase
+  test "#create" do</p>
+
+<pre><code>post 'create', {
+  user: { 
+    username: 'billy', 
+    name: 'Billy Blowers', 
+    email: 'billy_blowers@example.com', 
+    password: 'secret', 
+    password_confirmation: 'secret' 
+  }
+}
+results = JSON.parse(response.body)
+assert results['api_key']['access_token'] =~ /\S{32}/
+assert results['api_key']['user_id'] &gt; 0
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#create with invalid data" do</p>
+
+<pre><code>post 'create', {
+  user: {
+    username: '',
+    name: '',
+    email: 'foo',
+    password: 'secret',
+    password_confirmation: 'something_else'
+  }
+}
+results = JSON.parse(response.body)
+assert results['errors'].size == 3
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#show" do</p>
+
+<pre><code>joe = users(:joe)
+post 'show', { id: joe.id }
+results = JSON.parse(response.body)
+assert results['user']['id'] == joe.id
+assert results['user']['name'] == joe.name
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index without token in header" do</p>
+
+<pre><code>get 'index'
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with invalid token" do</p>
+
+<pre><code>get 'index', {}, { 'Authorization' =&gt; "Bearer 12345" }
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with expired token" do</p>
+
+<pre><code>joe = users(:joe)
+expired_api_key = joe.api_keys.session.create
+expired_api_key.update_attribute(:expired_at, 30.days.ago)
+assert !ApiKey.active.map(&amp;:id).include?(expired_api_key.id)
+get 'index', {}, { 'Authorization' =&gt; "Bearer #{expired_api_key.access_token}" }
+assert response.status == 401
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "#index with valid token" do</p>
+
+<pre><code>joe = users(:joe)
+api_key = joe.session_api_key
+get 'index', {}, { 'Authorization' =&gt; "Bearer #{api_key.access_token}" }
+results = JSON.parse(response.body)
+assert results['users'].size == 2
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>That was a lot! Let's run our tests and make sure everything passes.</p>
+
+<pre><code>$ rake
+...........
+Finished tests in 0.229066s, 61.1178 tests/s, 91.6766 assertions/s.
+14 tests, 21 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<h3><a href="http://coderberry.me/blog/2013/07/08/authentication-with-emberjs-part-2/">Continue to Part 2</a></h3>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AngularJS on Rails 4 - Part 2]]></title>
+    <link href="http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2/"/>
+    <updated>2013-04-23T07:35:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/04/23/angularjs-on-rails-4-part-2</id>
+    <content type="html"><![CDATA[<p>Let's pick up where we left off. If you haven't already, make sure you go through <a href="/blog/2013/04/22/angularjs-on-rails-4-part-1/">Part 1</a> to create your base Rails app with the API setup.</p>
+
+<p>You can either continue using the code you have created on part 1 or you can catch up by checking out the tagged code:</p>
+
+<pre><code>$ git clone https://github.com/cavneb/angular_casts
+$ cd angular_casts
+$ git checkout step-1
+$ bundle install
+$ rake db:migrate; rake db:migrate RAILS_ENV=test
+$ rake test
+$ rake screencast_sync:railscasts
+</code></pre>
+
+<h2>Add Angular Libraries</h2>
+
+<p>There are a couple of different ways we can add Angular into our application. <a href="http://railscasts.com/episodes/405-angularjs">Ryan Bates</a> suggests using the <a href="https://github.com/hiravgandhi/angularjs-rails">angular-rails gem</a>. Even though this is an excellent gem which is well maintained, it's good to know how to do this without a gem.</p>
+
+<p>In our app we are going to link our scripts using a <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a>. We can find the CDN for Angular at <a href="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js">https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js</a>. We will also be adding Angular Resource via the CDN as well.</p>
+
+<p>Update your layout file:</p>
+
+<p>
+``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html>
+<head>
+  <title>Angular Casts</title>
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
+</head>
+<body></p>
+
+<p>  &lt;%= yield %></p>
+
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
+</html>
+```
+</p>
+
+<h3>Setup the Javascript Folders</h3>
+
+<p>We want to keep our code organized by placing our Angular controllers, filters, services, directives, etc. in the app/assets/javascripts folder. Create the following directories:</p>
+
+<ul>
+<li>app/assets/javascripts/angular/controllers</li>
+<li>app/assets/javascripts/angular/directives</li>
+<li>app/assets/javascripts/angular/services</li>
+</ul>
+
+
+<p>Here's a shortcut to do this:</p>
+
+<pre><code>$ mkdir -p app/assets/javascripts/angular/controllers \
+           app/assets/javascripts/angular/directives \
+           app/assets/javascripts/angular/services
+</code></pre>
+
+<p>Now let's create the main javascript file which will drive our Angular application.</p>
+
+<p><code>coffeescript app/assets/javascripts/app.js.coffee
+window.App = angular.module('AngularCasts', ['ngResource'])
+</code></p>
+
+<p>In this file we create a new module called <em>AngularCasts</em> and assign it to <code>window.App</code>. We also add the dependency of <code>ngResource</code> which provides simple REST client functionality.</p>
+
+<p>Next, we need to update our JavaScript manifest to include our Angular scripts. The order of these is important due to the latter ones depending on the ones prior to them.</p>
+
+<p><code>javascript app/assets/javascripts/application.js
+//= require app
+//= require_tree ./angular
+</code></p>
+
+<p>This is quite a change from what exists in the manifest already. We will add jQuery later, but via CDN. You'll see why later in this post.</p>
+
+<h2>Add the View</h2>
+
+<p>Next, we need to create a controller. This will allow us to set up a route to a view.</p>
+
+<pre><code>$ rails g controller home index
+</code></pre>
+
+<p>This set up the <em>HomeController</em> and added the action <em>index</em>. Before we modify this view, let's update our layout to acts as an Angular app. This is done by adding the directive <code>ng-app</code> to our <code>&lt;html&gt;</code> tag:</p>
+
+<p>
+<code>html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html&gt;
+&lt;html ng-app&gt;
+...
+</code>
+</p>
+
+<p>Now let's update our index view with some simple Angular code:</p>
+
+<p>
+``` html app/views/home/index.html.erb</p>
+
+<div>
+  <label>Name:</label>
+  <input type="text" ng-model="yourName" placeholder="Enter a name here">
+  <hr>
+  <h1>Hello {{yourName}}!</h1>
+</div>
+
+
+<p>```
+</p>
+
+<p>Update your routes file to use this view as the root.</p>
+
+<p>``` ruby config/routes.rb
+AngularCasts::Application.routes.draw do
+  scope :api do</p>
+
+<pre><code>get "/screencasts(.:format)" =&gt; "screencasts#index"
+get "/screencasts/:id(.:format)" =&gt; "screencasts#show"
+</code></pre>
+
+<p>  end
+  root to: "home#index"
+end
+```</p>
+
+<p><em>Note that the line <code>get 'home#index'</code> was removed. This is not needed because the root path directs to it.</em></p>
+
+<p>Start up your server and open up <a href="http://localhost:3000">http://localhost:3000</a>. Type in your name into the text field. If the content changes as you type, it worked! You now have a functional Angular application!</p>
+
+<p><img src="/images/posts/angular_casts_1.gif"></p>
+
+<h6>If you are using Rails 3, you will need to delete the file <em>public/index.html</em></h6>
+
+<h2>Now the fun begins!</h2>
+
+<p>In order for us to tell the page that it should use the <em>App</em> module, we need to add the module name to the <code>ng-app</code> <em>directive</em>. Set the value of the attribute to <em>AngularCasts</em>:</p>
+
+<p>``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html ng-app="AngularCasts">
+<head>
+  <title>Angular Casts</title>
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
+</head>
+<body>
+  <header></p>
+
+<pre><code>Angular Casts
+</code></pre>
+
+<p>  </header></p>
+
+<p>  &lt;%= yield %></p>
+
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
+</html>
+```</p>
+
+<p>Now our view knows to use the AngularCasts module.</p>
+
+<h6>On lines 9-11 we have added the <code>&lt;header&gt;</code> content. Make sure you have this in your layout as well.</h6>
+
+<h2>Create an Angular Controller</h2>
+
+<p>Let's create a controller that will be used to list out the episodes. Create a new coffeescript file at <em>app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee</em></p>
+
+<p><code>coffeescript app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', ($scope) -&gt;
+  $scope.message = "Angular Rocks!"
+]
+</code></p>
+
+<p>On line 1, we create a new Angular controller belonging to <em>App</em> named <em>ScreencastsCtrl</em>. The controller will be referenced in our view as <em>ScreencastsCtrl</em>. For more information on Angular controllers, read <a href="http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller">http://docs.angularjs.org/guide/dev_guide.mvc.understanding_controller</a>.</p>
+
+<p>Let's update our view to display the message.</p>
+
+<p>
+```html app/views/home/index.html.erb</p>
+
+<div ng-controller="ScreencastsCtrl">
+  <h1>Message: {{message}}</h1>
+</div>
+
+
+<p>```
+</p>
+
+<p>Here we have bound the contents of the <em>div</em> to the controller <em>ScreencastsCtrl</em>. Refresh the browser and you should see 'Message: Angular Rocks!'.</p>
+
+<h2>Make it Pretty!</h2>
+
+<p>Lets add the much needed CSS to our application. Copy the following into <em>app/assets/stylesheets/home.css.scss</em>.</p>
+
+<p>``` scss app/assets/stylesheets/home.css.scss
+body {
+  font-size: 12px;
+  font-family: Helvetica, sans-serif;
+  background-color: #ddd;
+  margin: 0px;
+}</p>
+
+<p>header {
+  background-color: #4F4F4F;
+  color: #fff;
+  position: absolute;
+  height: 36px;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 18px;
+  line-height: 36px;
+  font-weight: bold;
+  padding-left: 15px;
+}</p>
+
+<h1>screencast-ctrl {</h1>
+
+<p>  background-color: #fff;
+  position: absolute;
+  top: 37px;
+  width: 100%;
+  bottom: 0;
+  overflow: auto;
+}</p>
+
+<h1>screencast-list-container {</h1>
+
+<p>  background-color: #fff;
+  position: absolute;
+  min-height: 700px;
+  width: 300px;
+  top: 37px;
+  left: 0;
+  bottom: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  ul {</p>
+
+<pre><code>margin: 0px;
+list-style: none;
+padding: 0px;
+li {
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+  padding: 0 10px;
+}
+</code></pre>
+
+<p>  }
+  h3 {</p>
+
+<pre><code>font-size: 14px;
+small {
+  font-size: 12px;
+  color: #ccc;
+  font-weight: normal;
+}
+&amp;.active {
+  color: red;
+}
+</code></pre>
+
+<p>  }
+}</p>
+
+<h1>screencast-view-container {</h1>
+
+<p>  position: absolute;
+  border-left: 1px solid #d0d0d0;
+  top: 37px;
+  left: 300px;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  min-height: 700px;
+  padding: 5px 25px;</p>
+
+<p>  #player {</p>
+
+<pre><code>border: 1px solid #000;
+max-width: 800px;
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Refresh the browser. Ooooh!</p>
+
+<h2>Start with the Service</h2>
+
+<p>Our Angular controller is going to access the data from our API using <a href="http://docs.angularjs.org/api/ngResource.$resource">ngResource</a>. <em>ngResource</em> enables interation with RESTful server-side data sources.</p>
+
+<p>Angular services are singletons that carry out specific tasks common to web apps. Services are commonly used to perform the XHR interaction with the server. To learn about the differences between services and factories, <a href="http://stackoverflow.com/questions/14324451/angular-service-vs-angular-factory">read this</a>. Let's start off by creating a service at <em>screencast.js.coffee</em>:</p>
+
+<p><code>coffeescript app/assets/javascripts/angular/services/screencast.js.coffee
+App.factory 'Screencast', ['$resource', ($resource) -&gt;
+  $resource '/api/screencasts/:id', id: '@id'
+]
+</code></p>
+
+<p>Now tell the controller to use this service:</p>
+
+<p><code>coffeescript app/assets/javascripts/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) -&gt;
+  $scope.screencasts = Screencast.query()
+]
+</code></p>
+
+<p>Update the index view with the following:</p>
+
+<p>
+```html app/views/home/index.html.erb</p>
+
+<div ng-controller="ScreencastsCtrl">
+  <div id="screencast-list-container">
+    <ul>
+      <li ng-repeat="screencast in screencasts">
+        <h3>{{screencast.title}} <small>({{screencast.duration}})</small></h3>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<p>```
+</p>
+
+<p>Now refresh the page. If all worked well, you should see a list of screencasts on the left side. When we reloaded the page, a <em>GET</em> request was sent to <em>/api/screencasts</em>, populating the <em>screencasts</em> attribute in our scope. This is the power of Angular ngResource.</p>
+
+<h2>Now What?</h2>
+
+<p>We are doing great! Now we have a list of screencasts on the side which are clickable. However, we don't do anything when they are clicked. What we want to do is show the screencast in the main section along with some additional screencast information.</p>
+
+<p>Start off by adding the HTML code which will be used to display the main content. This is done inside the <em>index.html.erb</em> file:</p>
+
+<p>
+```html app/views/home/index.html.erb</p>
+
+<div ng-controller="ScreencastsCtrl">
+  <div id="screencast-list-container">
+    <ul>
+      <li ng-repeat="screencast in screencasts">
+        <h3>{{screencast.title}} <small>({{screencast.duration}})</small></h3>
+      </li>
+    </ul>
+  </div>
+
+  <div id="screencast-view-container" ng-show="selectedScreencast">
+    <h2>{{selectedScreencast.title}}</h2>
+    <p>{{selectedScreencast.summary}}</p>
+    <p>
+      Published at {{selectedScreencast.published_at | date: 'mediumDate'}} 
+      - <a ng-href="{{selectedScreencast.link}}">{{selectedScreencast.link}}</a>
+    </p>
+  </div>
+</div>
+
+
+<p>```
+</p>
+
+<p>On lines 10-17, we have added a div which shows the screencast title and summary. On line 10, we use the <a href="http://docs.angularjs.org/api/ng.directive:ngShow">ng-show</a> directive which only displays the div if <em>selectedScreencast</em> exists.</p>
+
+<p>Go ahead and refresh the page. You should not see any changes. Click on a screencast. Still no changes.</p>
+
+<h3>Click and Show</h3>
+
+<p>In order for us to show the main content with the screencast information, we need to do a few things. The first thing we need to do is add an <a href="http://docs.angularjs.org/api/ng.directive:ngClick">ng-click</a> directive to our screencast list:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast)"&gt;
+    &lt;h3&gt;{{screencast.title}} &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>  </div>
+...
+```
+</p>
+
+<p>Now when the list item is clicked the function <em>showScreencast</em> will be triggered with the screencast being passed in to it. Now let's update our controller with this function:</p>
+
+<p>```coffeescript app/assets/javascripts/angular/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) ->
+  # Attributes accessible on the view
+  $scope.screencasts        = Screencast.query()
+  $scope.selectedScreencast = null</p>
+
+<p>  # Set the selected screencast to the one which was clicked
+  $scope.showScreencast = (screencast) -></p>
+
+<pre><code>$scope.selectedScreencast = screencast
+</code></pre>
+
+<p>]
+```</p>
+
+<p>Refresh your browser and click on a screencast. As my wife would incorrectly say: <strong>"Waalah!"</strong></p>
+
+<h2>Show the Screencast</h2>
+
+<p>After doing a bit of looking around, I found that <a href="http://flowplayer.org">Flow Player</a> offered the easiest and cleanest way to show videos. Let's add the dependent scripts and css links to our layout:</p>
+
+<p>``` html app/views/layouts/application.html.erb
+&lt;!DOCTYPE html>
+<html ng-app="AngularCasts">
+<head>
+  <title>Angular Casts</title>
+  <link href="http://coderberry.me//releases.flowplayer.org/5.4.0/skin/minimalist.css" rel="stylesheet">
+  &lt;%= stylesheet_link_tag "application", media: "all" %>
+  &lt;%= csrf_meta_tags %>
+</head>
+<body>
+  <header></p>
+
+<pre><code>Angular Casts
+</code></pre>
+
+<p>  </header></p>
+
+<p>  &lt;%= yield %></p>
+
+<p>  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  <script src="http://coderberry.me//releases.flowplayer.org/5.4.0/flowplayer.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+  <script src="http://coderberry.me//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+  &lt;%= javascript_include_tag "application" %>
+</body>
+</html>
+```</p>
+
+<p>Remember how we removed jQuery from our Gemfile and javascript manifest? The reason is because we didn't want it concatenated with the other scripts. FlowPlayer depends on jQuery and so jQuery needs to be available prior to Flow Player being loaded. We also can load it via CDN. Good times for all.</p>
+
+<h3>Create the FlowPlayer Directive</h3>
+
+<p>FlowPlayer requires triggering a function <em>flowplayer()</em> to show the video. We could add this into our controller, but we love to learn. Let's create a directive which listens to the controller and triggers the <em>flowplayer</em> function when <em>showScreencast</em> is called.</p>
+
+<p>Create the directive at <em>app/assets/javascripts/angular/directives/flow_player.js.coffee</em></p>
+
+<p>``` coffeescript app/assets/javascripts/angular/directives/flow_player.js.coffee
+App.directive 'flowPlayer', ->
+  (scope, element, attrs) -></p>
+
+<pre><code># Trigger when the selectedScreencast function is called
+# with a screencast
+scope.$watch 'selectedScreencast', (screencast) -&gt;
+  if screencast
+
+    # See http://flowplayer.org/docs/
+    element.flowplayer
+      playlist: [[mp4: screencast.video_url]]
+      ratio: 9 / 14
+</code></pre>
+
+<p>```</p>
+
+<p>Now add the directive into our view:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-view-container" ng-show="selectedScreencast"></p>
+
+<pre><code>&lt;h2&gt;{{selectedScreencast.title}}&lt;/h2&gt;
+&lt;p&gt;{{selectedScreencast.summary}}&lt;/p&gt;
+&lt;div flow-player="" id="player"&gt;&lt;/div&gt;
+&lt;p&gt;
+  Published at {{selectedScreencast.published_at | date: 'mediumDate'}} 
+  - &lt;a ng-href="{{selectedScreencast.link}}"&gt;{{selectedScreencast.link}}&lt;/a&gt;
+&lt;/p&gt;
+</code></pre>
+
+<p>  </div>
+...
+```
+</p>
+
+<p>Refresh your browser and go nuts!</p>
+
+<h2>Extra Goodies</h2>
+
+<p>One final thing that I would like to see is some sort of indicator which lets us know which video is playing on the screencast list. This can be done via CSS and some simple code.</p>
+
+<p>In our CSS file, we have already added some style for an active screencast. Any <em>H3</em> tag on the side with the class of <em>active</em> will show as red. Try it out by adding the class to our view:</p>
+
+<p>
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast)"&gt;
+    &lt;h3 class="active"&gt;{{screencast.title}} &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>  </div>
+...
+```
+</p>
+
+<p>Refresh the page. You should now see that every screencast link on the left is red.</p>
+
+<p>For us to make it show for the active screencast only we have to make a few changes to our view and controller. Update the view to use the <a href="http://docs.angularjs.org/api/ng.directive:ngClass">ng-class</a> directive:</p>
+
+<p> 
+```html app/views/home/index.html.erb
+...
+  <div id="screencast-list-container" ></p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li ng-repeat="screencast in screencasts"
+      ng-click="showScreencast(screencast, $index)"&gt;
+    &lt;h3 ng-class="{active: $index == selectedRow}"&gt;{{screencast.title}} 
+      &lt;small&gt;({{screencast.duration}})&lt;/small&gt;&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<p>  </div>
+...
+```
+</p>
+
+<p>Note that on line 5 we added the 2nd attribute <em>&amp;index</em>. This is available via the <em>ng-repeat</em> directive and is the index value of the array (integer). We also modified line 6 to use the <em>ng-class</em> directive which only shows "active" if the <em>$index</em> is equal to <em>$scope.selectedRow</em>.</p>
+
+<p>Now update the controller to work with these changes:</p>
+
+<p>``` coffeescript app/assets/javascripts/controllers/screencasts_ctrl.js.coffee
+App.controller 'ScreencastsCtrl', ['$scope', 'Screencast', ($scope, Screencast) ->
+  # Attributes accessible on the view
+  $scope.selectedScreencast = null
+  $scope.selectedRow        = null</p>
+
+<p>  # Gather the screencasts and set the selected one to the first on success
+  $scope.screencasts = Screencast.query -></p>
+
+<pre><code>$scope.selectedScreencast = $scope.screencasts[0]
+$scope.selectedRow = 0
+</code></pre>
+
+<p>  # Set the selected screencast to the one which was clicked
+  $scope.showScreencast = (screencast, row) -></p>
+
+<pre><code>$scope.selectedScreencast = screencast
+$scope.selectedRow = row
+</code></pre>
+
+<p>]
+```</p>
+
+<p>We have added the new param <em>row</em> to the <em>showScreencast</em> function and set this to <em>$scope.selectedRow</em>. Refresh your browser and see how things have changed.</p>
+
+<h2>Completed Project</h2>
+
+<p>View the working app at <a href="http://angular-casts.herokuapp.com/">http://angular-casts.herokuapp.com/</a>.</p>
+
+<h2>Final Thoughts</h2>
+
+<p>I know there are no front-end tests for this tutorial. This was intentional. They were too hard. I spent hours upon hours trying to get the tests working with <em>$httpBackend</em> and service testing, etc. I tried <em>karma</em> and <em>testem</em>. Too much time. Too little benefit. If you are better at this stuff than I am please send me an email or pull request or something with the changes you've made to include the tests. I can always add a <em>Part 3</em> which is about nothing other than testing the frontend.</p>
+
+<p>Thank you all who have patiently waited for me to finish this post. I learned never to release a post before it has been proofread and run through several times. Next time I'm going to do a screencast.. just like the <a href="http://www.teachmetocode.com">old days</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AngularJS on Rails 4 - Part 1]]></title>
+    <link href="http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1/"/>
+    <updated>2013-04-22T22:28:00-06:00</updated>
+    <id>http://coderberry.me/blog/2013/04/22/angularjs-on-rails-4-part-1</id>
+    <content type="html"><![CDATA[<div style="width: 242px;
+      height: 388px;
+      margin: 10px 30px 10px 0;
+      float: left;
+      background: transparent url(http://f.cl.ly/items/1n0f2g2z2w2U0s2h2t40/angular_mug.jpg) -60px -80px no-repeat;">
+</div>
+
+
+<p>Angular seems to be the big craze as of late. Some may agree and some may not, but AngularJS is one of the next big contenders for being the number one choice of developers. At the time of writing this article, AngularJS is the <a href="https://github.com/languages/JavaScript/most_watched">12th most watched project on GitHub</a>.</p>
+
+<p>Here I want to create a useful Rails application using Angular. The goal is to have a single-page application which allows us to select a screencast link on the left and view it on the right. An example of this would be found at <a href="http://ember101.com">http://ember101.com</a>.</p>
+
+<h6>Originally I had presented this topic at our local <a href="http://utruby.org">ruby users group</a>. My typical workflow is to write a blog post before presenting and have that post be a reference to my presentation. Since then, I have received a lot of feedback on how I could have enhanced the app. These posts (part 1 and 2) been re-written to reflect those changes. <em>Special thanks goes to <a href="http://tadthorley.com/">Tad Thorley</a> for providing the <a href="https://github.com/phaedryx/angularcast-example">excellent example application</a> based off of the original. Also thanks goes out to those who have commented on these posts.</em></h6>
+
+<div style="clear: both;"></div>
+
+
+<h2>Creating the Rails Application</h2>
+
+<p>I had a hard time deciding when I began this project on whether to use a full Rails application or a very lightweight ruby web stack like <a href="http://sinatrarb.com">Sinatra</a>. I also experimented with a middle-ground solution called <a href="https://github.com/rails-api/rails-api">Rails::API</a> (see <a href="http://railscasts.com/episodes/348-the-rails-api-gem">Railscast</a>). In the end, I used standard Rails (version 4.0.0.rc1). This gave me the flexibility I want; and for the scope of this tutorial I didn't want to distract from learning how to use Angular in an Rails application.</p>
+
+<p>Before anything, we need to create a new Rails application called <em>Angular Casts</em></p>
+
+<pre><code>$ rails new angular_casts
+...
+$ cd angular_casts
+</code></pre>
+
+<h2>Creating the Model and Controller</h2>
+
+<p>Our application will be pretty simple. We are only going to worry about storing screencast information in our database. Rails by default comes with a very lightweight database server called SQLite. If you aren't familiar with this, you can visit <a href="http://guides.rubyonrails.org/getting_started.html#configuring-a-database">http://guides.rubyonrails.org/getting_started.html#configuring-a-database</a> to learn more.</p>
+
+<p>Before we create our model, we need to determine what information we want to store. As a user of this application, I think the most useful would be:</p>
+
+<ul>
+<li><em>title</em>: What is the name of the screencast?</li>
+<li><em>summary</em>: What is the screencast about?</li>
+<li><em>duration</em>: How long is the screencast?</li>
+<li><em>link</em>: How do I get to the original screencast?</li>
+<li><em>published</em>: When was the screencast published?</li>
+<li><em>source</em>: Who is the provider of the screencast?</li>
+</ul>
+
+
+<p>Let's create a model and controller based on this information. We need to add the <em>video_url</em> field as well, which will be used to embed the video into our app.</p>
+
+<pre><code>$ rails g resource screencast title summary:text duration link published_at:datetime source video_url
+</code></pre>
+
+<p>By running the <em>resource</em> generator, we now have a model and a controller. The controller will provide our REST API. We also can see that the <em>screencasts</em> resources have been added to our routes:</p>
+
+<p><code>ruby config/routes.rb
+AngularCasts::Application.routes.draw do
+  resources :screencasts
+  ...
+end
+</code></p>
+
+<p>Run the migration tasks for both development and test environments:</p>
+
+<pre><code>$ rake db:migrate; rake db:migrate RAILS_ENV=test
+</code></pre>
+
+<h2>Testing the Model</h2>
+
+<h6>Testing is not the primary topic of these blog posts, so less time and explanation will be given to them. If you want to learn more about testing, I recommend <a href="http://railscasts.com/episodes/275-how-i-test">http://railscasts.com/episodes/275-how-i-test</a>.</h6>
+
+<p>For us to have a long-lasting, maintainable application it is imperative that we keep our code tested. This will also help us stay focused on what our application and code is supposed to do.</p>
+
+<p>Start by running the rake task for testing to see make sure the tests run:</p>
+
+<pre><code>$ rake test
+</code></pre>
+
+<p>If all worked well, you should see something like <strong>0 tests, 0 assertions, 0 failures, 0 errors, 0 skips</strong>. This means that the test suite ran, but it didn't find any tests to run.</p>
+
+<p>There are a couple of things we will want to test:</p>
+
+<ul>
+<li>Make sure that all the required data exists for each screencast.</li>
+<li>Make sure that we do not have two of the same screencast (duplicates).</li>
+</ul>
+
+
+<p>Before we write our tests, let's update our fixtures file with some testable data:</p>
+
+<p>``` yaml test/fixtures/screencasts.yml</p>
+
+<h1>Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html</h1>
+
+<p>fast_rails_commands:
+  title: "Fast Rails Commands"
+  summary: "Rails commands, such as generators, migrations, and tests, have a tendency to be slow because they need to load the Rails app each time. Here I show three tools to make this faster: Zeus, Spring, and Commands."
+  duration: "8:06"
+  link: "http://railscasts.com/episodes/412-fast-rails-commands"
+  published_at: "Thu, 04 Apr 2013 00:00:00 -0700"
+  source: "railscasts"
+  video_url: "http://media.railscasts.com/assets/episodes/videos/412-fast-rails-commands.mp4"</p>
+
+<p>wizard_forms_with_wicked:
+  title: "Wizard Forms with Wicked"
+  summary: "Creating a wizard form can be tricky in Rails. Learn how Wicked can help by turning a controller into a series of multiple steps."
+  duration: "11:57"
+  link: "http://railscasts.com/episodes/346-wizard-forms-with-wicked"
+  published_at: "Thu, 03 May 2012 00:00:00 -0700"
+  source: "railscasts"
+  video_url: "http://media.railscasts.com/assets/episodes/videos/346-wizard-forms-with-wicked.mp4"</p>
+
+<p>sending_html_emails:
+  title: "Sending HTML Email"
+  summary: "HTML email can be difficult to code because any CSS should be made inline. Here I present a few tools for doing this including the premailer-rails3 and roadie gems."
+  duration: "5:42"
+  link: "http://railscasts.com/episodes/312-sending-html-email"
+  published_at: "Mon, 02 Jan 2012 00:00:00 -0800"
+  source: "railscasts"
+  video_url: "http://media.railscasts.com/assets/episodes/videos/312-sending-html-email.mp4"
+```</p>
+
+<p>Open up the auto-generated file <em>test/models/screencast_test.rb</em> and add the following tests. If you are using Rails 3.x, the test file will appear under <em>test/unit/screencast_test.rb.</em></p>
+
+<p>``` ruby test/models/screencast_test.rb
+require 'test_helper'</p>
+
+<p>class ScreencastTest &lt; ActiveSupport::TestCase
+  setup do</p>
+
+<pre><code>@screencast_defaults = {
+  title:        'Facebook Authentication',
+  summary:      'This will show how to create a new facebook application and configure it. Then add some authentication with the omniauth-facebook gem and top it off with a client-side authentication using the JavaScript SDK.',
+  duration:     '12:09',
+  link:         'http://railscasts.com/episodes/360-facebook-authentication',
+  published_at: Date.parse('Mon, 25 Jun 2012 00:00:00 -0700'),
+  source:       'railscasts',
+  video_url:    'http://media.railscasts.com/assets/episodes/videos/360-facebook-authentication.mp4'
+}
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "should be invalid if missing required data" do</p>
+
+<pre><code>screencast = Screencast.new
+assert !screencast.valid?
+[:title, :summary, :duration, :link, :published_at, :source, :video_url].each do |field_name|
+  assert screencast.errors.keys.include? field_name
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "should be valid if required data exists" do</p>
+
+<pre><code>screencast = Screencast.new(@screencast_defaults)
+assert screencast.valid?
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "should only allow one screencast with the same video url" do</p>
+
+<pre><code>screencast = Screencast.new(@screencast_defaults)
+screencast.video_url = screencasts(:fast_rails_commands).video_url
+assert !screencast.valid?
+assert screencast.errors[:video_url].include? "has already been taken"
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Once this is in place, run the tests again with the command <code>rake test</code>.</p>
+
+<p>``` bash
+$ rake test
+Run options: --seed 29768</p>
+
+<h1>Running tests:</h1>
+
+<p>F.F</p>
+
+<p>Finished tests in 0.048601s, 61.7271 tests/s, 61.7271 assertions/s.</p>
+
+<p>  1) Failure:
+ScreencastTest#test_should_be_invalid_if_missing_required_data [../angular_casts/test/models/screencast_test.rb:18]:
+Failed assertion, no message given.</p>
+
+<p>  2) Failure:
+ScreencastTest#test_should_only_allow_one_screencast_with_the_same_video_url [../angular_casts/test/models/screencast_test.rb:32]:
+Failed assertion, no message given.</p>
+
+<p>3 tests, 3 assertions, 2 failures, 0 errors, 0 skips
+```</p>
+
+<p>You can see we have have 3 tests with 3 assertions and 2 failures. The reason we didn't get 3 failures is because the second test, "should be valid if required data exists", will always pass until we set up some restrictions on the model.</p>
+
+<p>Let's update the model to make these tests pass.</p>
+
+<p><code>ruby app/models/screencast.rb
+class Screencast &lt; ActiveRecord::Base
+  validates_presence_of :title, :summary, :duration, :link, :published_at, :source, :video_url
+  validates_uniqueness_of :video_url
+end
+</code></p>
+
+<p>Run the tests again to see them pass successfully!</p>
+
+<h2>Importing the Video Data</h2>
+
+<p>Because we are going to import video feeds from external sites, we need to use a feed parsing library. The best one available is <a href="https://github.com/pauldix/feedzirra">feedzirra</a>. Let's add it to our Gemfile and remove <em>turbolinks</em>, <em>jbuilder</em> and <em>sdoc</em>. We also remove <em>jquery-rails</em> because we will use it via <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a> instead of inside the Asset Pipeline. This will be further explained in part 2.</p>
+
+<p>``` ruby Gemfile
+source 'https://rubygems.org'</p>
+
+<p>gem 'rails',        '4.0.0.rc1'
+gem 'sqlite3'
+gem 'sass-rails',   '~> 4.0.0.rc1'
+gem 'uglifier',     '>= 1.3.0'
+gem 'coffee-rails', '~> 4.0.0'
+gem 'feedzirra'
+```</p>
+
+<p>Now install the gems:</p>
+
+<pre><code>$ bundle install
+</code></pre>
+
+<h3>Create an Import Library</h3>
+
+<p>Now that we have a place to put all of the screencast information, we need to be able to import it from external feeds. Here we are going to create a simple Ruby class that uses the <em>feedzirra</em> gem to grab the feed data, parse it and then add it to our database.</p>
+
+<p>Let's start off by creating a new class called <em>ScreencastImporter</em>. Paste the following code into <em>lib/screencast_importer.rb</em>.</p>
+
+<p>``` ruby lib/screencast_importer.rb
+require 'feedzirra'</p>
+
+<p>class ScreencastImporter
+  def self.import_railscasts</p>
+
+<pre><code># because the Railscasts feed is targeted at itunes, there is additional metadata that
+# is not collected by Feedzirra by default. By using add_common_feed_entry_element,
+# we can let Feedzirra know how to map those values. See more information at
+# http://www.ruby-doc.org/gems/docs/f/feedzirra-0.1.2/Feedzirra/Feed.html
+Feedzirra::Feed.add_common_feed_entry_element(:enclosure, :value =&gt; :url, :as =&gt; :video_url)
+Feedzirra::Feed.add_common_feed_entry_element('itunes:duration', :as =&gt; :duration)
+
+# Capture the feed and iterate over each entry
+feed = Feedzirra::Feed.fetch_and_parse("http://feeds.feedburner.com/railscasts")
+feed.entries.each do |entry|
+
+  # Strip out the episode number from the title
+  title = entry.title.gsub(/^#\d+\s/, '')
+
+  # Find or create the screencast data into our database
+  Screencast.where(video_url: entry.video_url).first_or_create(
+    title:        title,
+    summary:      entry.summary,
+    duration:     entry.duration,
+    link:         entry.url,
+    published_at: entry.published,
+    source:       'railscasts' # set this manually
+  )
+end
+
+# Return the number of total screencasts for the source
+Screencast.where(source: 'railscasts').count
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Note that on lines 17-18, we strip out the episode number from the Railscast title. So "#412 Fast Rails Commands" would become "Fast Rails Commands". See <a href="http://rubular.com/r/duWf3x2mSp">this Rubular</a> to see how I determined the RegExp pattern.</p>
+
+<p>Now if we were to go into our Rails console, we could trigger this import manually. Give it a shot!</p>
+
+<pre><code>$ rails c
+Loading development environment (Rails 4.0.0.rc1)
+
+&gt;&gt; require 'screencast_importer'
+=&gt; true
+
+&gt;&gt; ScreencastImporter.import_railscasts
+.... lots ... of ... feedback ....
+=&gt; 345
+
+&gt;&gt; Screencast.count
+=&gt; 345
+</code></pre>
+
+<h6>At the time of writing this article, there were 345 public Railscasts. This number will increase as time goes on.</h6>
+
+<h3>Trigger Import via Rake</h3>
+
+<p>Instead of loading up the Rails console and performing the import manually, it would me much easier to have a simple command that we could run to perform the imports. This is where <a href="http://rake.rubyforge.org/">rake tasks</a> come in. Let's create a rake task that will perform the import.</p>
+
+<p>``` ruby lib/tasks/screencast_sync.rake
+require 'screencast_importer'</p>
+
+<p>namespace :screencast_sync do
+  desc 'sync all missing screencasts from Railscasts.com'
+  task :railscasts => :environment do</p>
+
+<pre><code>total = ScreencastImporter.import_railscasts
+puts "There are now #{total} screencasts from Railscasts.com"
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now that we have our rake task set up, go ahead and run the command:</p>
+
+<pre><code>$ rake screencast_sync:railscasts
+There are now 345 screencasts from Railscasts.com
+</code></pre>
+
+<p>It worked! But no time to celebrate.. let's move on.</p>
+
+<h2>Making Episodes Accessible via API</h2>
+
+<p>Because we are planning on using Angular for our front-end, we only need to expose our data as JSON. This will allow Angular to talk to the backend via ajax calls.</p>
+
+<p>We are going to only use two calls to the API:</p>
+
+<ul>
+<li><strong>/screencasts.json</strong> - returns a full list of episodes</li>
+<li><strong>/screencasts/ID.json</strong> - returns data for a specified screencast (where ID is the unique ID of the screencast in our db)</li>
+</ul>
+
+
+<p>Because we used the <em>resource</em> generator, we already have our controller and routes.</p>
+
+<p>Let's do some cleanup to the routes and make sure we only are allowing what we want to use. On top of that, let's <a href="http://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing">scope</a> our calls to the API with <em>api</em>.</p>
+
+<p>``` ruby config/routes.rb
+AngularCasts::Application.routes.draw do
+  scope :api do</p>
+
+<pre><code>get "/screencasts(.:format)" =&gt; "screencasts#index"
+get "/screencasts/:id(.:format)" =&gt; "screencasts#show"
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Run the command <code>rake routes</code> to see our changes.</p>
+
+<pre><code>$ rake routes
+Prefix Verb URI Pattern                    Controller#Action
+ GET /api/screencasts(.:format)     screencasts#index
+ GET /api/screencasts/:id(.:format) screencasts#show
+</code></pre>
+
+<p>Now update the controller to render the correct JSON data for the two URL's.</p>
+
+<p>``` ruby app/controllers/screencast_controller.rb
+class ScreencastsController &lt; ApplicationController
+  # GET /screencasts
+  # GET /screencasts.json
+  def index</p>
+
+<pre><code>render json: Screencast.all
+</code></pre>
+
+<p>  end</p>
+
+<p>  # GET /screencasts/:id
+  # GET /screencasts/:id.json
+  def show</p>
+
+<pre><code>render json: Screencast.find(params[:id])
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Now start up your Rails application and visit this link: <a href="http://localhost:3000/api/screencasts.json">http://localhost:3000/api/screencasts.json</a>. If all went well, you should see JSON data. You should also be able to view <a href="http://localhost:3000/api/screencasts/1.json">http://localhost:3000/api/screencasts/1.json</a> and see the data belonging to a single screencast.</p>
+
+<p><code>javascript http://localhost:3000/api/screencasts/1.json
+{
+  "id": 1,
+  "title": "Upgrading to Rails 4",
+  "summary": "With the release of Rails 4.0.0.rc1 it's time to try it out and report any bugs. Here I walk you through the steps to upgrade a Rails 3.2 application to Rails 4.",
+  "duration": "12:44",
+  "link": "http://railscasts.com/episodes/415-upgrading-to-rails-4",
+  "published_at": "2013-05-06T07:00:00.000Z",
+  "source": "railscasts",
+  "video_url": "http://media.railscasts.com/assets/episodes/videos/415-upgrading-to-rails-4.mp4",
+  "created_at": "2013-05-21T18:22:29.719Z",
+  "updated_at": "2013-05-21T18:22:29.719Z"
+}
+</code></p>
+
+<h2>Testing the API</h2>
+
+<p>Of course we are going to test the API! It actually isn't as complicated as it may seem. I am not going to go over much explanation beyond the inline comments.</p>
+
+<p>Create a new integration test at <em>test/integration/api_screencasts_test.rb</em>.</p>
+
+<p>``` ruby test/integration/api_screencasts_test.rb
+require 'test_helper'</p>
+
+<p>class ApiScreencastsTest &lt; ActionDispatch::IntegrationTest
+  test "get /api/screencasts.json" do</p>
+
+<pre><code>get "/api/screencasts.json"
+assert_response :success
+assert body == Screencast.all.to_json
+screencasts = JSON.parse(response.body)
+assert screencasts.size == 3 # because there are three fixtures (see screencasts.yml)
+assert screencasts.any? { |s| s["title"] == screencasts(:fast_rails_commands).title }
+</code></pre>
+
+<p>  end</p>
+
+<p>  test "get /api/screencasts/:id" do</p>
+
+<pre><code>screencast = screencasts(:fast_rails_commands)
+get "/api/screencasts/#{screencast.id}.json"
+assert_response :success
+assert body == screencast.to_json
+assert JSON.parse(response.body)["title"] == screencast.title
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Go ahead and run your tests:</p>
+
+<pre><code>$ rake test
+...
+5 tests, 18 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+<p>Looks like our test are passing.</p>
+
+<hr />
+
+<p>Let's stop for now. Our next steps will be getting our hands dirty with AngularJS.</p>
+
+<h4>Go to <a href="/blog/2013/04/23/angularjs-on-rails-4-part-2/">Part 2</a></h4>
+]]></content>
+  </entry>
+  
+</feed>

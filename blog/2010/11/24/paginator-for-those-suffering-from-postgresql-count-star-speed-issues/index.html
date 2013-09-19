@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Paginator for those suffering from PostgreSQL count(*) speed issues - coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="Our company has been using PostgreSQL for a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Paginator for Those Suffering From PostgreSQL Count(*) Speed Issues</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-24T00:00:00-07:00" pubdate data-updated="true">Nov 24<span>th</span>, 2010</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Our company has been using PostgreSQL for  a very long time and has found it a very solid product for our needs. One thing that we&#8217;ve run into is that as our database grows (1mil+
+records), there is a major slowdown on page loads due to a <a href="http://sql-info.de/postgresql/postgres-gotchas.html#1_7">PostgreSQL bug</a>.</p>
+
+<p>To resolve this, I had to re-create a new paginator that didn&#8217;t rely on the count(*) sql call. I changed it to work similar to how Google performs their queries relying solely on the offset and max to determine which pagination buttons to show.</p>
+
+<p>Here&#8217;s my final taglib:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.web.servlet.support.RequestContextUtils</span> <span class="n">as</span> <span class="n">RCU</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">PagerTagLib</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">   * Creates next/previous links to support pagination for the current controller</span>
+</span><span class='line'><span class="cm">   * This is developed to avoid problems with the PostgreSQL count(*) bug.</span>
+</span><span class='line'><span class="cm">   * http://sql-info.de/postgresql/postgres-gotchas.html#1_7</span>
+</span><span class='line'><span class="cm">   * </span>
+</span><span class='line'><span class="cm">   * &lt;g:pager total=&quot;${accountListInstance.size()}&quot; params=&quot;${params}&quot; /&gt;</span>
+</span><span class='line'><span class="cm">   */</span>
+</span><span class='line'>  <span class="n">def</span> <span class="n">pager</span> <span class="o">=</span> <span class="o">{</span> <span class="n">attrs</span> <span class="o">-&gt;</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">out</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">total</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">throwTagError</span><span class="o">(</span><span class="s">&quot;Tag [pager] is missing required attribute [total] which is the total showing for the current page&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">messageSource</span> <span class="o">=</span> <span class="n">grailsAttributes</span><span class="o">.</span><span class="na">messageSource</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">locale</span> <span class="o">=</span> <span class="n">RCU</span><span class="o">.</span><span class="na">getLocale</span><span class="o">(</span><span class="n">request</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">def</span> <span class="n">total</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">total</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">?</span> <span class="n">params</span><span class="o">.</span><span class="na">action</span> <span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="o">))</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">def</span> <span class="n">max</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">offset</span><span class="o">)</span> <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">offset</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">max</span><span class="o">)</span> <span class="n">max</span> <span class="o">=</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="err">&#39;</span><span class="n">max</span><span class="err">&#39;</span><span class="o">)</span> <span class="o">?:</span> <span class="mi">10</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">linkParams</span> <span class="o">=</span> <span class="o">[:]</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">putAll</span><span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">params</span><span class="o">)</span>
+</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
+</span><span class='line'>      <span class="n">linkParams</span><span class="o">.</span><span class="na">max</span> <span class="o">=</span> <span class="n">max</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">sort</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">sort</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">sort</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">order</span><span class="o">)</span> <span class="n">linkParams</span><span class="o">.</span><span class="na">order</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="na">order</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">def</span> <span class="n">linkTagAttrs</span> <span class="o">=</span> <span class="o">[</span><span class="nl">action:</span><span class="n">action</span><span class="o">]</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">controller</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">controller</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">id</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="na">id</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">params</span> <span class="o">=</span> <span class="n">linkParams</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// determine paging variables</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">isFirstStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">def</span> <span class="n">isLastStep</span> <span class="o">=</span> <span class="o">(</span><span class="n">total</span> <span class="o">&lt;</span> <span class="n">max</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// display previous link when not on firststep</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isFirstStep</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">prevLink</span><span class="err">&#39;</span>
+</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">max</span>
+</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">prev</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">prev</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Previous</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// display next link when not on laststep</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">isLastStep</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">class</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">nextLink</span><span class="err">&#39;</span>
+</span><span class='line'>          <span class="n">linkParams</span><span class="o">.</span><span class="na">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">max</span>
+</span><span class='line'>          <span class="n">writer</span> <span class="o">&lt;&lt;</span> <span class="n">link</span><span class="o">(</span><span class="n">linkTagAttrs</span><span class="o">.</span><span class="na">clone</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>              <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">?</span> <span class="n">attrs</span><span class="o">.</span><span class="na">next</span> <span class="o">:</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="n">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">messageSource</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="err">&#39;</span><span class="k">default</span><span class="o">.</span><span class="na">paginate</span><span class="o">.</span><span class="na">next</span><span class="err">&#39;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="err">&#39;</span><span class="n">Next</span><span class="err">&#39;</span><span class="o">,</span> <span class="n">locale</span><span class="o">),</span> <span class="n">locale</span><span class="o">))</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Eric Berry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-24T00:00:00-07:00" pubdate data-updated="true">Nov 24<span>th</span>, 2010</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/grails/'>Grails</a>, <a class='category' href='/blog/categories/postgres/'>Postgres</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/" data-via="cavneb" data-counturl="http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/10/28/roll-your-own-ajax-based-captcha-in-grails/" title="Previous Post: Roll your own Ajax-Based Captcha in Grails">&laquo; Roll your own Ajax-Based Captcha in Grails</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/03/29/multi-associative-gorm-criteria-with-projections/" title="Next Post: Multi-Associative GORM Criteria with Projections">Multi-Associative GORM Criteria with Projections &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/me" alt="About Me">About Me</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub's Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/';
+        var disqus_url = 'http://coderberry.me/blog/2010/11/24/paginator-for-those-suffering-from-postgresql-count-star-speed-issues/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

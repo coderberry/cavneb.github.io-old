@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Groovy | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/groovy/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Stupid Simple POST/GET with Groovy HTTPBuilder]]></title>
+    <link href="http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/"/>
+    <updated>2012-05-07T16:57:00-06:00</updated>
+    <id>http://coderberry.me/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder</id>
+    <content type="html"><![CDATA[<p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
+
+<p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="n">runtime</span> <span class="s">&quot;:rest:0.7&quot;</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Here's the code. I placed it in <code>/src/groovy/com/berry/utils/ApiConsumer.groovy</code></p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>src/groovy/com/berry/utils/ApiConsumer.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">berry</span><span class="o">.</span><span class="na">utils</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kn">import</span> <span class="nn">groovyx.net.http.HTTPBuilder</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.ContentType</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.Method</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.RESTClient</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kd">class</span> <span class="nc">ApiConsumer</span> <span class="o">{&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kd">static</span> <span class="n">def</span> <span class="n">postText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">Method</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">def</span> <span class="n">ret</span> <span class="o">=</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="n">def</span> <span class="n">http</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HTTPBuilder</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// perform a POST request, expecting TEXT response</span>
+</span><span class='line'>        <span class="n">http</span><span class="o">.</span><span class="na">request</span><span class="o">(</span><span class="n">method</span><span class="o">,</span> <span class="n">ContentType</span><span class="o">.</span><span class="na">TEXT</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">uri</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>            <span class="n">uri</span><span class="o">.</span><span class="na">query</span> <span class="o">=</span> <span class="n">query</span>
+</span><span class='line'>            <span class="n">headers</span><span class="o">.</span><span class="err">&#39;</span><span class="n">User</span><span class="o">-</span><span class="n">Agent</span><span class="err">&#39;</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">Mozilla</span><span class="o">/</span><span class="mf">5.0</span> <span class="n">Ubuntu</span><span class="o">/</span><span class="mf">8.10</span> <span class="n">Firefox</span><span class="o">/</span><span class="mf">3.0</span><span class="o">.</span><span class="mi">4</span><span class="err">&#39;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// response handler for a success response code</span>
+</span><span class='line'>            <span class="n">response</span><span class="o">.</span><span class="na">success</span> <span class="o">=</span> <span class="o">{</span> <span class="n">resp</span><span class="o">,</span> <span class="n">reader</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="o">;</span>
+</span><span class='line'>                <span class="n">println</span> <span class="s">&quot;response status: ${resp.statusLine}&quot;</span>
+</span><span class='line'>                <span class="n">println</span> <span class="err">&#39;</span><span class="nl">Headers:</span> <span class="o">-----------</span><span class="err">&#39;</span>
+</span><span class='line'>                <span class="n">resp</span><span class="o">.</span><span class="na">headers</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">h</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="o">;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="s">&quot; ${h.name} : ${h.value}&quot;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">ret</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">getText</span><span class="o">()</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">println</span> <span class="err">&#39;</span><span class="n">Response</span> <span class="nl">data:</span> <span class="o">-----</span><span class="err">&#39;</span>
+</span><span class='line'>                <span class="n">println</span> <span class="n">ret</span>
+</span><span class='line'>                <span class="n">println</span> <span class="err">&#39;</span><span class="o">--------------------</span><span class="err">&#39;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">ret</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">groovyx</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">http</span><span class="o">.</span><span class="na">HttpResponseException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">ConnectException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">static</span> <span class="n">def</span> <span class="nf">getText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">postText</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">Method</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>With this new class, we can easily perform requests.</p>
+
+<p>```java
+def url = "http://myexample.com"
+def path = "/path/to/api"
+def query = [ firstName: "Eric", lastName: "Berry", email: "cavneb@gmail.com" ]</p>
+
+<p>// Submit a request via GET
+def response = ApiConsumer.getText(url, path, query)</p>
+
+<p>// Submit a request via POST
+def response = ApiConsumer.postText(url, path, query)
+```</p>
+
+<p>I hope this helps.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Grails Domain Classes and Enums]]></title>
+    <link href="http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums/"/>
+    <updated>2012-04-23T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2012/04/23/grails-domain-classes-and-enums</id>
+    <content type="html"><![CDATA[<p>For a long time, I have been creating static int values to represent states in domain classes. For example, I would have something like the following:</p>
+
+<p>```java
+package org.example</p>
+
+<p>class PluginPendingApproval {</p>
+
+<p>  static final int STATUS_PENDING  = 1
+  static final int STATUS_APPROVED = 2
+  static final int STATUS_REJECTED = 3</p>
+
+<p>  int status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false, inList: [
+  STATUS_PENDING_APPROVAL, STATUS_APPROVED, STATUS_REJECTED
+]
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>Peter Ledbrook ( <a href="https://twitter.com/#!/pledbrook">@pledbrook</a> ) gave me some tips on how to handle this better using <code>Enums</code>. Enum values should always be in uppercase letters because they are constants in the fixed set. If we were to refactor the code above, it would something more like this:</p>
+
+<p>```java
+package org.example</p>
+
+<p>class PluginPendingApproval {</p>
+
+<p>  enum ApprovalStatus {</p>
+
+<pre><code>PENDING, APPROVED, REJECTED
+</code></pre>
+
+<p>  }</p>
+
+<p>  ApprovalStatus status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>This works great for a single domain class, but what if I wanted to use the same Enum in two different domain classes. For example:</p>
+
+<p>```java
+// PluginPendingApproval.groovy
+package org.example</p>
+
+<p>class PluginPendingApproval {</p>
+
+<p>  static hasMany = [pluginPendingApprovalRequests: PluginPendingApprovalRequest]</p>
+
+<p>  enum ApprovalStatus {</p>
+
+<pre><code>PENDING, APPROVED, REJECTED
+</code></pre>
+
+<p>  }</p>
+
+<p>  ApprovalStatus status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false
+</code></pre>
+
+<p>  }</p>
+
+<p>}</p>
+
+<p>// PluginPendingApprovalRequest.groovy
+package org.example</p>
+
+<p>class PluginPendingApprovalRequest {</p>
+
+<p>  static belongsTo = [pluginPendingApproval: PluginPendingApproval]</p>
+
+<p>  enum ApprovalStatus {</p>
+
+<pre><code>PENDING, APPROVED, REJECTED
+</code></pre>
+
+<p>  }</p>
+
+<p>  ApprovalStatus status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>I could keep do it this way where I have the enum code duplicated in two places, but that doesn't follow the DRY principal.</p>
+
+<p>Let's refactor this and create a new Enum class that both domain classes can use:</p>
+
+<p>```java
+package org.example</p>
+
+<p>public enum ApprovalStatusEnum {</p>
+
+<pre><code>PENDING, APPROVED, REJECTED
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Now both of my domain classes can access the same Enum:</p>
+
+<p>```java
+// PluginPendingApproval.groovy
+package org.example</p>
+
+<p>class PluginPendingApproval {</p>
+
+<p>  static hasMany = [pluginPendingApprovalRequests: PluginPendingApprovalRequest]</p>
+
+<p>  ApprovalStatus status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false
+</code></pre>
+
+<p>  }</p>
+
+<p>}</p>
+
+<p>// PluginPendingApprovalRequest.groovy
+package org.example</p>
+
+<p>class PluginPendingApprovalRequest {</p>
+
+<p>  static belongsTo = [pluginPendingApproval: PluginPendingApproval]</p>
+
+<p>  ApprovalStatus status</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>status blank: false
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>For more information on Enums in Groovy, see <a href="http://groovy.codehaus.org/Using+Enums">http://groovy.codehaus.org/Using+Enums</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Groovy &amp; Grails - Want to know more?]]></title>
+    <link href="http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more/"/>
+    <updated>2011-10-18T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2011/10/18/groovy-and-grails-want-to-know-more</id>
+    <content type="html"><![CDATA[<p>For those who are new to Groovy and Grails, here are a list of screencasts I created a while ago, along with a couple of slideshare presentations.</p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/uF3ilkcXMjM" frameborder="0" allowfullscreen></iframe>
+
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/ahRMgvKbVLI" frameborder="0" allowfullscreen></iframe>
+
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/ILL2TXAF04k" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/3379277" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+
+
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/3261710" width="590" height="460" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Tag Lib within Controllers and Services]]></title>
+    <link href="http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
+    <updated>2010-10-07T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
+    <content type="html"><![CDATA[<p>So let's say you want to utilize the standard grails tag lib
+of formatNumber within your domain class, controller or
+service. How would you go about doing it? With the help of a
+blog post by <a href="http://lucastex.com.br/2010/02/03/como-acessar-uma-taglib-de-dentro-de-um-service/">Lucas Teixeira</a>, I was able to get it working without
+an issue. Here is the code:</p>
+
+<p>``` java
+class Book {</p>
+
+<p>  def grailsApplication</p>
+
+<p>  String title
+  Float cost</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>title(blank: false)
+cost(blank: false)
+</code></pre>
+
+<p>  }</p>
+
+<p>  def String toDisplayString() {</p>
+
+<pre><code>def g = grailsApplication.mainContext.getBean(
+  'org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib'
+)
+return "${title} costs ${g.formatNumber(
+  [number: cost, type: "currency", currencyCode: "USD"]
+)}"
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>It's also simple to utilize your own tag libs as well. Here's a tag lib that I created to help with XML formatting:</p>
+
+<p>``` java
+class CommonTagLib {</p>
+
+<pre><code>static namespace = 'berry'
+
+def formatXML = { attrs, body -&gt;
+    String rawXML = body().toString()
+    try {
+        def slurpedXML = new XmlSlurper().parseText(rawXML)
+        def writer = new StringWriter()
+        new XmlNodePrinter(new PrintWriter(writer)).print(slurpedXML)
+        def formattedResponse = writer.toString()
+        out &lt;&lt; formattedResponse
+    } catch(Exception e) {
+        log.info "Unable to parse XML: ${e.message}"
+        out &lt;&lt; rawXML
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>So to call this tag lib in the domain class, controller or service, I just need to do the following:</p>
+
+<p><code>java
+def berry = grailsApplication.mainContext.getBean('CommonTagLib')
+return berry.formatXML("....")
+</code></p>
+
+<p>Just make sure that you include the 'def grailsApplication' in the beginning.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Criteria Builder with Projections]]></title>
+    <link href="http://coderberry.me/blog/2010/10/06/using-criteria-builder-with-projections/"/>
+    <updated>2010-10-06T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2010/10/06/using-criteria-builder-with-projections</id>
+    <content type="html"><![CDATA[<p>Something I had to dig around for today was how to perform a sum on a table using Criteria Builder. It seems that it is treated a bit different than a normal query would be. Here is an example of what I tried and failed at:</p>
+
+<p>``` java
+def c = Transaction.createCriteria()
+def cnt = c.get {
+  projections {</p>
+
+<pre><code>sum("amount")
+</code></pre>
+
+<p>  }
+  and {</p>
+
+<pre><code>eq("status", k)
+eq("transactionType", transactionType)
+ge("dateTimeProcessed", cal1.getTime())
+le("dateTimeProcessed", cal2.getTime())
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>After playing around with it a bit, I found that I can't use the 'and' closure. I revised the code to the following and it worked:</p>
+
+<p>``` java
+def c = Transaction.createCriteria()
+def cnt = c.get {
+  projections {</p>
+
+<pre><code>sum("amount")
+</code></pre>
+
+<p>  }
+  eq("status", k)
+  eq("transactionType", transactionType)
+  ge("dateTimeProcessed", cal1.getTime())
+  le("dateTimeProcessed", cal2.getTime())
+}
+```</p>
+]]></content>
+  </entry>
+  
+</feed>

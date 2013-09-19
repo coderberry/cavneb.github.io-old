@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: TagLib | coderberry]]></title>
+  <link href="http://coderberry.me/blog/categories/taglib/atom.xml" rel="self"/>
+  <link href="http://coderberry.me/"/>
+  <updated>2013-08-30T14:57:23-06:00</updated>
+  <id>http://coderberry.me/</id>
+  <author>
+    <name><![CDATA[Eric Berry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using Tag Lib within Controllers and Services]]></title>
+    <link href="http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services/"/>
+    <updated>2010-10-07T00:00:00-06:00</updated>
+    <id>http://coderberry.me/blog/2010/10/07/using-tag-lib-within-controllers-and-services</id>
+    <content type="html"><![CDATA[<p>So let's say you want to utilize the standard grails tag lib
+of formatNumber within your domain class, controller or
+service. How would you go about doing it? With the help of a
+blog post by <a href="http://lucastex.com.br/2010/02/03/como-acessar-uma-taglib-de-dentro-de-um-service/">Lucas Teixeira</a>, I was able to get it working without
+an issue. Here is the code:</p>
+
+<p>``` java
+class Book {</p>
+
+<p>  def grailsApplication</p>
+
+<p>  String title
+  Float cost</p>
+
+<p>  static constraints = {</p>
+
+<pre><code>title(blank: false)
+cost(blank: false)
+</code></pre>
+
+<p>  }</p>
+
+<p>  def String toDisplayString() {</p>
+
+<pre><code>def g = grailsApplication.mainContext.getBean(
+  'org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib'
+)
+return "${title} costs ${g.formatNumber(
+  [number: cost, type: "currency", currencyCode: "USD"]
+)}"
+</code></pre>
+
+<p>  }</p>
+
+<p>}
+```</p>
+
+<p>It's also simple to utilize your own tag libs as well. Here's a tag lib that I created to help with XML formatting:</p>
+
+<p>``` java
+class CommonTagLib {</p>
+
+<pre><code>static namespace = 'berry'
+
+def formatXML = { attrs, body -&gt;
+    String rawXML = body().toString()
+    try {
+        def slurpedXML = new XmlSlurper().parseText(rawXML)
+        def writer = new StringWriter()
+        new XmlNodePrinter(new PrintWriter(writer)).print(slurpedXML)
+        def formattedResponse = writer.toString()
+        out &lt;&lt; formattedResponse
+    } catch(Exception e) {
+        log.info "Unable to parse XML: ${e.message}"
+        out &lt;&lt; rawXML
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>So to call this tag lib in the domain class, controller or service, I just need to do the following:</p>
+
+<p><code>java
+def berry = grailsApplication.mainContext.getBean('CommonTagLib')
+return berry.formatXML("....")
+</code></p>
+
+<p>Just make sure that you include the 'def grailsApplication' in the beginning.</p>
+]]></content>
+  </entry>
+  
+</feed>

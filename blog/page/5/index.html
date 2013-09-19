@@ -1,0 +1,670 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>coderberry</title>
+  <meta name="author" content="Eric Berry">
+
+  
+  <meta name="description" content="Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://coderberry.me/blog/page/5">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="coderberry" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-26417518-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+</hgroup>
+
+</header>
+  <!-- <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:coderberry.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav> -->
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/">Airbrake Exception Logging in Your Grails Application</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-11T14:34:00-06:00" pubdate data-updated="true">Sep 11<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/09/11/airbrake-exception-logging-in-your-grails-application/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Airbrake has a Java library that can be used in your Grails application fairly easily. A couple of items that the library doesn&#8217;t do is make it simple to pass session / request data to Airbrake. I also found that the backtrace is somewhat jumbled when viewing it on Airbrake. <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> wrote an excellent plugin to enhance the library. I have recently published an <a href="https://github.com/cavneb/airbrake-grails">updated version</a> of the plugin (with Phuong&#8217;s consent) to the <a href="http://grails.org/plugin/airbrake">Grails plugin repository</a>.</p>
+
+<p>Let&#8217;s take a look at how simple it is to use.</p>
+
+<h3>Installation</h3>
+
+<p>Installation is very simple. Simply add the plugin to your <code>BuildConfig.groovy</code> file:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>plugins {
+</span><span class='line'>    runtime ":airbrake:0.4"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next time your app compiles, the plugin should be installed and ready to go.</p>
+
+<h3>Integration</h3>
+
+<p>It&#8217;s nearly as simple to integrate the notification process into your Grails application. This is done by adding a log4j appender into your <code>Config.groovy</code> file. Make sure that you update the appender config with the correct project API key from Airbrake.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
+</span><span class='line'>
+</span><span class='line'>log4j = {
+</span><span class='line'>  // Example of changing the log pattern for the default console appender:
+</span><span class='line'>  appenders {
+</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
+</span><span class='line'>      name: 'airbrake', 
+</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
+</span><span class='line'>      env: (isProd ? 'production' : 'development'),
+</span><span class='line'>      enabled: true
+</span><span class='line'>    )
+</span><span class='line'>    ...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the appender is in place, you need to let your Grails app know to use it as a global appender. Add <code>'airbrake'</code> to your root <code>debug</code> node:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def isProd = Environment.current == Environment.PRODUCTION
+</span><span class='line'>
+</span><span class='line'>log4j = {
+</span><span class='line'>  // Example of changing the log pattern for the default console appender:
+</span><span class='line'>  appenders {
+</span><span class='line'>    appender grails.plugins.airbrake.AirbrakeAppender (
+</span><span class='line'>      name: 'airbrake', 
+</span><span class='line'>      api_key: 'API_KEY', // replace with your Airbrake API key
+</span><span class='line'>      env: (isProd ? 'production' : 'development'),
+</span><span class='line'>      enabled: true
+</span><span class='line'>    )
+</span><span class='line'>    ...
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  root {
+</span><span class='line'>    debug 'stdout', 'airbrake' // This can be added to any log level, not only 'debug'
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once this is all in place, you should be able to test it out.</p>
+
+<h3>Testing</h3>
+
+<p>To test the Airbrake exception notification, an exception must be thrown in your application when running. The plugin offers a simple way to generate an exception without mucking around with your code.</p>
+
+<p>To force an exception, run your application and visit <a href="http://localhost:8080/airbrakeTest/simulateError">http://localhost:8080/airbrakeTest/throwException</a>. You should see a page similar to this:</p>
+
+<div style="padding: 20px; 
+      background: white; 
+      margin-top: 10px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;">
+  <img src="/images/posts/airbrake-grails-exception.png" style="display: block;"/>
+</div>
+
+
+<p>Now log into Airbrake.io and you should see your exception listed.</p>
+
+<div style="padding: 20px; 
+      background: #DADADA; 
+      margin-top: 10px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;">
+  <img src="/images/posts/airbrake-airbrake-exception-list.png" style="display: block;"/>
+  <img src="/images/posts/airbrake-airbrake-exception.png" style="display: block;"/>
+</div>
+
+
+<p>As you can see, not only is the stacktrace available, but also the request parameters and the session data.</p>
+
+<p>I wanted to thank <a href="https://github.com/plecong/grails-airbrake">Phuong LeCong</a> for his hard work on this. I also appreciate the Grails community, especially the core contributors for the hard work they do to keep us all happy developers.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/24/tools-i-use-as-a-developer/">Tools I Use as a Developer</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-24T15:48:00-06:00" pubdate data-updated="true">May 24<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/05/24/tools-i-use-as-a-developer/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="/images/posts/swiss_army_knife.jpg" class="fleft" align="top" />
+Like any craftsman, a developer has a toolbox filled with items that helps him perform his craft. At a recent &#8216;Tech Talk&#8217; at <a href="http://1on1.com">One on One</a>, I presented a few tools that I use in my day-to-day workings. At their request, I have compiled a list of each tool in my toolbox.</p>
+
+<p>I would love it if you would also add in the comments the tools that you use. I&#8217;m sure there are plenty out there that would make my life easier!</p>
+
+<div style="clear: both;"></div>
+
+
+<h2>Text Editors &amp; IDE&#8217;s</h2>
+
+<p>Depending on the language and framework I am working with I usually bounce between two choices: Sublime Text 2 and IntelliJ IDEA.</p>
+
+<ul>
+<li><p><a href="http://www.sublimetext.com/2">Sublime Text 2</a> is an excellent editor that meets my needs much more than <a href="http://macromates.com">TextMate</a>. I use this exclusively for all of my Ruby and Rails development. I enjoy how quick navigating between files is and how I can perform auto-alignment for hashes. The plugins are extremely simple to install using their plugin installer.</p></li>
+<li><p><a href="http://www.jetbrains.com/idea/">IntelliJ IDEA</a> is my editor of choice for anything Java or Groovy related. I have used it for a long long time with my Grails projects and I couldn&#8217;t be happier. It is amazing how intuitive the IDE is and the code completion makes it so I have built-in helpers in my code. Excellent app!</p></li>
+</ul>
+
+
+<h2>Browser Extensions</h2>
+
+<p>I usually only develop using the <a href="http://www.google.com/chrome">Chrome</a> browser. It seems to be the most suited for developers with their <em>Developer Tools</em>. I am constantly right clicking elements and selecting <em>Inspect Element</em> to view the source code, javascript console and CSS stylings for elements.</p>
+
+<p>Here are a couple of the plugins I use with Chrome:</p>
+
+<ul>
+<li><p><a href="https://chrome.google.com/webstore/detail/chklaanhfefbnpoihckbnefhakgolnmc">JSON View</a> - performs a &#8216;pretty print&#8217; of your JSON in the browser with the ability to open and close nodes. Priceless!</p></li>
+<li><p><a href="https://chrome.google.com/webstore/detail/oiaejidbmkiecgbjeifoejpgmdaleoha">Stylebot</a> - allows you to quickly manipulate the appearance of any website (using custom CSS). This was insanely helpful when I wanted to iteratively change the CSS on an existing site. Check it out!</p></li>
+</ul>
+
+
+<h2>Design Tools</h2>
+
+<ul>
+<li><p><a href="http://adobe.com/photoshop">Adobe Photoshop</a> - I like it better than Pixelmator.</p></li>
+<li><p><a href="http://www.colorschemer.com/">Color Schemer Studio 2</a> - I use this all the time for trying to pick colors for my applications. I am colorblind so it is extra helpful because it choses complementary colors for me.</p></li>
+<li><p><a href="http://colorsnapper.com/">ColorSnapper</a> - This is a lightweight picker that let&#8217;s me pick a color on the screen and places the hex directly into the clipboard. It also keeps track of the last 5 colors I&#8217;ve chosen. I use this most of the time.</p></li>
+</ul>
+
+
+<h2>Menu Bar Utilities</h2>
+
+<ul>
+<li><p><a href="http://www.lightheadsw.com/caffeine/">Caffeine</a> - When I go to meetings and bring my laptop I hate having my screen go to sleep (or even go darker). By clicking on this it keeps the laptop alive and awake.</p></li>
+<li><p><a href="http://www.growlvoice.com/">GrowlVoice</a> - This let&#8217;s me chat with my wife over google voice text messaging :D Not related to developing but it let&#8217;s me be more productive.</p></li>
+<li><p><a href="http://itunes.apple.com/us/app/flycut-clipboard-manager/id442160987?mt=12">Flycut (Clipboard Manager)</a> - Keeps the clipboard history in the menu bar.</p></li>
+<li><p><a href="http://skitch.com/">Skitch</a> - This isn&#8217;t exactly a menu bar app, but it does have a menu bar icon and trigger. I use this app ALL THE TIME when taking and sharing screenshots. It let&#8217;s you write on the screenshots as well.</p></li>
+</ul>
+
+
+<h2>Education</h2>
+
+<ul>
+<li><a href="http://railscasts.com/">Railscasts.com</a> - Ryan Bates taught me Rails. I&#8217;ll leave it at that.</li>
+</ul>
+
+
+<h2>Bookmarks</h2>
+
+<p>Over the years I have collected a bunch of useful websites that help me get stuff done.</p>
+
+<ul>
+<li><p><a href="http://www.webcreme.com/">WebCreme</a> - Web design inspiration.</p></li>
+<li><p><a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> - Simple and flexible HTML, CSS, and Javascript for popular user interface components and interactions.</p></li>
+<li><p><a href="http://rubular.com/">Rubular</a> - a [Not Just]Ruby regular expression editor (however it is useful with any language)</p></li>
+<li><p><a href="">Groovy Console</a> - Online Groovy console. Very handy!</p></li>
+<li><p><a href="http://pastie.org">Pastie.org</a> - Paste and share code snippets (private or public)</p></li>
+<li><p><a href="http://border-radius.com/">CSS3 Border Radius Gemerator</a> - Simple and easy to use.</p></li>
+<li><p><a href="http://html-ipsum.com/">HTML Ipsum</a> - Different types of &#8216;lorem ipsum&#8217; data that can be used mocking up stuff.</p></li>
+<li><p><a href="http://scriptsrc.net/">ScriptSrc.net</a> - &#8220;Tired of hunting down the script tag for the latest version of your Javascript Library of choice? Yeah we were too, so we built this page for you. Bookmark it man!&#8221;</p></li>
+<li><p><a href="http://copypastecharacter.com/">ℂ◉℗⒴ ℘ⓐṨͲℰ Ⓒℌ◭ℝ◬ℂ⒯℮ℛ</a> - A web and iPhone application for copying the ‘hidden’ characters that comes with the computer’s typefaces, to be pasted into emails, tweets, text documents, forums and whatever else you might need to spice up with an extra ♔, ฿ or, ❒.</p></li>
+<li><p><a href="http://css-tricks.com/examples/ButtonMaker/">Button Maker</a> - Nice little app to design a button with CSS and then copy the code.</p></li>
+<li><p><a href="https://irccloud.com">IRC Cloud</a> - Online IRC client. It stays online even if I&#8217;m not so I can view conversations I missed. Find me on #grails.</p></li>
+<li><p><a href="http://www.colorzilla.com/gradient-editor/">Ultimate CSS Gradient Generator</a> - A powerful Photoshop-like CSS gradient editor from ColorZilla.</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/">Stupid Simple POST/GET With Groovy HTTPBuilder</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-07T16:57:00-06:00" pubdate data-updated="true">May 7<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/05/07/stupid-simple-post-slash-get-with-groovy-httpbuilder/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I was frustrated as hell today finding <a href="http://groovy.329449.n5.nabble.com/HTTP-Builder-Post-Example-td366011.html">examples</a> <a href="http://www.javaworld.com/community/node/3017">on</a> <a href="http://groovy.codehaus.org/modules/http-builder/doc/post.html">how</a> <a href="http://codingandmore.blogspot.com/2011/07/groovy-http-builder-fetching-json-data.html">to</a> <a href="http://www.javaworld.com/community/node/3017">use</a> <a href="http://groovy.codehaus.org/modules/http-builder/home.html">HTTPBuilder</a> to perform a simple POST and GET request in my Grails application.</p>
+
+<p>I now have something that I can use. This code has a dependency on <code>groovyx.net.http</code> libraries. This is available without even thinking by including the <a href="http://grails.org/plugin/rest">Rest Plugin</a> into your app.</p>
+
+<figure class='code'><figcaption><span>grails-app/conf/BuildConfig.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">plugins</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="n">runtime</span> <span class="s">&quot;:rest:0.7&quot;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&#8217;s the code. I placed it in <code>/src/groovy/com/berry/utils/ApiConsumer.groovy</code></p>
+
+<figure class='code'><figcaption><span>src/groovy/com/berry/utils/ApiConsumer.groovy </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">berry</span><span class="o">.</span><span class="na">utils</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.HTTPBuilder</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.ContentType</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.Method</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">groovyx.net.http.RESTClient</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">ApiConsumer</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">def</span> <span class="nf">postText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">Method</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">ret</span> <span class="o">=</span> <span class="kc">null</span>
+</span><span class='line'>            <span class="n">def</span> <span class="n">http</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HTTPBuilder</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// perform a POST request, expecting TEXT response</span>
+</span><span class='line'>            <span class="n">http</span><span class="o">.</span><span class="na">request</span><span class="o">(</span><span class="n">method</span><span class="o">,</span> <span class="n">ContentType</span><span class="o">.</span><span class="na">TEXT</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">uri</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>                <span class="n">uri</span><span class="o">.</span><span class="na">query</span> <span class="o">=</span> <span class="n">query</span>
+</span><span class='line'>                <span class="n">headers</span><span class="o">.</span><span class="err">&#39;</span><span class="n">User</span><span class="o">-</span><span class="n">Agent</span><span class="err">&#39;</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">Mozilla</span><span class="o">/</span><span class="mf">5.0</span> <span class="n">Ubuntu</span><span class="o">/</span><span class="mf">8.10</span> <span class="n">Firefox</span><span class="o">/</span><span class="mf">3.0</span><span class="o">.</span><span class="mi">4</span><span class="err">&#39;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// response handler for a success response code</span>
+</span><span class='line'>                <span class="n">response</span><span class="o">.</span><span class="na">success</span> <span class="o">=</span> <span class="o">{</span> <span class="n">resp</span><span class="o">,</span> <span class="n">reader</span> <span class="o">-&gt;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="s">&quot;response status: ${resp.statusLine}&quot;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="nl">Headers:</span> <span class="o">-----------</span><span class="err">&#39;</span>
+</span><span class='line'>                    <span class="n">resp</span><span class="o">.</span><span class="na">headers</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">h</span> <span class="o">-&gt;</span>
+</span><span class='line'>                        <span class="n">println</span> <span class="s">&quot; ${h.name} : ${h.value}&quot;</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">ret</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">getText</span><span class="o">()</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="n">Response</span> <span class="nl">data:</span> <span class="o">-----</span><span class="err">&#39;</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="n">ret</span>
+</span><span class='line'>                    <span class="n">println</span> <span class="err">&#39;</span><span class="o">--------------------</span><span class="err">&#39;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">ret</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">groovyx</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">http</span><span class="o">.</span><span class="na">HttpResponseException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">ConnectException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">()</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">null</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="n">def</span> <span class="nf">getText</span><span class="o">(</span><span class="n">String</span> <span class="n">baseUrl</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nf">postText</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">,</span> <span class="n">Method</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this new class, we can easily perform requests.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">def</span> <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://myexample.com&quot;</span>
+</span><span class='line'><span class="n">def</span> <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;/path/to/api&quot;</span>
+</span><span class='line'><span class="n">def</span> <span class="n">query</span> <span class="o">=</span> <span class="o">[</span> <span class="nl">firstName:</span> <span class="s">&quot;Eric&quot;</span><span class="o">,</span> <span class="nl">lastName:</span> <span class="s">&quot;Berry&quot;</span><span class="o">,</span> <span class="nl">email:</span> <span class="s">&quot;cavneb@gmail.com&quot;</span> <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Submit a request via GET</span>
+</span><span class='line'><span class="n">def</span> <span class="n">response</span> <span class="o">=</span> <span class="n">ApiConsumer</span><span class="o">.</span><span class="na">getText</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Submit a request via POST</span>
+</span><span class='line'><span class="n">def</span> <span class="n">response</span> <span class="o">=</span> <span class="n">ApiConsumer</span><span class="o">.</span><span class="na">postText</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I hope this helps.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/6/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/4/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <ul id="recent_posts">
+    <li class="post"><a href="http://coderberry.me" alt="Home">Home</a></a>
+    <li class="post"><a href="http://coderberry.me/archives/" alt="Archives">Archive</a></li>
+    <li class="post"><a href="http://coderberry.me/me" alt="About Me">About Me</a></li>
+    <li class="post"><a href="http://coderberry.me/atom.xml" alt="subscribe feed">RSS Feed</a></li>
+  </ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/07/useful-ember-code-examples/">Useful Ember Code Examples</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/githubs-copy-to-clipboard-with-ember/">GitHub&#8217;s Copy to Clipboard With Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-3/">Authentication With EmberJS - Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-2/">Authentication With EmberJS - Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/08/authentication-with-emberjs-part-1/">Authentication With EmberJS - Part 1</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/cavneb">@cavneb</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'cavneb',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Eric Berry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'coderberry';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
