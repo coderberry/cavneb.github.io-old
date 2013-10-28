@@ -195,6 +195,10 @@ config.assets.precompile += %w( search.js )
 
 This configuration option appears by default in `config/environments/production.rb`.
 
+## Additional Reading
+
+[Mikel Lindsaar](http://twitter.com/@lindsaar) wrote an excellent post on [12 Tips for the Rails Asset Pipeline](http://www.reinteractive.net/posts/116-12-tips-for-the-rails-asset-pipeline). I highly recommend reading it.
+
 ## Summary
 
 As I said before, the asset pipeline has three goals: **precompile*, *concatenate* and *minify* assets.
