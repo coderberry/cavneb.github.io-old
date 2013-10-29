@@ -139,6 +139,12 @@ Sharing JavaScript via JSBin, JSFiddle, etc. is great but it can be hard to keep
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
       <td></td>
     </tr>
+    <tr>
+      <td><a href="http://jsbin.com/ORutIve/16/edit">Funny Gauge</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/julienknebel">@julienknebel</a></td>
+      <td><a href="http://front-back.com/an-ember-js-gauge-component">Blog Post</a></td>
+    </tr>
   </tbody>
 </table>
 
