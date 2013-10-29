@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | coderberry]]></title>
   <link href="http://coderberry.me/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-08-30T14:57:23-06:00</updated>
+  <updated>2013-10-28T07:45:07-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -223,6 +223,10 @@ end
 ```</p>
 
 <p>This configuration option appears by default in <code>config/environments/production.rb</code>.</p>
+
+<h2>Additional Reading</h2>
+
+<p><a href="http://twitter.com/@lindsaar">Mikel Lindsaar</a> wrote an excellent post on <a href="http://www.reinteractive.net/posts/116-12-tips-for-the-rails-asset-pipeline">12 Tips for the Rails Asset Pipeline</a>. I highly recommend reading it.</p>
 
 <h2>Summary</h2>
 
