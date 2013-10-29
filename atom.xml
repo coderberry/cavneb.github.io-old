@@ -4,7 +4,7 @@
   <title><![CDATA[coderberry]]></title>
   <link href="http://coderberry.me/atom.xml" rel="self"/>
   <link href="http://coderberry.me/"/>
-  <updated>2013-10-29T12:01:17-06:00</updated>
+  <updated>2013-10-29T12:14:57-06:00</updated>
   <id>http://coderberry.me/</id>
   <author>
     <name><![CDATA[Eric Berry]]></name>
@@ -149,6 +149,12 @@
       <td>components</td>
       <td><a href="https://twitter.com/cavneb">@cavneb</a></td>
       <td></td>
+    </tr>
+    <tr>
+      <td><a href="http://jsbin.com/ORutIve/16/edit">Funny Gauge</a></td>
+      <td>components</td>
+      <td><a href="https://twitter.com/julienknebel">@julienknebel</a></td>
+      <td><a href="http://front-back.com/an-ember-js-gauge-component">Blog Post</a></td>
     </tr>
   </tbody>
 </table>
