@@ -210,5 +210,3 @@ Two that I have used in the past are [JavaScript Tabifier](http://www.barelyfitz
 
 I hope you like this post. If you have any suggestions on future how-to topics you would like me to cover, please email me at cavneb@gmail.com.
 
-
-
