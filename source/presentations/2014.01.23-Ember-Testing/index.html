@@ -1,0 +1,797 @@
+<!--
+Google IO 2012 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahe <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ember Meetup</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="all" href="theme/css/app.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+<slide class="logoslide nobackground">
+  <article class="flexbox vcenter">
+    <span><img src="images/ember_logo.png"></span>
+    <hgroup>
+    <h3>Salt Lake City, UT</h3>
+    </hgroup>
+  </article>
+</slide>
+
+<slide class="title-slide segue nobackground">
+  <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+  <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+  <hgroup class="auto-fadein">
+    <h1 data-config-title><!-- populated from slide_config.json --></h1>
+    <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+    <p data-config-presenter><!-- populated from slide_config.json --></p>
+  </hgroup>
+</slide>
+
+
+<slide class="big" >
+  
+    <hgroup>
+      <h2>Agenda</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p>Things we'll cover:</p>
+<ul class="build">
+<li>Setting up Ember App for Testing</li>
+<li>Integration Tests</li>
+<li>Custom Test Helpers</li>
+<li>Testing XMLHttpRequests (XHR)</li>
+<li>Testing Handlebars Helpers</li>
+<li>Testing Routes</li>
+<li>Unit Testing</li>
+</ul></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Setup</h2>
+      <h3>Preparing your Ember App for testing</h3>
+    </hgroup>
+  
+</slide>
+
+<slide class="fill nobackground" >
+  
+    <hgroup>
+      <h2></h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><img src="/images/starter-kit-download.png"></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Setup</h2>
+      <h3>index.html</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="html">
+&lt;html&gt;
+&lt;body&gt;
+
+  &lt;!-- Handlebars templates go here --&gt;
+
+  &lt;script src=&quot;js/libs/jquery-1.10.2.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/libs/handlebars-1.1.2.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/libs/ember-1.3.1.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/app.js&quot;&gt;&lt;/script&gt;
+
+  &lt;!-- to activate the test runner, add the &quot;?test&quot; query string parameter --&gt;
+  &lt;script src=&quot;tests/runner.js&quot;&gt;&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Setup</h2>
+      <h3>tests/runner.js</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+if (window.location.search.indexOf(&quot;?test&quot;) !== -1) {
+  document.write(
+    '&lt;div id=&quot;qunit&quot;&gt;&lt;/div&gt;' +
+    '&lt;div id=&quot;qunit-fixture&quot;&gt;&lt;/div&gt;' +
+    '&lt;div id=&quot;ember-testing-container&quot;&gt;' +
+    '  &lt;div id=&quot;ember-testing&quot;&gt;&lt;/div&gt;' +
+    '&lt;/div&gt;' +
+    '&lt;link rel=&quot;stylesheet&quot; href=&quot;tests/runner.css&quot;&gt;' +
+    '&lt;link rel=&quot;stylesheet&quot; href=&quot;tests/vendor/qunit-1.12.0.css&quot;&gt;' +
+    '&lt;script src=&quot;tests/vendor/qunit-1.12.0.js&quot;&gt;&lt;/script&gt;' +
+    '&lt;script src=&quot;tests/tests.js&quot;&gt;&lt;/script&gt;'
+  )
+}
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Setup</h2>
+      <h3>tests/tests.js</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+// in order to see the app running inside the QUnit runner
+App.rootElement = '#ember-testing';
+
+// defer readiness of application and set router location to `none`
+App.setupForTesting();
+
+// inject test helpers into window's scope
+App.injectTestHelpers();
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Setup</h2>
+      <h3>Hello Test!</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+test("i kan pazz", function() {
+  ok(true, "Hello Test!");
+});
+</pre>
+
+<div style="text-align: center;">
+  <img src="/images/qunit-hello-tests.png">
+</div></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Integration Tests</h2>
+      <h3>Testing from the Outside In</h3>
+    </hgroup>
+  
+</slide>
+
+<slide class="big" >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>What are integration tests?</h3>
+    </hgroup>
+    <article ><ul class="build">
+<li>Test that different parts of the system work together</li>
+<li>Requires the application to be running (in test mode)</li>
+<li>Basically emulates a user and watches for expected results</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>Built-in Test Helpers</h3>
+    </hgroup>
+    <article ><div style="text-align: center; margin-top: -20px;">
+  <img src="/images/test-helpers.png">
+</div></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>TDD Time!</h3>
+    </hgroup>
+    <article class="flexbox vcenter"><p><img alt="TDD" src="/images/TDD.jpg" /></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>TDD Results</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+var listItemSelector = "ul li";
+
+test("show list of attendees", function() {
+  visit("/");
+
+  andThen(function() {
+    equal(find(listItemSelector).length, 3, "there are three attendees");
+    equal(find(listItemSelector + ":first").html(), "Eric", "first attendee is Eric");
+  });
+});
+
+...</article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>TDD Results</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+...
+
+test("add an attendee via the form", function() {
+  expect(2);
+
+  visit("/");
+  fillIn(".attendee-name", "Derek");
+  click("button.create");
+
+  andThen(function() {
+    equal(find(listItemSelector).length, 4, "4 attendees should exist");
+    equal(find(listItemSelector + ":last").html(), "Derek", "last attendee is Derek");
+  });
+});
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>TDD Results</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="html">
+&lt;script type=&quot;text/x-handlebars&quot; id=&quot;index&quot;&gt;
+  &lt;form {{action &quot;addAttendee&quot; on=&quot;submit&quot;}}&gt;
+    {{input type=&quot;text&quot; value=attendeeName class=&quot;attendee-name&quot; placeholder=&quot;Name&quot;}}
+    &lt;button type=&quot;submit&quot; class=&quot;create&quot;&gt;Add&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;ul&gt;
+  {{#each item in model}}
+    &lt;li&gt;{{item}}&lt;/li&gt;
+  {{/each}}
+  &lt;/ul&gt;
+&lt;/script&gt;
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Integration Tests</h2>
+      <h3>TDD Results</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+App.IndexRoute = Ember.Route.extend({
+  model: function() {
+    return ['Eric', 'Ryan', 'Aaron'];
+  }
+});
+
+App.IndexController = Ember.ArrayController.extend({
+  actions: {
+    addAttendee: function() {
+      this.pushObject(this.get('attendeeName'));
+    }
+  }
+});
+</pre></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Custom Test Helpers</h2>
+      <h3>Creating your own test helpers</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Custom Test Helpers</h2>
+      <h3>Ember.Test.registerHelper</h3>
+    </hgroup>
+    <article ><p>Helpers are injected when <code>App.injectTestHelpers()</code> is called.</p>
+<pre class="prettyprint" data-lang="javascript">
+Ember.Test.registerHelper('shouldHaveElementWithCount', 
+  function(app, selector, n, context) {
+    var el = findWithAssert(selector, context);
+    var count = el.length;
+    equal(n, count, "found it " + count + " times");
+  }
+);
+
+// shouldHaveElementWithCount("ul li", 3);
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Custom Test Helpers</h2>
+      <h3>Ember.Test.registerAsyncHelper</h3>
+    </hgroup>
+    <article ><p>Async Helpers will not run until prior async helpers complete.</p>
+<pre class="prettyprint" data-lang="javascript">
+Ember.Test.<b>registerAsyncHelper</b>('addAttendee',
+  function(app, name, context) {
+    <b>Ember.run(function() {</b>
+      fillIn(".attendee-name", name);
+      click("button.create");
+    <b>});</b>
+  }
+);
+
+// addAttendee("Stan");
+// addAttendee("Kyle");
+</pre></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>Mocking server responses</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>This works...</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+App.Person = Ember.Object.extend({});
+App.Person.reopenClass({
+  find: function() {
+    var url = "http://addressbook-api.herokuapp.com/contacts";
+    return Ember.$.getJSON(url).then(function(data) {
+      var people = Em.A([]);
+      data.contacts.forEach(function(d) {
+        people.pushObject(App.Person.create(d));
+      }); 
+      return people;
+    });
+  }
+});
+</pre>
+
+<p><a href="http://jsbin.com/OPeVeted/11/edit?html,js,output">http://jsbin.com/OPeVeted/11</a></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>... until you want to perform tests</h3>
+    </hgroup>
+    <article class="vcenter"><div style="text-align: center;">
+  <img src="/images/must-wrap-ember-run.png">
+</div>
+
+<p><br/>
+<pre class="prettyprint" data-lang="javascript">
+test("home page shows contacts", function() {
+  visit("/");
+  andThen(function() {
+    equal(find("ul li").length, 3, "three contacts are on the index page");
+  });
+});
+</pre></p>
+<p><a href="http://jsbin.com/OPeVeted/11/edit?html,js,output">http://jsbin.com/OPeVeted/11</a></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>Wrap Ember.$.ajax callbacks with Ember.run</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+function ajax(url, options) {
+  return new <b>Ember.RSVP.Promise</b>(function(resolve, reject){
+    options = options || {};
+    options.url = url;
+
+    <b>options.success = function(data) {
+      Ember.run(null, resolve, data);
+    };
+
+    options.error = function(jqxhr, status, something) {
+      Ember.run(null, reject, arguments);
+    };</b>
+
+    Ember.$.ajax(options);
+  });
+}
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>Wrap Ember.$.ajax callbacks with Ember.run</h3>
+    </hgroup>
+    <article ><iframe data-src="http://jsfiddle.net/cavneb/6mNHy/embedded/" style="margin-top:
+-20px; height: 430px;"></iframe></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><p>ic-ajax is an Ember-friendly jQuery.ajax wrapper</p>
+<ul>
+<li>returns RSVP promises</li>
+<li>makes apps more testable (resolves promises with Ember.run)</li>
+<li>makes testing ajax simpler with fixture support</li>
+<li>success and error callbacks are not supported</li>
+<li>does not resolve three arguments like <code>$.ajax</code> (real promises only resolve a single value). <code>ic.ajax</code> only resolves the response data from the request, while <code>ic.ajax.raw</code> resolves an object with the three "arguments" as keys if you need them.</li>
+</ul>
+<footer class="source"><a href="https://npmjs.org/package/ic-ajax">https://npmjs.org/package/ic-ajax</a></footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+var ajax = ic.ajax;
+App.ApplicationRoute = Ember.Route.extend({
+  model: function() {
+    return ajax('/foo');
+  }
+}
+
+// if you need access to the jqXHR or textStatus, use raw
+ajax.raw('/foo').then(function(result) {
+  // result.response
+  // result.textStatus
+  // result.jqXHR
+});
+</pre>
+
+<footer class="source"><a href="https://npmjs.org/package/ic-ajax">https://npmjs.org/package/ic-ajax</a></footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+ic.ajax.defineFixture('api/v1/courses', {
+  response: [{name: 'basket weaving'}],
+  jqXHR: {},
+  textStatus: 'success'
+});
+
+ic.ajax('api/v1/courses').then(function(result) {
+  deepEqual(result, ic.ajax.lookupFixture('api/v1/courses').response);
+});
+</pre>
+
+<footer class="source"><a href="https://npmjs.org/package/ic-ajax">https://npmjs.org/package/ic-ajax</a></footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+module("Integration: People", {
+    setup: function() {
+        ajax.defineFixture(contactsUrl, {
+            response: [
+                {first: 'Bob'},
+                {first: 'Jason'},
+                {first: 'Dan'}
+            ],
+            jqXHR: {},
+            textStatus: 'success'
+        });
+    },
+    teardown: function() {}
+});
+...
+</pre>
+
+<footer class="source"><a href="http://jsfiddle.net/cavneb/DvbGp/2/">http://jsfiddle.net/cavneb/DvbGp/2/</a></footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+...
+test("home page shows contacts", function() {
+    visit("/");
+
+    andThen(function() {
+        equal(find("ul li").length, 3, "three contacts are on the index page");
+        equal(find("ul li:first").text(), "Bob", "first contact should be Bob");
+    });
+});
+</pre>
+
+<footer class="source"><a href="http://jsfiddle.net/cavneb/DvbGp/2/">http://jsfiddle.net/cavneb/DvbGp/2/</a></footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing XMLHttpRequests</h2>
+      <h3>ic-ajax</h3>
+    </hgroup>
+    <article ><iframe data-src="http://jsfiddle.net/cavneb/DvbGp/2/embedded/" style="margin-top:
+-20px; height: 430px;"></iframe></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Testing Handlebars Helpers</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing Handlebars Helpers</h2>
+      <h3>Example</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+Ember.Handlebars.helper('upcase', function(value) {
+  return value.toUpperCase();
+});
+</pre>
+
+<pre class="prettyprint" data-lang="handlebars">
+{{#each person in controller}}
+  &lt;li&gt;{{upcase person.name}}&lt;/li&gt;
+{{/each}}
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing Handlebars Helpers</h2>
+      <h3>What Would Robert Do (WWRD)?</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+function createView(template, context){
+  if (!context) { context = {}; }
+  var View = Ember.View.extend({
+    controller: context,
+    template: Ember.Handlebars.compile(template)
+  });
+  return View.create();
+}
+
+function append(view){
+  Ember.run(function(){
+    view.appendTo('#qunit-fixture');
+  });
+}
+</pre>
+
+<footer class="source">
+  <a href="http://emberjs.jsbin.com/uYEWenaD/1/edit">http://emberjs.jsbin.com/uYEWenaD/1/edit</a>
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing Handlebars Helpers</h2>
+      <h3>What Would Robert Do (WWRD)?</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript" style="margin-top: -20px;">
+module("Handlebars Helpers");
+
+test('upcase', function(){
+  var view = createView("{{upcase 'something'}}");
+  append(view);
+
+  var renderedText = view.$().text();
+  equal(renderedText, 'SOMETHING', "Text rendered: " + renderedText);
+});
+</pre>
+
+<footer class="source">
+  <a href="http://emberjs.jsbin.com/uYEWenaD/1/edit">http://emberjs.jsbin.com/uYEWenaD/1/edit</a>
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Testing Routes</h2>
+      <h3>with some sprinkles of sinon.js</h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing Routes</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+var route, expectedModel;
+
+module("Unit: Index Route", {
+  setup: function() {
+    route = App.IndexRoute.create();
+  },
+  teardown: function() {
+    Ember.run(route, 'destroy');
+  }
+});
+
+test("it exists", function() {
+  expect(2);
+
+  ok(route);
+  ok(route instanceof Ember.Route);
+});
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Testing Routes</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="javascript">
+test("#model", sinon.test(function() {
+  expect(1);
+
+  expectedModel = [
+    { name: "Tyler" }
+  ];
+
+  <b>var stub = sinon.stub(App.Attendee, "find").returns(expectedModel);</b>
+
+  equal(route.model(), expectedModel, "model is correct");
+  ok(stub.called, "App.Attendee.find() was called");
+}));
+</pre></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Unit Testing</h2>
+      <h3>Low Level Testing</h3>
+    </hgroup>
+  
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <aside class="gdbar"><img src="images/ember_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+      <h2>Unit Testing Ember Controllers</h2>
+      <h3>Low Level Testing</h3>
+    </hgroup>
+  
+</slide>
+
+
+<slide class="thank-you-slide segue nobackground">
+  <aside class="gdbar right"><img src="images/ember_icon_128.png"></aside>
+  <article class="flexbox vleft auto-fadein">
+    <h2>Thank You!</h2>
+    <p>Feel free to contact me at any of the following:</p>
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+
+<!-- <slide class="logoslide dark nobackground">
+  <article class="flexbox vcenter">
+    <span><img src="images/ember_logo_white.png"></span>
+  </article>
+</slide> -->
+
+<slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
